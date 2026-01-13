@@ -900,6 +900,76 @@ async function gate14_trustPromotionIsolation(): Promise<GateResult> {
 }
 
 // =============================================================================
+// Gate 15: Marketing Surface Isolation
+// =============================================================================
+
+async function gate15_marketingSurfaceIsolation(): Promise<GateResult> {
+  const violations: string[] = []
+
+  const marketingPages = [
+    'app/about/page.tsx',
+    'app/contact/page.tsx',
+    'app/advertise-with-us/page.tsx',
+  ]
+
+  for (const page of marketingPages) {
+    if (!fs.existsSync(page)) continue
+
+    const content = fs.readFileSync(page, 'utf8')
+
+    // Must be server component (no 'use client')
+    if (content.includes("'use client'") || content.includes('"use client"')) {
+      violations.push(`${page}: must be server-only (no 'use client')`)
+    }
+
+    // No trust pipeline references
+    if (
+      content.includes('store_submissions') ||
+      content.includes('approveSubmission') ||
+      content.includes('rejectSubmission') ||
+      content.includes('getPendingSubmissions')
+    ) {
+      violations.push(`${page}: references trust pipeline`)
+    }
+
+    // No mutation logic
+    if (
+      content.includes('.insert(') ||
+      content.includes('.update(') ||
+      content.includes('.delete(')
+    ) {
+      violations.push(`${page}: contains mutation logic`)
+    }
+  }
+
+  // Sitemap must not include marketing pages
+  const sitemapPath = 'app/sitemap.ts'
+  if (fs.existsSync(sitemapPath)) {
+    const sitemap = fs.readFileSync(sitemapPath, 'utf8')
+    const marketingRoutes = ['/about', '/contact', '/advertise']
+    for (const route of marketingRoutes) {
+      if (sitemap.includes(`'${route}`) || sitemap.includes(`"${route}`)) {
+        violations.push(`sitemap.ts: must not include ${route}`)
+      }
+    }
+  }
+
+  return violations.length === 0
+    ? {
+        gate: 15,
+        name: 'Marketing Surface Isolation',
+        passed: true,
+        message: 'PASS: Marketing pages are read-only and sitemap-excluded',
+      }
+    : {
+        gate: 15,
+        name: 'Marketing Surface Isolation',
+        passed: false,
+        message: `FAIL: Marketing surface issues:\n  ${violations.join('\n  ')}`,
+      }
+}
+
+// =============================================================================
 // Main
 // =============================================================================
 
@@ -935,6 +1005,8 @@ async function runGate(gateNumber: number): Promise<GateResult> {
       return await gate13_sitemapCompleteness()
     case 14:
       return await gate14_trustPromotionIsolation()
+    case 15:
+      return await gate15_marketingSurfaceIsolation()
     default:
       return {
         gate: gateNumber,
@@ -964,8 +1036,8 @@ async function main() {
     process.exit(result.passed ? 0 : 1)
   }
 
-  // Run all Core Gates (0-10) + Scale Gates (11-13) + Trust Gates (14)
-  const allGates = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+  // Run all Core Gates (0-10) + Scale Gates (11-13) + Trust Gates (14) + Surface Gates (15)
+  const allGates = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
   const results: GateResult[] = []
 
   for (const gate of allGates) {
