@@ -451,6 +451,85 @@ async function gate8_countsConsistent(): Promise<GateResult> {
 }
 
 // =============================================================================
+// Gate 9: Tracked Outbound Actions (Slice 3)
+// =============================================================================
+
+async function gate9_trackedOutboundActions(): Promise<GateResult> {
+  const violations: string[] = []
+
+  const ctaFiles = [
+    { file: 'components/cta/PhoneLink.tsx', testId: 'phone-cta' },
+    { file: 'components/cta/DirectionsLink.tsx', testId: 'directions-cta' },
+    { file: 'components/cta/WebsiteLink.tsx', testId: 'website-cta' },
+  ]
+
+  // Check each CTA component
+  for (const { file, testId } of ctaFiles) {
+    if (!fs.existsSync(file)) {
+      violations.push(`${file} does not exist`)
+      continue
+    }
+
+    const content = fs.readFileSync(file, 'utf8')
+
+    // Must have data-testid
+    if (!content.includes(`data-testid="${testId}"`)) {
+      violations.push(`${file}: missing data-testid="${testId}"`)
+    }
+
+    // Must import trackOutboundEvent
+    if (!content.includes('trackOutboundEvent')) {
+      violations.push(`${file}: does not import/call trackOutboundEvent`)
+    }
+
+    // Must NOT have fetch()
+    if (content.includes('fetch(')) {
+      violations.push(`${file}: contains fetch() - violates adapter boundary`)
+    }
+  }
+
+  // Check lib/trackers/outbound.ts exists
+  if (!fs.existsSync('lib/trackers/outbound.ts')) {
+    violations.push('lib/trackers/outbound.ts does not exist')
+  } else {
+    const trackerContent = fs.readFileSync('lib/trackers/outbound.ts', 'utf8')
+    if (!trackerContent.includes('trackOutboundEvent')) {
+      violations.push('lib/trackers/outbound.ts: missing trackOutboundEvent export')
+    }
+    // Must NOT have fetch()
+    if (trackerContent.includes('fetch(')) {
+      violations.push('lib/trackers/outbound.ts: contains fetch() - should be console sink only')
+    }
+  }
+
+  // Check lib/events.ts exists
+  if (!fs.existsSync('lib/events.ts')) {
+    violations.push('lib/events.ts does not exist')
+  } else {
+    const eventsContent = fs.readFileSync('lib/events.ts', 'utf8')
+    if (!eventsContent.includes('OutboundEvent')) {
+      violations.push('lib/events.ts: missing OutboundEvent type')
+    }
+  }
+
+  if (violations.length > 0) {
+    return {
+      gate: 9,
+      name: 'Tracked Outbound Actions',
+      passed: false,
+      message: `FAIL: Tracked outbound action issues:\n  ${violations.join('\n  ')}`,
+    }
+  }
+
+  return {
+    gate: 9,
+    name: 'Tracked Outbound Actions',
+    passed: true,
+    message: 'PASS: CTA components use trackOutboundEvent with no fetch()',
+  }
+}
+
+// =============================================================================
 // Main
 // =============================================================================
 
@@ -474,6 +553,8 @@ async function runGate(gateNumber: number): Promise<GateResult> {
       return await gate7_adapterBoundary()
     case 8:
       return await gate8_countsConsistent()
+    case 9:
+      return await gate9_trackedOutboundActions()
     default:
       return {
         gate: gateNumber,
@@ -503,8 +584,8 @@ async function main() {
     process.exit(result.passed ? 0 : 1)
   }
 
-  // Run all Slice 0 + Slice 1 + Slice 2 gates
-  const allGates = [0, 1, 2, 3, 4, 5, 6, 7, 8]
+  // Run all Slice 0 + Slice 1 + Slice 2 + Slice 3 gates
+  const allGates = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
   const results: GateResult[] = []
 
   for (const gate of allGates) {

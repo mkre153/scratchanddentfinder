@@ -2,10 +2,11 @@
  * StoreCard Component
  *
  * Displays a store card with name, address, contact info, and services.
- * Tracked CTAs (data-testid) added in Slice 3.
+ * Uses tracked CTA components (Slice 3) for phone, directions, website.
  */
 
 import type { Store } from '@/lib/types'
+import { PhoneLink, DirectionsLink, WebsiteLink } from '@/components/cta'
 
 interface StoreCardProps {
   store: Store
@@ -92,13 +93,11 @@ export function StoreCard({ store, index }: StoreCardProps) {
                   d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
                 />
               </svg>
-              <a
-                href={`tel:${store.phone}`}
+              <PhoneLink
+                storeId={store.id}
+                phone={store.phone}
                 className="hover:text-blue-700 hover:underline"
-                data-testid="phone-cta"
-              >
-                {store.phone}
-              </a>
+              />
             </p>
           )}
 
@@ -118,17 +117,35 @@ export function StoreCard({ store, index }: StoreCardProps) {
                   d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"
                 />
               </svg>
-              <a
-                href={store.website}
-                target="_blank"
-                rel="noopener noreferrer"
+              <WebsiteLink
+                storeId={store.id}
+                url={store.website}
                 className="hover:text-blue-700 hover:underline"
-                data-testid="website-cta"
-              >
-                Visit Website
-              </a>
+              />
             </p>
           )}
+
+          {/* Directions */}
+          <p className="mt-1 flex items-center gap-1 text-gray-600">
+            <svg
+              className="h-4 w-4 flex-shrink-0"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
+              />
+            </svg>
+            <DirectionsLink
+              storeId={store.id}
+              address={store.address}
+              className="hover:text-blue-700 hover:underline"
+            />
+          </p>
 
           {/* Hours Status */}
           {todayHours && (
