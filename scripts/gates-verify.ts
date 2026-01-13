@@ -612,6 +612,208 @@ async function gate10_storeSubmissionIsolation(): Promise<GateResult> {
 }
 
 // =============================================================================
+// Gate 11: Deterministic Ordering (Slice 5)
+// =============================================================================
+
+async function gate11_deterministicOrdering(): Promise<GateResult> {
+  const violations: string[] = []
+  const queriesPath = 'lib/queries.ts'
+
+  if (!fs.existsSync(queriesPath)) {
+    return {
+      gate: 11,
+      name: 'Deterministic Ordering',
+      passed: false,
+      message: 'FAIL: lib/queries.ts does not exist',
+    }
+  }
+
+  const content = fs.readFileSync(queriesPath, 'utf8')
+
+  // Check getAllStates has ORDER BY name ASC
+  if (content.includes('getAllStates')) {
+    // Look for the function and its ordering
+    const statesMatch = content.match(/getAllStates[\s\S]*?\.order\(['"`](\w+)['"`]/m)
+    if (!statesMatch || statesMatch[1] !== 'name') {
+      violations.push('getAllStates: must order by name (alphabetical)')
+    }
+  }
+
+  // Check getCitiesByStateId has ORDER BY store_count DESC, name ASC
+  if (content.includes('getCitiesByStateId')) {
+    const citiesMatch = content.match(/getCitiesByStateId[\s\S]*?\.order\(['"`]store_count['"`][\s\S]*?\.order\(['"`]name['"`]/m)
+    if (!citiesMatch) {
+      violations.push('getCitiesByStateId: must order by store_count DESC, then name ASC')
+    }
+  }
+
+  // Check getStoresByCityId has ORDER BY is_featured DESC, name ASC
+  if (content.includes('getStoresByCityId')) {
+    const storesMatch = content.match(/getStoresByCityId[\s\S]*?\.order\(['"`]is_featured['"`][\s\S]*?\.order\(['"`]name['"`]/m)
+    if (!storesMatch) {
+      violations.push('getStoresByCityId: must order by is_featured DESC, then name ASC')
+    }
+  }
+
+  // Check getNearbyCities uses deterministic sorting
+  if (content.includes('getNearbyCities')) {
+    // Should have .sort() with localeCompare for name tiebreaker
+    if (!content.includes('localeCompare')) {
+      violations.push('getNearbyCities: must use localeCompare for deterministic name sorting')
+    }
+  }
+
+  if (violations.length > 0) {
+    return {
+      gate: 11,
+      name: 'Deterministic Ordering',
+      passed: false,
+      message: `FAIL: Ordering issues:\n  ${violations.join('\n  ')}`,
+    }
+  }
+
+  return {
+    gate: 11,
+    name: 'Deterministic Ordering',
+    passed: true,
+    message: 'PASS: All queries use deterministic ordering (name ASC, store_count DESC, featured DESC)',
+  }
+}
+
+// =============================================================================
+// Gate 12: Import Discipline (Slice 5)
+// =============================================================================
+
+async function gate12_importDiscipline(): Promise<GateResult> {
+  const violations: string[] = []
+  const importScriptPath = 'scripts/import-apify.ts'
+
+  if (!fs.existsSync(importScriptPath)) {
+    return {
+      gate: 12,
+      name: 'Import Discipline',
+      passed: false,
+      message: 'FAIL: scripts/import-apify.ts does not exist',
+    }
+  }
+
+  const content = fs.readFileSync(importScriptPath, 'utf8')
+
+  // Approved queries from VerticalProfile.discovery.queries
+  const approvedQueries = [
+    'scratch and dent appliances',
+    'discount appliances',
+    'appliance outlet',
+  ]
+
+  // Check that no search query generation/construction happens in the script
+  // The script should filter by category AFTER Apify returns data, not generate queries
+  if (content.includes('searchQuery') || content.includes('generateQuery')) {
+    violations.push('import-apify.ts: must NOT generate or construct search queries')
+  }
+
+  // Check for AI/dynamic query patterns
+  const forbiddenPatterns = [
+    'Math.random',
+    'Date.now()',  // Random seed
+    'crypto.random',
+  ]
+
+  for (const pattern of forbiddenPatterns) {
+    if (content.includes(pattern)) {
+      violations.push(`import-apify.ts: contains non-deterministic pattern "${pattern}"`)
+    }
+  }
+
+  // Check that category filtering exists (post-import qualification)
+  if (!content.includes('INCLUDE_CATEGORIES') && !content.includes('isRelevantCategory')) {
+    violations.push('import-apify.ts: must have category filtering for post-import qualification')
+  }
+
+  // Check that state lookup fails on unknown state (not auto-creates)
+  if (content.includes('createState') || content.includes('upsertState')) {
+    violations.push('import-apify.ts: must NOT auto-create states (should error on unknown state)')
+  }
+
+  if (violations.length > 0) {
+    return {
+      gate: 12,
+      name: 'Import Discipline',
+      passed: false,
+      message: `FAIL: Import discipline issues:\n  ${violations.join('\n  ')}`,
+    }
+  }
+
+  return {
+    gate: 12,
+    name: 'Import Discipline',
+    passed: true,
+    message: 'PASS: Import script uses category filtering, no query generation, no state auto-creation',
+  }
+}
+
+// =============================================================================
+// Gate 13: Sitemap Completeness (Slice 5)
+// =============================================================================
+
+async function gate13_sitemapCompleteness(): Promise<GateResult> {
+  const violations: string[] = []
+
+  // Check sitemap.ts structure
+  const sitemapPath = 'app/sitemap.ts'
+
+  if (!fs.existsSync(sitemapPath)) {
+    return {
+      gate: 13,
+      name: 'Sitemap Completeness',
+      passed: false,
+      message: 'FAIL: app/sitemap.ts does not exist',
+    }
+  }
+
+  const content = fs.readFileSync(sitemapPath, 'utf8')
+
+  // Must query states from DB
+  if (!content.includes('getAllStates') && !content.includes('states')) {
+    violations.push('sitemap.ts: must fetch states from database')
+  }
+
+  // Must query cities from DB (or iterate through states)
+  if (!content.includes('getCitiesByStateId') && !content.includes('cities')) {
+    violations.push('sitemap.ts: must fetch cities from database')
+  }
+
+  // Must use lib/urls.ts for URL generation
+  if (!content.includes('getStateUrl') && !content.includes('getCityUrl')) {
+    violations.push('sitemap.ts: must use getStateUrl/getCityUrl from lib/urls.ts')
+  }
+
+  // Must include homepage, all-states page
+  if (!content.includes('getHomepageUrl') && !content.includes("url: '/'")) {
+    violations.push('sitemap.ts: must include homepage URL')
+  }
+
+  // Must filter cities/states with store_count > 0 for indexing
+  // (This is a soft check - the actual logic should be in shouldIndexCity/shouldIndexState)
+
+  if (violations.length > 0) {
+    return {
+      gate: 13,
+      name: 'Sitemap Completeness',
+      passed: false,
+      message: `FAIL: Sitemap completeness issues:\n  ${violations.join('\n  ')}`,
+    }
+  }
+
+  return {
+    gate: 13,
+    name: 'Sitemap Completeness',
+    passed: true,
+    message: 'PASS: Sitemap fetches states/cities from DB and uses lib/urls.ts (run with DB for count verification)',
+  }
+}
+
+// =============================================================================
 // Main
 // =============================================================================
 
@@ -639,6 +841,12 @@ async function runGate(gateNumber: number): Promise<GateResult> {
       return await gate9_trackedOutboundActions()
     case 10:
       return await gate10_storeSubmissionIsolation()
+    case 11:
+      return await gate11_deterministicOrdering()
+    case 12:
+      return await gate12_importDiscipline()
+    case 13:
+      return await gate13_sitemapCompleteness()
     default:
       return {
         gate: gateNumber,
@@ -668,8 +876,8 @@ async function main() {
     process.exit(result.passed ? 0 : 1)
   }
 
-  // Run all Slice 0 + Slice 1 + Slice 2 + Slice 3 + Slice 4 gates
-  const allGates = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+  // Run all Core Gates (0-10) + Scale Gates (11-13)
+  const allGates = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
   const results: GateResult[] = []
 
   for (const gate of allGates) {

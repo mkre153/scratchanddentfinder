@@ -1,0 +1,9 @@
+{
+  "searchStringsArray": ["scratch and dent appliances"],
+  "locationQuery": "Oklahoma City, Oklahoma, USA",
+  "maxCrawledPlacesPerSearch": 100,
+  "language": "en",
+  "deeperCityScrape": false,
+  "oneReviewPerRow": false,
+  "allPlacesNoSearch": false
+}
