@@ -5,6 +5,7 @@ node_modules/
 # Next.js
 .next/
 out/
+next-env.d.ts
 
 # Environment
 .env
@@ -35,6 +36,8 @@ yarn-error.log*
 
 # Supabase
 supabase/.temp/
+supabase/.gitignore
+supabase/config.toml
 
 # Data exports (sensitive)
 data/*.json
