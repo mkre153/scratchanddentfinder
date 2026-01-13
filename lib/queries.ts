@@ -520,19 +520,19 @@ export async function approveSubmission(submissionId: string): Promise<Store> {
   }
 
   // 2. Look up the state by code (state field contains the 2-letter code)
-  const { data: state, error: stateError } = await supabaseAdmin
+  const { data: stateData, error: stateError } = await supabaseAdmin
     .from('states')
     .select('id, slug')
     .ilike('slug', submission.state)
-    .single()
+    .single<{ id: number; slug: string }>()
 
-  if (stateError || !state) {
+  if (stateError || !stateData) {
     throw new Error(`State not found for code: ${submission.state}`)
   }
 
   // 3. Get or create the city
   const city = await getOrCreateCity(
-    state.id,
+    stateData.id,
     submission.state,
     submission.city
   )
@@ -554,7 +554,7 @@ export async function approveSubmission(submissionId: string): Promise<Store> {
     slug: storeSlug,
     address: submission.street_address,
     city_id: city.id,
-    state_id: state.id,
+    state_id: stateData.id,
     zip: null,
     phone: submission.phone,
     website: submission.website,

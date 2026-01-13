@@ -8,6 +8,7 @@
  * Slice 1: Basic structure only
  * Slice 2: StoreCard, NearbyCities components
  * Slice 3: Lead tracking CTAs
+ * Slice 9: List/Map toggle (read-only visualization)
  */
 
 import type { Metadata } from 'next'
@@ -23,7 +24,7 @@ import {
   Breadcrumbs,
   getCityBreadcrumbs,
 } from '@/components/layout/Breadcrumbs'
-import { StoreCard, NearbyCities } from '@/components/directory'
+import { CityStoreSection, NearbyCities } from '@/components/directory'
 
 interface PageProps {
   params: Promise<{ state: string; city: string }>
@@ -96,32 +97,14 @@ export default async function CityPage({ params }: PageProps) {
         </div>
       </section>
 
-      {/* Store Listings */}
+      {/* Store Listings with List/Map Toggle — Slice 9 */}
       <section className="py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="mb-8 text-2xl font-bold text-gray-900">
-            Stores in {city.name}
-          </h2>
-
-          {stores.length === 0 ? (
-            /* Empty State */
-            <div className="rounded-lg bg-gray-50 p-8 text-center">
-              <h3 className="text-xl font-semibold text-gray-900">
-                No stores listed yet
-              </h3>
-              <p className="mt-2 text-gray-600">
-                Know a scratch and dent appliance store in {city.name}? Help us
-                grow our directory!
-              </p>
-            </div>
-          ) : (
-            /* Store List */
-            <div className="space-y-4">
-              {stores.map((store, index) => (
-                <StoreCard key={store.id} store={store} index={index} />
-              ))}
-            </div>
-          )}
+          <CityStoreSection
+            stores={stores}
+            cityName={city.name}
+            cityCenter={{ lat: city.lat ?? 0, lng: city.lng ?? 0 }}
+          />
         </div>
       </section>
 
