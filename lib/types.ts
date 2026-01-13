@@ -158,6 +158,8 @@ export interface StoreRow {
   lat: number | null
   lng: number | null
   is_approved: boolean
+  claimed_by: string | null
+  claimed_at: string | null
   created_at: string
   updated_at: string
 }
@@ -189,6 +191,8 @@ export interface Store {
   lat: number | null
   lng: number | null
   isApproved: boolean
+  claimedBy: string | null
+  claimedAt: string | null
 }
 
 // =============================================================================
@@ -347,4 +351,76 @@ export interface VerticalProfile {
     allowPhotos: boolean
     sourceAttributionRequired: boolean
   }
+}
+
+// =============================================================================
+// Store Claim (Slice 10 - Operator Control)
+// =============================================================================
+
+export interface StoreClaimRow {
+  id: string
+  store_id: number
+  user_id: string
+  status: 'pending' | 'approved' | 'rejected'
+  notes: string | null
+  created_at: string
+  reviewed_at: string | null
+  reviewed_by: string | null
+}
+
+export type StoreClaimInsert = Omit<StoreClaimRow, 'id' | 'created_at' | 'reviewed_at' | 'reviewed_by' | 'status'> & {
+  status?: 'pending'
+}
+
+export interface StoreClaim {
+  id: string
+  storeId: number
+  userId: string
+  status: 'pending' | 'approved' | 'rejected'
+  notes: string | null
+  createdAt: string
+  reviewedAt: string | null
+  reviewedBy: string | null
+}
+
+// =============================================================================
+// CTA Event (Slice 10 - Operator Control)
+// =============================================================================
+
+export interface CtaEventRow {
+  id: number
+  store_id: number
+  event_type: 'call' | 'directions' | 'website'
+  source_page: string
+  created_at: string
+}
+
+export type CtaEventInsert = Omit<CtaEventRow, 'id' | 'created_at'>
+
+export interface CtaEvent {
+  id: number
+  storeId: number
+  eventType: 'call' | 'directions' | 'website'
+  sourcePage: string
+  createdAt: string
+}
+
+// =============================================================================
+// Admin User (Slice 10 - Operator Control)
+// =============================================================================
+
+export interface AdminUserRow {
+  id: string
+  role: 'admin' | 'super_admin'
+  created_at: string
+  created_by: string | null
+}
+
+export type AdminUserInsert = Omit<AdminUserRow, 'created_at'>
+
+export interface AdminUser {
+  id: string
+  role: 'admin' | 'super_admin'
+  createdAt: string
+  createdBy: string | null
 }

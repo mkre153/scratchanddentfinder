@@ -1,5 +1,5 @@
 /**
- * Admin Submissions List - Slice 6: Trust Promotion, Slice 10: Auth Guardrails
+ * Admin Claims List - Slice 10: Operator Control
  *
  * Non-discoverable admin page:
  * - NOT in sitemap
@@ -7,43 +7,50 @@
  * - force-dynamic (no static rendering)
  * - Role-based auth (not just obscurity)
  *
- * Displays pending store submissions with Approve/Reject actions.
+ * Displays pending store ownership claims with Approve/Reject actions.
+ * Approved claims trigger database trigger to update stores.claimed_by.
  */
 
 export const dynamic = 'force-dynamic'
 
-import { getPendingSubmissions, approveSubmission, rejectSubmission } from '@/lib/queries'
-import { requireAdmin } from '@/lib/admin-auth'
+import { getPendingClaimsWithStores, approveClaim, rejectClaim } from '@/lib/queries'
+import { requireAdmin, getCurrentUserId } from '@/lib/admin-auth'
 import { revalidatePath } from 'next/cache'
 import Link from 'next/link'
 
 async function handleApprove(formData: FormData) {
   'use server'
-  const submissionId = formData.get('submissionId') as string
-  if (!submissionId) return
+  const claimId = formData.get('claimId') as string
+  if (!claimId) return
+
+  const userId = await getCurrentUserId()
+  if (!userId) return
 
   try {
-    await approveSubmission(submissionId)
-    revalidatePath('/admin/submissions/')
+    await approveClaim(claimId, userId)
+    revalidatePath('/admin/claims/')
   } catch (error) {
-    console.error('Failed to approve submission:', error)
+    console.error('Failed to approve claim:', error)
   }
 }
 
 async function handleReject(formData: FormData) {
   'use server'
-  const submissionId = formData.get('submissionId') as string
-  if (!submissionId) return
+  const claimId = formData.get('claimId') as string
+  if (!claimId) return
+
+  const userId = await getCurrentUserId()
+  if (!userId) return
 
   try {
-    await rejectSubmission(submissionId)
-    revalidatePath('/admin/submissions/')
+    await rejectClaim(claimId, userId)
+    revalidatePath('/admin/claims/')
   } catch (error) {
-    console.error('Failed to reject submission:', error)
+    console.error('Failed to reject claim:', error)
   }
 }
 
-export default async function AdminSubmissions() {
+export default async function AdminClaims() {
   const { isAuthorized } = await requireAdmin()
 
   if (!isAuthorized) {
@@ -57,13 +64,13 @@ export default async function AdminSubmissions() {
     )
   }
 
-  const submissions = await getPendingSubmissions()
+  const claims = await getPendingClaimsWithStores()
 
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="max-w-6xl mx-auto py-12 px-4">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Pending Submissions</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Pending Claims</h1>
           <Link
             href="/admin/"
             className="text-blue-600 hover:text-blue-800"
@@ -72,39 +79,40 @@ export default async function AdminSubmissions() {
           </Link>
         </div>
 
-        {submissions.length === 0 ? (
+        {claims.length === 0 ? (
           <div className="bg-white rounded-lg shadow p-8 text-center">
-            <p className="text-gray-600">No pending submissions</p>
+            <p className="text-gray-600">No pending ownership claims</p>
           </div>
         ) : (
           <div className="space-y-4">
-            {submissions.map((submission) => (
+            {claims.map((claim) => (
               <div
-                key={submission.id}
+                key={claim.id}
                 className="bg-white rounded-lg shadow p-6"
               >
                 <div className="flex justify-between items-start">
                   <div className="space-y-2">
                     <h2 className="text-xl font-semibold text-gray-900">
-                      {submission.businessName}
+                      {claim.storeName}
                     </h2>
-                    <p className="text-gray-600">
-                      {submission.streetAddress}, {submission.city}, {submission.state}
+                    <p className="text-gray-600">{claim.storeAddress}</p>
+                    <p className="text-sm text-gray-500">
+                      Claim ID: {claim.id}
                     </p>
-                    {submission.phone && (
-                      <p className="text-gray-600">Phone: {submission.phone}</p>
-                    )}
-                    {submission.website && (
-                      <p className="text-gray-600">Website: {submission.website}</p>
+                    <p className="text-sm text-gray-500">
+                      User ID: {claim.userId}
+                    </p>
+                    {claim.notes && (
+                      <p className="text-gray-600">Notes: {claim.notes}</p>
                     )}
                     <p className="text-sm text-gray-500">
-                      Submitted: {new Date(submission.submittedAt).toLocaleString()}
+                      Submitted: {new Date(claim.createdAt).toLocaleString()}
                     </p>
                   </div>
 
                   <div className="flex gap-2">
                     <form action={handleApprove}>
-                      <input type="hidden" name="submissionId" value={submission.id} />
+                      <input type="hidden" name="claimId" value={claim.id} />
                       <button
                         type="submit"
                         className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
@@ -114,7 +122,7 @@ export default async function AdminSubmissions() {
                     </form>
 
                     <form action={handleReject}>
-                      <input type="hidden" name="submissionId" value={submission.id} />
+                      <input type="hidden" name="claimId" value={claim.id} />
                       <button
                         type="submit"
                         className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"

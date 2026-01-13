@@ -71,6 +71,7 @@ async function gate1_noStoreRoutes(): Promise<GateResult> {
     'getStoreSubmitUrl', // URL helper
     'stores.ts', // Types file
     'stores:', // DB reference
+    '/admin/stores/', // Admin store management (Slice 10)
   ]
 
   const files = await glob('app/**/*.{ts,tsx}')
@@ -496,9 +497,10 @@ async function gate9_trackedOutboundActions(): Promise<GateResult> {
     if (!trackerContent.includes('trackOutboundEvent')) {
       violations.push('lib/trackers/outbound.ts: missing trackOutboundEvent export')
     }
-    // Must NOT have fetch()
-    if (trackerContent.includes('fetch(')) {
-      violations.push('lib/trackers/outbound.ts: contains fetch() - should be console sink only')
+    // Slice 10: fetch() now allowed for internal API persistence (/api/cta-event)
+    // Verify it uses the internal API route, not external URLs
+    if (trackerContent.includes('fetch(') && !trackerContent.includes('/api/cta-event')) {
+      violations.push('lib/trackers/outbound.ts: contains fetch() to non-internal endpoint')
     }
   }
 

@@ -22,6 +22,11 @@ import type {
   StoreSubmissionInsert,
   StoreSubmission,
   StoreSubmissionRow,
+  CtaEventInsert,
+  StoreClaimInsert,
+  StoreClaim,
+  StoreClaimRow,
+  AdminUserRow,
 } from '@/lib/types'
 
 // =============================================================================
@@ -78,6 +83,8 @@ function storeRowToModel(row: StoreRow): Store {
     lat: row.lat,
     lng: row.lng,
     isApproved: row.is_approved,
+    claimedBy: row.claimed_by,
+    claimedAt: row.claimed_at,
   }
 }
 
@@ -570,6 +577,8 @@ export async function approveSubmission(submissionId: string): Promise<Store> {
     lat: null,
     lng: null,
     is_approved: true,
+    claimed_by: null,
+    claimed_at: null,
   }
 
   const store = await upsertStore(storeInsert)
@@ -610,4 +619,306 @@ export async function rejectSubmission(submissionId: string): Promise<void> {
     .eq('status', 'pending')
 
   if (error) throw error
+}
+
+// =============================================================================
+// CTA Event Queries (Slice 10 - Operator Control)
+// =============================================================================
+
+/**
+ * Insert a CTA event for analytics tracking
+ * Events are raw data - leads table can be derived from these
+ */
+export async function insertCtaEvent(event: CtaEventInsert): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabaseAdmin as any)
+    .from('cta_events')
+    .insert(event)
+  if (error) throw error
+}
+
+// =============================================================================
+// Store Claim Queries (Slice 10 - Operator Control)
+// =============================================================================
+
+function storeClaimRowToModel(row: StoreClaimRow): StoreClaim {
+  return {
+    id: row.id,
+    storeId: row.store_id,
+    userId: row.user_id,
+    status: row.status,
+    notes: row.notes,
+    createdAt: row.created_at,
+    reviewedAt: row.reviewed_at,
+    reviewedBy: row.reviewed_by,
+  }
+}
+
+/**
+ * Create a store claim (pending admin approval)
+ * Does NOT modify stores.claimed_by - that happens via trigger on approval
+ */
+export async function createClaim(claim: StoreClaimInsert): Promise<StoreClaim> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabaseAdmin as any)
+    .from('store_claims')
+    .insert(claim)
+    .select()
+    .single()
+
+  if (error) throw error
+  return storeClaimRowToModel(data as StoreClaimRow)
+}
+
+/**
+ * Get all pending store claims (admin only)
+ */
+export async function getPendingClaims(): Promise<StoreClaim[]> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabaseAdmin as any)
+    .from('store_claims')
+    .select('*')
+    .eq('status', 'pending')
+    .order('created_at', { ascending: false })
+
+  if (error) throw error
+  return (data ?? []).map(storeClaimRowToModel)
+}
+
+/**
+ * Get all pending store claims with store info (admin only)
+ */
+export async function getPendingClaimsWithStores(): Promise<
+  Array<StoreClaim & { storeName: string; storeAddress: string }>
+> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabaseAdmin as any)
+    .from('store_claims')
+    .select('*, stores(name, address)')
+    .eq('status', 'pending')
+    .order('created_at', { ascending: false })
+
+  if (error) throw error
+  return (data ?? []).map(
+    (row: StoreClaimRow & { stores: { name: string; address: string } }) => ({
+      ...storeClaimRowToModel(row),
+      storeName: row.stores?.name ?? 'Unknown',
+      storeAddress: row.stores?.address ?? '',
+    })
+  )
+}
+
+/**
+ * Approve a store claim
+ * The database trigger will update stores.claimed_by automatically
+ */
+export async function approveClaim(
+  claimId: string,
+  reviewedBy: string
+): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabaseAdmin as any)
+    .from('store_claims')
+    .update({
+      status: 'approved',
+      reviewed_at: new Date().toISOString(),
+      reviewed_by: reviewedBy,
+    })
+    .eq('id', claimId)
+    .eq('status', 'pending')
+
+  if (error) throw error
+}
+
+/**
+ * Reject a store claim
+ */
+export async function rejectClaim(
+  claimId: string,
+  reviewedBy: string
+): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabaseAdmin as any)
+    .from('store_claims')
+    .update({
+      status: 'rejected',
+      reviewed_at: new Date().toISOString(),
+      reviewed_by: reviewedBy,
+    })
+    .eq('id', claimId)
+    .eq('status', 'pending')
+
+  if (error) throw error
+}
+
+// =============================================================================
+// Tier Management Queries (Slice 10 - Operator Control)
+// =============================================================================
+
+/**
+ * Get all stores for admin management (paginated)
+ */
+export async function getStoresForAdmin(
+  limit = 50,
+  offset = 0
+): Promise<{ stores: Store[]; total: number }> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error, count } = await (supabaseAdmin as any)
+    .from('stores')
+    .select('*', { count: 'exact' })
+    .order('name', { ascending: true })
+    .range(offset, offset + limit - 1)
+
+  if (error) throw error
+  return {
+    stores: (data ?? []).map(storeRowToModel),
+    total: count ?? 0,
+  }
+}
+
+/**
+ * Set store tier (does NOT modify is_featured)
+ * Tier ≠ Exposure. Tier is monetization status, is_featured is SEO exposure.
+ */
+export async function setStoreTier(
+  storeId: number,
+  tier: 'monthly' | 'annual' | 'lifetime' | null,
+  featuredUntil: string | null
+): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabaseAdmin as any)
+    .from('stores')
+    .update({
+      featured_tier: tier,
+      featured_until: featuredUntil,
+    })
+    .eq('id', storeId)
+
+  if (error) throw error
+}
+
+/**
+ * Set store featured status (SEO exposure toggle)
+ * Separate from tier - allows manual exposure control
+ */
+export async function setStoreFeatured(
+  storeId: number,
+  isFeatured: boolean
+): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabaseAdmin as any)
+    .from('stores')
+    .update({ is_featured: isFeatured })
+    .eq('id', storeId)
+
+  if (error) throw error
+}
+
+// =============================================================================
+// Admin Auth Queries (Slice 10 - Operator Control)
+// =============================================================================
+
+/**
+ * Check if a user is an admin
+ */
+export async function isAdmin(userId: string): Promise<boolean> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabaseAdmin as any)
+    .from('admin_users')
+    .select('id')
+    .eq('id', userId)
+    .maybeSingle()
+
+  if (error) throw error
+  return data !== null
+}
+
+/**
+ * Get admin role for a user (null if not admin)
+ */
+export async function getAdminRole(
+  userId: string
+): Promise<'admin' | 'super_admin' | null> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabaseAdmin as any)
+    .from('admin_users')
+    .select('role')
+    .eq('id', userId)
+    .maybeSingle()
+
+  if (error) throw error
+  return (data as AdminUserRow | null)?.role ?? null
+}
+
+// =============================================================================
+// Rate Limiting Queries (Slice 11 - Hardening)
+// =============================================================================
+
+/**
+ * Check CTA rate limit (durable, Postgres-based)
+ * Returns true if request is allowed, false if rate limited
+ */
+export async function checkCtaRateLimit(
+  ipHash: string,
+  storeId: number,
+  windowMinutes = 1,
+  maxEvents = 60
+): Promise<boolean> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabaseAdmin as any).rpc('check_cta_rate_limit', {
+    p_ip_hash: ipHash,
+    p_store_id: storeId,
+    p_window_minutes: windowMinutes,
+    p_max_events: maxEvents,
+  })
+
+  if (error) {
+    console.error('Rate limit check error:', error)
+    // On error, allow the request (fail open for availability)
+    return true
+  }
+
+  return data === true
+}
+
+/**
+ * Check store hourly rate limit (anti-abuse)
+ * Returns true if request is allowed, false if rate limited
+ */
+export async function checkStoreHourlyRateLimit(
+  storeId: number,
+  maxEvents = 1000
+): Promise<boolean> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabaseAdmin as any).rpc('check_store_hourly_rate_limit', {
+    p_store_id: storeId,
+    p_max_events: maxEvents,
+  })
+
+  if (error) {
+    console.error('Store rate limit check error:', error)
+    // On error, allow the request (fail open for availability)
+    return true
+  }
+
+  return data === true
+}
+
+/**
+ * Check if a store exists (validation before event insert)
+ */
+export async function storeExists(storeId: number): Promise<boolean> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabaseAdmin as any)
+    .from('stores')
+    .select('id')
+    .eq('id', storeId)
+    .maybeSingle()
+
+  if (error) {
+    console.error('Store existence check error:', error)
+    return false
+  }
+
+  return data !== null
 }

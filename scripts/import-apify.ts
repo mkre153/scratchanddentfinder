@@ -409,6 +409,8 @@ async function importApifyData(filePath: string, isDryRun: boolean): Promise<voi
         lat: null,
         lng: null,
         is_approved: true, // Apify imports are trusted
+        claimed_by: null,
+        claimed_at: null,
       }
 
       // Upsert store
