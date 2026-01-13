@@ -5,11 +5,10 @@
  * NO DATA ASSUMPTIONS: Renders safely with empty database.
  */
 
-import Link from 'next/link'
 import type { Metadata } from 'next'
-import { getStateUrl } from '@/lib/urls'
 import { generateAllStatesMetadata } from '@/lib/seo'
 import { getAllStates } from '@/lib/queries'
+import { StateCard } from '@/components/directory'
 
 export const metadata: Metadata = generateAllStatesMetadata()
 
@@ -94,22 +93,7 @@ export default async function AllStatesPage() {
                   </h2>
                   <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                     {statesByLetter[letter].map((state) => (
-                      <Link
-                        key={state.id}
-                        href={getStateUrl(state)}
-                        className="flex items-center gap-3 rounded-lg border bg-white p-4 shadow-sm transition hover:shadow-md"
-                      >
-                        <span className="text-2xl">{state.emoji}</span>
-                        <div>
-                          <div className="font-semibold text-gray-900">
-                            {state.name}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {state.storeCount} stores &middot; {state.cityCount}{' '}
-                            cities
-                          </div>
-                        </div>
-                      </Link>
+                      <StateCard key={state.id} state={state} />
                     ))}
                   </div>
                 </div>

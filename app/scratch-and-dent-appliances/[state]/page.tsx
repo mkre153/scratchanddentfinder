@@ -6,16 +6,15 @@
  * Uses lib/urls.ts for all route generation (Gate 5).
  */
 
-import Link from 'next/link'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { getCityUrl } from '@/lib/urls'
 import { generateStateMetadata } from '@/lib/seo'
 import { getStateBySlug, getCitiesByStateId } from '@/lib/queries'
 import {
   Breadcrumbs,
   getStateBreadcrumbs,
 } from '@/components/layout/Breadcrumbs'
+import { CityCard } from '@/components/directory'
 
 interface PageProps {
   params: Promise<{ state: string }>
@@ -99,16 +98,7 @@ export default async function StatePage({ params }: PageProps) {
             /* City Grid */
             <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
               {cities.map((city) => (
-                <Link
-                  key={city.id}
-                  href={getCityUrl(state, city)}
-                  className="rounded-lg border bg-white p-4 shadow-sm transition hover:shadow-md"
-                >
-                  <div className="font-semibold text-gray-900">{city.name}</div>
-                  <div className="text-sm text-gray-500">
-                    {city.storeCount} store{city.storeCount !== 1 ? 's' : ''}
-                  </div>
-                </Link>
+                <CityCard key={city.id} city={city} state={state} />
               ))}
             </div>
           )}

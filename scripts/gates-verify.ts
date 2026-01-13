@@ -357,6 +357,63 @@ async function gate6_sitemapWorks(): Promise<GateResult> {
 }
 
 // =============================================================================
+// Gate 4: Nearby Cities = 12 (data-testid verification)
+// =============================================================================
+
+async function gate4_nearbyCities(): Promise<GateResult> {
+  const violations: string[] = []
+
+  // Check NearbyCities component exists and has data-testid
+  const nearbyCitiesPath = 'components/directory/NearbyCities.tsx'
+
+  if (!fs.existsSync(nearbyCitiesPath)) {
+    return {
+      gate: 4,
+      name: 'Nearby Cities',
+      passed: false,
+      message: 'FAIL: components/directory/NearbyCities.tsx does not exist',
+    }
+  }
+
+  const content = fs.readFileSync(nearbyCitiesPath, 'utf8')
+
+  // Check for data-testid="nearby-cities"
+  if (!content.includes('data-testid="nearby-cities"')) {
+    violations.push('NearbyCities.tsx: missing data-testid="nearby-cities"')
+  }
+
+  // Check for data-testid="nearby-city-link"
+  if (!content.includes('data-testid="nearby-city-link"')) {
+    violations.push('NearbyCities.tsx: missing data-testid="nearby-city-link"')
+  }
+
+  // Check that queries.ts has getNearbyCities with limit=12 default
+  const queriesPath = 'lib/queries.ts'
+  if (fs.existsSync(queriesPath)) {
+    const queriesContent = fs.readFileSync(queriesPath, 'utf8')
+    if (!queriesContent.includes('limit: number = 12')) {
+      violations.push('lib/queries.ts: getNearbyCities should have limit=12 default')
+    }
+  }
+
+  if (violations.length > 0) {
+    return {
+      gate: 4,
+      name: 'Nearby Cities',
+      passed: false,
+      message: `FAIL: Nearby cities issues:\\n  ${violations.join('\\n  ')}`,
+    }
+  }
+
+  return {
+    gate: 4,
+    name: 'Nearby Cities',
+    passed: true,
+    message: 'PASS: NearbyCities component has data-testid and limit=12 default',
+  }
+}
+
+// =============================================================================
 // Gate 8: Counts Consistent
 // =============================================================================
 
@@ -407,6 +464,8 @@ async function runGate(gateNumber: number): Promise<GateResult> {
       return await gate2_noFormsOnDirectoryPages()
     case 3:
       return await gate3_canonicalsAndTrailingSlash()
+    case 4:
+      return await gate4_nearbyCities()
     case 5:
       return await gate5_routesOnlyInUrls()
     case 6:
@@ -444,8 +503,8 @@ async function main() {
     process.exit(result.passed ? 0 : 1)
   }
 
-  // Run all Slice 0 + Slice 1 gates
-  const allGates = [0, 1, 2, 3, 5, 6, 7, 8]
+  // Run all Slice 0 + Slice 1 + Slice 2 gates
+  const allGates = [0, 1, 2, 3, 4, 5, 6, 7, 8]
   const results: GateResult[] = []
 
   for (const gate of allGates) {

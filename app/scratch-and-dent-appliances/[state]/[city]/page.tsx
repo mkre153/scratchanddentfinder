@@ -1,7 +1,7 @@
 /**
  * City Page
  *
- * Shows stores in a city (placeholder for Slice 1).
+ * Shows stores in a city with nearby cities.
  * NO DATA ASSUMPTIONS: Renders safely with empty database.
  * Uses lib/urls.ts for all route generation (Gate 5).
  *
@@ -17,11 +17,13 @@ import {
   getStateBySlug,
   getCityBySlug,
   getStoresByCityId,
+  getNearbyCities,
 } from '@/lib/queries'
 import {
   Breadcrumbs,
   getCityBreadcrumbs,
 } from '@/components/layout/Breadcrumbs'
+import { StoreCard, NearbyCities } from '@/components/directory'
 
 interface PageProps {
   params: Promise<{ state: string; city: string }>
@@ -62,6 +64,9 @@ export default async function CityPage({ params }: PageProps) {
 
   // Fetch stores - ordered by is_featured DESC, name ASC from queries.ts
   const stores = await getStoresByCityId(city.id)
+
+  // Fetch nearby cities - exactly 12 (Gate 4)
+  const nearbyCities = await getNearbyCities(city, 12)
 
   return (
     <>
@@ -110,36 +115,18 @@ export default async function CityPage({ params }: PageProps) {
               </p>
             </div>
           ) : (
-            /* Store List Placeholder - StoreCard comes in Slice 2 */
+            /* Store List */
             <div className="space-y-4">
               {stores.map((store, index) => (
-                <div
-                  key={store.id}
-                  className="rounded-lg border bg-white p-6 shadow-sm"
-                >
-                  <div className="flex items-start gap-4">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-700">
-                      {index + 1}
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900">
-                        {store.name}
-                      </h3>
-                      <p className="text-gray-600">{store.address}</p>
-                      {store.phone && (
-                        <p className="mt-1 text-gray-600">{store.phone}</p>
-                      )}
-                    </div>
-                  </div>
-                </div>
+                <StoreCard key={store.id} store={store} index={index} />
               ))}
             </div>
           )}
         </div>
       </section>
 
-      {/* Nearby Cities - Component comes in Slice 2 */}
-      {/* <NearbyCities city={city} /> */}
+      {/* Nearby Cities */}
+      <NearbyCities cities={nearbyCities} state={state} currentCity={city} />
     </>
   )
 }
