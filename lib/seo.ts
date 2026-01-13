@@ -7,7 +7,15 @@
 
 import type { Metadata } from 'next'
 import { SITE_URL, SITE_NAME, DEFAULT_DESCRIPTION } from './config'
-import { getHomepageUrl, getAllStatesUrl, getStateUrl, getCityUrl } from './urls'
+import {
+  getHomepageUrl,
+  getAllStatesUrl,
+  getStateUrl,
+  getCityUrl,
+  getAboutUrl,
+  getContactUrl,
+  getAdvertiseUrl,
+} from './urls'
 import type { State, City } from './types'
 
 // =============================================================================
@@ -113,6 +121,52 @@ export function generateCityMetadata(
       canonical: getCanonicalUrl(getCityUrl(state, city)),
     },
     robots: shouldIndexCity(city) ? undefined : { index: false },
+  }
+}
+
+// =============================================================================
+// Marketing Page Metadata (Slice 7)
+// =============================================================================
+
+/**
+ * Generate metadata for about page
+ */
+export function generateAboutMetadata(): Metadata {
+  return {
+    title: `About Us | ${SITE_NAME}`,
+    description:
+      'Learn about Scratch & Dent Locator - helping families find affordable appliances with minor cosmetic damage at 30-70% off retail prices.',
+    alternates: {
+      canonical: getCanonicalUrl(getAboutUrl()),
+    },
+  }
+}
+
+/**
+ * Generate metadata for contact page
+ */
+export function generateContactMetadata(): Metadata {
+  return {
+    title: `Contact Us | ${SITE_NAME}`,
+    description:
+      'Get in touch with Scratch & Dent Locator. Questions about our directory, store submissions, or business inquiries.',
+    alternates: {
+      canonical: getCanonicalUrl(getContactUrl()),
+    },
+  }
+}
+
+/**
+ * Generate metadata for advertise page
+ */
+export function generateAdvertiseMetadata(): Metadata {
+  return {
+    title: `Advertise With Us | ${SITE_NAME}`,
+    description:
+      'Promote your appliance store on Scratch & Dent Locator. Featured listings get top placement and increased visibility.',
+    alternates: {
+      canonical: getCanonicalUrl(getAdvertiseUrl()),
+    },
   }
 }
 
