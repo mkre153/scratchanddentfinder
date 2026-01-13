@@ -530,6 +530,88 @@ async function gate9_trackedOutboundActions(): Promise<GateResult> {
 }
 
 // =============================================================================
+// Gate 10: Store Submission Isolation (Slice 4)
+// =============================================================================
+
+async function gate10_storeSubmissionIsolation(): Promise<GateResult> {
+  const violations: string[] = []
+
+  // 1. Check /stores/new/form.tsx exists and HAS a form
+  const formPath = 'app/stores/new/form.tsx'
+  if (!fs.existsSync(formPath)) {
+    violations.push('app/stores/new/form.tsx does not exist')
+  } else {
+    const formContent = fs.readFileSync(formPath, 'utf8')
+    if (!formContent.includes('<form')) {
+      violations.push('app/stores/new/form.tsx: missing <form> element')
+    }
+    // Must use createStoreSubmission, NOT createStore or upsertStore
+    // Check for function calls, not just substrings (createStoreSubmission contains createStore)
+    if (/\bcreateStore\s*\(/.test(formContent) || /\bupsertStore\s*\(/.test(formContent)) {
+      violations.push('app/stores/new/form.tsx: must NOT use createStore/upsertStore (use createStoreSubmission)')
+    }
+  }
+
+  // 2. Check lib/queries.ts has createStoreSubmission (isolated)
+  const queriesPath = 'lib/queries.ts'
+  if (fs.existsSync(queriesPath)) {
+    const queriesContent = fs.readFileSync(queriesPath, 'utf8')
+    if (!queriesContent.includes('createStoreSubmission')) {
+      violations.push('lib/queries.ts: missing createStoreSubmission function')
+    }
+    // createStoreSubmission must insert into store_submissions, NOT stores
+    const createSubmissionMatch = queriesContent.match(/createStoreSubmission[\s\S]*?\.from\(['"`](\w+)['"`]\)/m)
+    if (createSubmissionMatch && createSubmissionMatch[1] !== 'store_submissions') {
+      violations.push(`lib/queries.ts: createStoreSubmission must insert into 'store_submissions', found '${createSubmissionMatch[1]}'`)
+    }
+  }
+
+  // 3. Check lib/store-submission.ts exists for validation
+  if (!fs.existsSync('lib/store-submission.ts')) {
+    violations.push('lib/store-submission.ts does not exist')
+  } else {
+    const validationContent = fs.readFileSync('lib/store-submission.ts', 'utf8')
+    if (!validationContent.includes('validateSubmission')) {
+      violations.push('lib/store-submission.ts: missing validateSubmission function')
+    }
+  }
+
+  // 4. Check types.ts has StoreSubmissionInsert
+  const typesPath = 'lib/types.ts'
+  if (fs.existsSync(typesPath)) {
+    const typesContent = fs.readFileSync(typesPath, 'utf8')
+    if (!typesContent.includes('StoreSubmissionInsert')) {
+      violations.push('lib/types.ts: missing StoreSubmissionInsert type')
+    }
+    if (!typesContent.includes('StoreSubmissionRow')) {
+      violations.push('lib/types.ts: missing StoreSubmissionRow type')
+    }
+  }
+
+  // 5. Check migration exists
+  const migrationFiles = await glob('supabase/migrations/*store_submissions*.sql')
+  if (migrationFiles.length === 0) {
+    violations.push('No store_submissions migration found in supabase/migrations/')
+  }
+
+  if (violations.length > 0) {
+    return {
+      gate: 10,
+      name: 'Store Submission Isolation',
+      passed: false,
+      message: `FAIL: Store submission isolation issues:\n  ${violations.join('\n  ')}`,
+    }
+  }
+
+  return {
+    gate: 10,
+    name: 'Store Submission Isolation',
+    passed: true,
+    message: 'PASS: Store submissions are isolated from directory (creates StoreSubmission, not Store)',
+  }
+}
+
+// =============================================================================
 // Main
 // =============================================================================
 
@@ -555,6 +637,8 @@ async function runGate(gateNumber: number): Promise<GateResult> {
       return await gate8_countsConsistent()
     case 9:
       return await gate9_trackedOutboundActions()
+    case 10:
+      return await gate10_storeSubmissionIsolation()
     default:
       return {
         gate: gateNumber,
@@ -584,8 +668,8 @@ async function main() {
     process.exit(result.passed ? 0 : 1)
   }
 
-  // Run all Slice 0 + Slice 1 + Slice 2 + Slice 3 gates
-  const allGates = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+  // Run all Slice 0 + Slice 1 + Slice 2 + Slice 3 + Slice 4 gates
+  const allGates = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
   const results: GateResult[] = []
 
   for (const gate of allGates) {

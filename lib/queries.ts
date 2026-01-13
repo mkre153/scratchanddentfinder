@@ -18,6 +18,7 @@ import type {
   StoreInsert,
   LeadInsert,
   ContactSubmissionInsert,
+  StoreSubmissionInsert,
 } from '@/lib/types'
 
 // =============================================================================
@@ -167,6 +168,7 @@ export async function getNearbyCities(
   if (error) throw error
   if (!data) return []
 
+  const rows = data as CityRow[]
   const hasCoords = city.lat != null && city.lng != null
 
   if (hasCoords) {
@@ -174,7 +176,7 @@ export async function getNearbyCities(
     const cityLng = city.lng as number
 
     // Sort by distance ASC, store_count DESC, name ASC (Gate 10)
-    return data
+    return rows
       .map((c) => ({
         ...c,
         distance:
@@ -192,7 +194,7 @@ export async function getNearbyCities(
   }
 
   // Fallback: store_count DESC, name ASC
-  return data
+  return rows
     .sort((a, b) => {
       if (a.store_count !== b.store_count) return b.store_count - a.store_count
       return a.name.localeCompare(b.name)
@@ -259,14 +261,15 @@ export async function getStoreByPlaceId(placeId: string): Promise<Store | null> 
  * Insert or update a store (upsert on place_id)
  */
 export async function upsertStore(store: StoreInsert): Promise<Store> {
-  const { data, error } = await supabaseAdmin
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabaseAdmin as any)
     .from('stores')
     .upsert(store, { onConflict: 'place_id' })
     .select()
     .single()
 
   if (error) throw error
-  return storeRowToModel(data)
+  return storeRowToModel(data as StoreRow)
 }
 
 // =============================================================================
@@ -277,7 +280,8 @@ export async function upsertStore(store: StoreInsert): Promise<Store> {
  * Create a lead event
  */
 export async function createLead(lead: LeadInsert): Promise<void> {
-  const { error } = await supabaseAdmin.from('leads').insert(lead)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabaseAdmin as any).from('leads').insert(lead)
   if (error) throw error
 }
 
@@ -291,7 +295,8 @@ export async function createLead(lead: LeadInsert): Promise<void> {
 export async function createContactSubmission(
   submission: ContactSubmissionInsert
 ): Promise<void> {
-  const { error } = await supabaseAdmin
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabaseAdmin as any)
     .from('contact_submissions')
     .insert(submission)
   if (error) throw error
@@ -315,10 +320,12 @@ export async function getCountMismatches(): Promise<
   }> = []
 
   // Check city store counts
-  const { data: cities } = await supabaseAdmin.from('cities').select('id, store_count')
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: cities } = await (supabaseAdmin as any).from('cities').select('id, store_count')
 
-  for (const city of cities ?? []) {
-    const { count } = await supabaseAdmin
+  for (const city of (cities ?? []) as Array<{ id: number; store_count: number }>) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { count } = await (supabaseAdmin as any)
       .from('stores')
       .select('*', { count: 'exact', head: true })
       .eq('city_id', city.id)
@@ -335,10 +342,12 @@ export async function getCountMismatches(): Promise<
   }
 
   // Check state store counts
-  const { data: states } = await supabaseAdmin.from('states').select('id, store_count')
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: states } = await (supabaseAdmin as any).from('states').select('id, store_count')
 
-  for (const state of states ?? []) {
-    const { count } = await supabaseAdmin
+  for (const state of (states ?? []) as Array<{ id: number; store_count: number }>) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { count } = await (supabaseAdmin as any)
       .from('stores')
       .select('*', { count: 'exact', head: true })
       .eq('state_id', state.id)
@@ -355,4 +364,23 @@ export async function getCountMismatches(): Promise<
   }
 
   return mismatches
+}
+
+// =============================================================================
+// Store Submission Queries (Slice 4 - Isolated from Directory)
+// =============================================================================
+
+/**
+ * Create a store submission (untrusted, pending review)
+ * This does NOT create a Store record.
+ * This does NOT affect the directory.
+ */
+export async function createStoreSubmission(
+  submission: StoreSubmissionInsert
+): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabaseAdmin as any)
+    .from('store_submissions')
+    .insert(submission)
+  if (error) throw error
 }

@@ -47,6 +47,11 @@ export type Database = {
         Insert: ContactSubmissionInsert
         Update: ContactSubmissionUpdate
       }
+      store_submissions: {
+        Row: StoreSubmissionRow
+        Insert: StoreSubmissionInsert
+        Update: Partial<StoreSubmissionInsert>
+      }
     }
   }
 }
@@ -255,6 +260,24 @@ export interface ContactSubmissionRow {
 
 export type ContactSubmissionInsert = Omit<ContactSubmissionRow, 'id' | 'created_at' | 'is_read'>
 export type ContactSubmissionUpdate = Partial<ContactSubmissionInsert>
+
+// =============================================================================
+// Store Submission (Slice 4 - Untrusted, Isolated from Directory)
+// =============================================================================
+
+export interface StoreSubmissionRow {
+  id: string
+  business_name: string
+  street_address: string
+  city: string
+  state: string
+  phone: string | null
+  website: string | null
+  status: 'pending' | 'approved' | 'rejected'
+  submitted_at: string
+}
+
+export type StoreSubmissionInsert = Omit<StoreSubmissionRow, 'id' | 'submitted_at' | 'status'>
 
 // =============================================================================
 // Link Types (for linking engine)
