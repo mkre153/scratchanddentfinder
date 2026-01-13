@@ -13,6 +13,7 @@ import type {
   StateRow,
   City,
   CityRow,
+  CityInsert,
   Store,
   StoreRow,
   StoreInsert,
@@ -150,6 +151,79 @@ export async function getCityBySlug(
     throw error
   }
   return cityRowToModel(data)
+}
+
+/**
+ * Get a city by name and state ID
+ */
+export async function getCityByNameAndState(
+  cityName: string,
+  stateId: number
+): Promise<City | null> {
+  const { data, error } = await supabaseAdmin
+    .from('cities')
+    .select('*')
+    .eq('state_id', stateId)
+    .ilike('name', cityName)
+    .single()
+
+  if (error) {
+    if (error.code === 'PGRST116') return null
+    throw error
+  }
+  return cityRowToModel(data)
+}
+
+/**
+ * Create a new city (Slice 0 backfill)
+ * Cities are derived entities - created deterministically from store ingestion.
+ */
+export async function createCity(city: CityInsert): Promise<City> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabaseAdmin as any)
+    .from('cities')
+    .insert(city)
+    .select()
+    .single()
+
+  if (error) throw error
+  return cityRowToModel(data as CityRow)
+}
+
+/**
+ * Get or create a city (Slice 0 backfill)
+ * Deterministic: same inputs always produce same city.
+ * Used during import to ensure cities exist before inserting stores.
+ */
+export async function getOrCreateCity(
+  stateId: number,
+  stateCode: string,
+  cityName: string,
+  lat?: number | null,
+  lng?: number | null
+): Promise<City> {
+  // Try to find existing city by name and state
+  const existing = await getCityByNameAndState(cityName, stateId)
+  if (existing) {
+    return existing
+  }
+
+  // Create new city with deterministic slug
+  const slug = cityName
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+
+  const newCity: CityInsert = {
+    slug,
+    name: cityName,
+    state_id: stateId,
+    state_code: stateCode.toLowerCase(),
+    lat: lat ?? null,
+    lng: lng ?? null,
+  }
+
+  return createCity(newCity)
 }
 
 /**
