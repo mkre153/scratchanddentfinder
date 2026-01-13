@@ -151,6 +151,212 @@ async function gate7_adapterBoundary(): Promise<GateResult> {
 }
 
 // =============================================================================
+// Gate 2: No Forms on Directory Pages (PARITY_MODE)
+// =============================================================================
+
+async function gate2_noFormsOnDirectoryPages(): Promise<GateResult> {
+  const directoryPaths = [
+    'app/page.tsx',
+    'app/scratch-and-dent-appliances/page.tsx',
+    'app/scratch-and-dent-appliances/[state]/page.tsx',
+    'app/scratch-and-dent-appliances/[state]/[city]/page.tsx',
+  ]
+
+  const violations: string[] = []
+
+  for (const filePath of directoryPaths) {
+    if (!fs.existsSync(filePath)) continue
+
+    const content = fs.readFileSync(filePath, 'utf8')
+
+    // Check for <form elements
+    if (content.includes('<form') || content.includes('<Form')) {
+      violations.push(`${filePath}: contains form element`)
+    }
+  }
+
+  if (violations.length > 0) {
+    return {
+      gate: 2,
+      name: 'No Forms (Parity)',
+      passed: false,
+      message: `FAIL: Form elements found on directory pages:\\n  ${violations.join('\\n  ')}`,
+    }
+  }
+
+  return {
+    gate: 2,
+    name: 'No Forms (Parity)',
+    passed: true,
+    message: 'PASS: No form elements on directory pages',
+  }
+}
+
+// =============================================================================
+// Gate 3: Absolute Canonicals + Trailing Slash
+// =============================================================================
+
+async function gate3_canonicalsAndTrailingSlash(): Promise<GateResult> {
+  const violations: string[] = []
+
+  // Check lib/urls.ts - all paths must end with /
+  const urlsPath = 'lib/urls.ts'
+  if (fs.existsSync(urlsPath)) {
+    const content = fs.readFileSync(urlsPath, 'utf8')
+
+    // Find all return statements with paths
+    const pathMatches = content.match(/return ['"`][^'"`]+['"`]/g) || []
+
+    for (const match of pathMatches) {
+      const pathContent = match.replace(/return ['"`]/, '').replace(/['"`]$/, '')
+      // Skip template literals and empty strings
+      if (pathContent.includes('${') || pathContent === '') continue
+      // Check trailing slash (except for root /)
+      if (pathContent !== '/' && !pathContent.endsWith('/')) {
+        violations.push(`lib/urls.ts: path "${pathContent}" missing trailing slash`)
+      }
+    }
+  }
+
+  // Check next.config for trailingSlash
+  const nextConfigPaths = ['next.config.ts', 'next.config.js', 'next.config.mjs']
+  let hasTrailingSlashConfig = false
+
+  for (const configPath of nextConfigPaths) {
+    if (fs.existsSync(configPath)) {
+      const content = fs.readFileSync(configPath, 'utf8')
+      if (content.includes('trailingSlash: true') || content.includes('trailingSlash:true')) {
+        hasTrailingSlashConfig = true
+        break
+      }
+    }
+  }
+
+  if (!hasTrailingSlashConfig) {
+    violations.push('next.config: trailingSlash: true not found')
+  }
+
+  if (violations.length > 0) {
+    return {
+      gate: 3,
+      name: 'Canonicals + Trailing Slash',
+      passed: false,
+      message: `FAIL: Canonical/trailing slash issues:\\n  ${violations.join('\\n  ')}`,
+    }
+  }
+
+  return {
+    gate: 3,
+    name: 'Canonicals + Trailing Slash',
+    passed: true,
+    message: 'PASS: All URLs have trailing slashes and config is correct',
+  }
+}
+
+// =============================================================================
+// Gate 5: Route Strings ONLY in lib/urls.ts
+// =============================================================================
+
+async function gate5_routesOnlyInUrls(): Promise<GateResult> {
+  const routePattern = /scratch-and-dent-appliances/
+  const allowedFiles = ['lib/urls.ts']
+
+  const files = await glob('{app,components,lib}/**/*.{ts,tsx}')
+  const violations: string[] = []
+
+  for (const file of files) {
+    // Skip allowed files
+    if (allowedFiles.some((allowed) => file.endsWith(allowed))) {
+      continue
+    }
+
+    const content = fs.readFileSync(file, 'utf8')
+
+    // Check for hardcoded route strings
+    // Match strings containing the route pattern
+    const matches = content.match(/['"`][^'"`]*scratch-and-dent-appliances[^'"`]*['"`]/g)
+
+    if (matches) {
+      for (const match of matches) {
+        // Skip if it's inside a comment
+        const lineIndex = content.indexOf(match)
+        const lineStart = content.lastIndexOf('\n', lineIndex) + 1
+        const lineContent = content.slice(lineStart, content.indexOf('\n', lineIndex))
+
+        if (lineContent.trim().startsWith('//') || lineContent.trim().startsWith('*')) {
+          continue
+        }
+
+        violations.push(`${file}: contains hardcoded route "${match}"`)
+      }
+    }
+  }
+
+  if (violations.length > 0) {
+    return {
+      gate: 5,
+      name: 'Routes in urls.ts Only',
+      passed: false,
+      message: `FAIL: Hardcoded routes found outside lib/urls.ts:\\n  ${violations.join('\\n  ')}`,
+    }
+  }
+
+  return {
+    gate: 5,
+    name: 'Routes in urls.ts Only',
+    passed: true,
+    message: 'PASS: All route strings are in lib/urls.ts',
+  }
+}
+
+// =============================================================================
+// Gate 6: Sitemap Works
+// =============================================================================
+
+async function gate6_sitemapWorks(): Promise<GateResult> {
+  // Check that sitemap file exists
+  const sitemapPath = 'app/sitemap.ts'
+
+  if (!fs.existsSync(sitemapPath)) {
+    return {
+      gate: 6,
+      name: 'Sitemaps Work',
+      passed: false,
+      message: 'FAIL: app/sitemap.ts does not exist',
+    }
+  }
+
+  const content = fs.readFileSync(sitemapPath, 'utf8')
+
+  // Check that it exports a default function
+  if (!content.includes('export default')) {
+    return {
+      gate: 6,
+      name: 'Sitemaps Work',
+      passed: false,
+      message: 'FAIL: app/sitemap.ts does not export default function',
+    }
+  }
+
+  // Check that it uses lib/urls.ts
+  if (!content.includes("from '@/lib/urls'") && !content.includes("from '../lib/urls'")) {
+    return {
+      gate: 6,
+      name: 'Sitemaps Work',
+      passed: false,
+      message: 'FAIL: app/sitemap.ts does not import from lib/urls.ts',
+    }
+  }
+
+  return {
+    gate: 6,
+    name: 'Sitemaps Work',
+    passed: true,
+    message: 'PASS: Sitemap file exists and imports from lib/urls.ts (run dev server to verify 200)',
+  }
+}
+
+// =============================================================================
 // Gate 8: Counts Consistent
 // =============================================================================
 
@@ -197,6 +403,14 @@ async function runGate(gateNumber: number): Promise<GateResult> {
       return gate0_architectureDecision()
     case 1:
       return await gate1_noStoreRoutes()
+    case 2:
+      return await gate2_noFormsOnDirectoryPages()
+    case 3:
+      return await gate3_canonicalsAndTrailingSlash()
+    case 5:
+      return await gate5_routesOnlyInUrls()
+    case 6:
+      return await gate6_sitemapWorks()
     case 7:
       return await gate7_adapterBoundary()
     case 8:
@@ -230,11 +444,11 @@ async function main() {
     process.exit(result.passed ? 0 : 1)
   }
 
-  // Run all Slice 0 gates
-  const slice0Gates = [0, 1, 7, 8]
+  // Run all Slice 0 + Slice 1 gates
+  const allGates = [0, 1, 2, 3, 5, 6, 7, 8]
   const results: GateResult[] = []
 
-  for (const gate of slice0Gates) {
+  for (const gate of allGates) {
     const result = await runGate(gate)
     results.push(result)
     const status = result.passed ? '✅' : '❌'
@@ -253,12 +467,12 @@ async function main() {
 
   if (!allPassed) {
     console.log()
-    console.log('❌ SLICE 0 GATES FAILED - Fix issues before proceeding')
+    console.log('❌ GATES FAILED - Fix issues before proceeding')
     process.exit(1)
   }
 
   console.log()
-  console.log('✅ ALL SLICE 0 GATES PASSED')
+  console.log('✅ ALL GATES PASSED')
   process.exit(0)
 }
 
