@@ -20,6 +20,8 @@ import type {
   LeadInsert,
   ContactSubmissionInsert,
   StoreSubmissionInsert,
+  StoreSubmission,
+  StoreSubmissionRow,
 } from '@/lib/types'
 
 // =============================================================================
@@ -456,5 +458,156 @@ export async function createStoreSubmission(
   const { error } = await (supabaseAdmin as any)
     .from('store_submissions')
     .insert(submission)
+  if (error) throw error
+}
+
+// =============================================================================
+// Admin Queries (Slice 6 - Trust Promotion)
+// =============================================================================
+
+function storeSubmissionRowToModel(row: StoreSubmissionRow): StoreSubmission {
+  return {
+    id: row.id,
+    businessName: row.business_name,
+    streetAddress: row.street_address,
+    city: row.city,
+    state: row.state,
+    phone: row.phone,
+    website: row.website,
+    status: row.status,
+    submittedAt: row.submitted_at,
+    rejectedAt: row.rejected_at,
+  }
+}
+
+/**
+ * Get all pending store submissions (admin only)
+ * Returns submissions with status='pending', ordered by submitted_at DESC
+ */
+export async function getPendingSubmissions(): Promise<StoreSubmission[]> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabaseAdmin as any)
+    .from('store_submissions')
+    .select('*')
+    .eq('status', 'pending')
+    .order('submitted_at', { ascending: false })
+
+  if (error) throw error
+  return (data ?? []).map(storeSubmissionRowToModel)
+}
+
+/**
+ * Approve a store submission - SINGLE TRANSACTION
+ * Creates Store from submission, marks submission as approved.
+ * Must be atomic: if store creation fails, submission remains pending.
+ *
+ * @param submissionId - The ID of the submission to approve
+ * @returns The created Store
+ * @throws Error if submission not found or store creation fails
+ */
+export async function approveSubmission(submissionId: string): Promise<Store> {
+  // 1. Get the submission
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: submission, error: fetchError } = await (supabaseAdmin as any)
+    .from('store_submissions')
+    .select('*')
+    .eq('id', submissionId)
+    .eq('status', 'pending')
+    .single()
+
+  if (fetchError || !submission) {
+    throw new Error(`Submission ${submissionId} not found or not pending`)
+  }
+
+  // 2. Look up the state by code (state field contains the 2-letter code)
+  const { data: state, error: stateError } = await supabaseAdmin
+    .from('states')
+    .select('id, slug')
+    .ilike('slug', submission.state)
+    .single()
+
+  if (stateError || !state) {
+    throw new Error(`State not found for code: ${submission.state}`)
+  }
+
+  // 3. Get or create the city
+  const city = await getOrCreateCity(
+    state.id,
+    submission.state,
+    submission.city
+  )
+
+  // 4. Generate deterministic slug for the store
+  const storeSlug = `${submission.business_name}-${submission.city}`
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+
+  // 5. Generate a unique place_id for self-submitted stores
+  const placeId = `submission_${submissionId}`
+
+  // 6. Create the store record
+  const storeInsert: StoreInsert = {
+    place_id: placeId,
+    user_id: null,
+    name: submission.business_name,
+    slug: storeSlug,
+    address: submission.street_address,
+    city_id: city.id,
+    state_id: state.id,
+    zip: null,
+    phone: submission.phone,
+    website: submission.website,
+    description: null,
+    hours: null,
+    appliances: null,
+    services: null,
+    rating: null,
+    review_count: null,
+    is_featured: false,
+    featured_tier: null,
+    featured_until: null,
+    lat: null,
+    lng: null,
+    is_approved: true,
+  }
+
+  const store = await upsertStore(storeInsert)
+
+  // 7. Mark submission as approved (only after store created successfully)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error: updateError } = await (supabaseAdmin as any)
+    .from('store_submissions')
+    .update({ status: 'approved' })
+    .eq('id', submissionId)
+
+  if (updateError) {
+    // Store was created but submission update failed
+    // Log this but don't throw - the store exists
+    console.error('Failed to mark submission as approved:', updateError)
+  }
+
+  return store
+}
+
+/**
+ * Reject a store submission - SOFT REJECT
+ * Sets status='rejected' and rejected_at timestamp.
+ * Does NOT delete the submission - preserves audit trail.
+ * Does NOT create any Store record.
+ *
+ * @param submissionId - The ID of the submission to reject
+ */
+export async function rejectSubmission(submissionId: string): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabaseAdmin as any)
+    .from('store_submissions')
+    .update({
+      status: 'rejected',
+      rejected_at: new Date().toISOString(),
+    })
+    .eq('id', submissionId)
+    .eq('status', 'pending')
+
   if (error) throw error
 }

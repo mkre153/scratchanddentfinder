@@ -275,9 +275,23 @@ export interface StoreSubmissionRow {
   website: string | null
   status: 'pending' | 'approved' | 'rejected'
   submitted_at: string
+  rejected_at: string | null
 }
 
-export type StoreSubmissionInsert = Omit<StoreSubmissionRow, 'id' | 'submitted_at' | 'status'>
+export type StoreSubmissionInsert = Omit<StoreSubmissionRow, 'id' | 'submitted_at' | 'status' | 'rejected_at'>
+
+export interface StoreSubmission {
+  id: string
+  businessName: string
+  streetAddress: string
+  city: string
+  state: string
+  phone: string | null
+  website: string | null
+  status: 'pending' | 'approved' | 'rejected'
+  submittedAt: string
+  rejectedAt: string | null
+}
 
 // =============================================================================
 // Link Types (for linking engine)

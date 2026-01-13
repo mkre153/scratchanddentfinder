@@ -814,6 +814,92 @@ async function gate13_sitemapCompleteness(): Promise<GateResult> {
 }
 
 // =============================================================================
+// Gate 14: Trust Promotion Isolation (Slice 6)
+// =============================================================================
+
+async function gate14_trustPromotionIsolation(): Promise<GateResult> {
+  const violations: string[] = []
+
+  // 1. Public pages must not query store_submissions
+  const publicPageFiles = await glob('app/**/page.tsx')
+  const publicPages = publicPageFiles.filter((f: string) => !f.includes('/admin/'))
+
+  for (const page of publicPages) {
+    const content = fs.readFileSync(page, 'utf8')
+    if (
+      content.includes('store_submissions') ||
+      content.includes("from 'store_submissions'") ||
+      content.includes('getPendingSubmissions')
+    ) {
+      violations.push(`${page}: queries store_submissions (must be admin-only)`)
+    }
+  }
+
+  // 2. lib/queries.ts approval functions must exist
+  const queriesPath = 'lib/queries.ts'
+  if (fs.existsSync(queriesPath)) {
+    const queriesContent = fs.readFileSync(queriesPath, 'utf8')
+    if (!queriesContent.includes('approveSubmission')) {
+      violations.push('lib/queries.ts: missing approveSubmission function')
+    }
+    if (!queriesContent.includes('rejectSubmission')) {
+      violations.push('lib/queries.ts: missing rejectSubmission function')
+    }
+  } else {
+    violations.push('lib/queries.ts does not exist')
+  }
+
+  // 3. Sitemap must not reference store_submissions OR admin routes
+  const sitemapPath = 'app/sitemap.ts'
+  if (fs.existsSync(sitemapPath)) {
+    const sitemapContent = fs.readFileSync(sitemapPath, 'utf8')
+    if (
+      sitemapContent.includes('store_submissions') ||
+      sitemapContent.includes('StoreSubmission')
+    ) {
+      violations.push('app/sitemap.ts: must not include store_submissions')
+    }
+    if (sitemapContent.includes('/admin')) {
+      violations.push('app/sitemap.ts: must not include /admin routes')
+    }
+  }
+
+  // 4. Admin routes must use force-dynamic (no static rendering)
+  const adminPageFiles = await glob('app/admin/**/page.tsx')
+  for (const page of adminPageFiles) {
+    const content = fs.readFileSync(page, 'utf8')
+    if (!content.includes("dynamic = 'force-dynamic'")) {
+      violations.push(`${page}: must export dynamic = 'force-dynamic'`)
+    }
+  }
+
+  // 5. No public links to admin routes (check non-admin pages)
+  for (const page of publicPages) {
+    const content = fs.readFileSync(page, 'utf8')
+    // Check for href links to /admin
+    if (content.includes('href="/admin') || content.includes("href='/admin")) {
+      violations.push(`${page}: must not link to /admin routes`)
+    }
+  }
+
+  if (violations.length > 0) {
+    return {
+      gate: 14,
+      name: 'Trust Promotion Isolation',
+      passed: false,
+      message: `FAIL: Trust promotion isolation issues:\n  ${violations.join('\n  ')}`,
+    }
+  }
+
+  return {
+    gate: 14,
+    name: 'Trust Promotion Isolation',
+    passed: true,
+    message: 'PASS: Trust promotion isolation intact (admin-only queries, no public links to admin)',
+  }
+}
+
+// =============================================================================
 // Main
 // =============================================================================
 
@@ -847,6 +933,8 @@ async function runGate(gateNumber: number): Promise<GateResult> {
       return await gate12_importDiscipline()
     case 13:
       return await gate13_sitemapCompleteness()
+    case 14:
+      return await gate14_trustPromotionIsolation()
     default:
       return {
         gate: gateNumber,
@@ -876,8 +964,8 @@ async function main() {
     process.exit(result.passed ? 0 : 1)
   }
 
-  // Run all Core Gates (0-10) + Scale Gates (11-13)
-  const allGates = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+  // Run all Core Gates (0-10) + Scale Gates (11-13) + Trust Gates (14)
+  const allGates = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
   const results: GateResult[] = []
 
   for (const gate of allGates) {
