@@ -1,150 +1,131 @@
-# Slice Closure Template (Reusable)
+# SLICE CLOSURE TEMPLATE
 
-## Slice \<N\>: \<SLICE NAME\> — Closure Record
-
-**Status:** CLOSED
-
-**Closure Type:**
-- [ ] Implemented
-- [ ] Already Complete (Verified)
-- [ ] Deferred (Documented)
-
-**Closure Date:** YYYY-MM-DD
-
-**Last Relevant Commit:** `<hash>` (or N/A – no code changes)
+This document formally closes a slice.
+A slice is not complete until this document exists and is committed.
 
 ---
 
-## 1. Slice Intent (What This Slice Was Supposed to Do)
+## 1. Slice Identification
 
-One or two sentences stating the original purpose of the slice.
-
-*Example:*
-> Enhance StoreCard presentation to include operational signals and service coverage.
-
----
-
-## 2. Feature Coverage Verification
-
-Verified components / behaviors included in this slice:
-
-- [ ] Feature A
-- [ ] Feature B
-- [ ] Feature C
-
-**Source of truth:**
-
-File(s):
-- `path/to/component.tsx`
-- `path/to/helper.ts`
-
-*This section answers: "Did we actually ship what the slice promised?"*
+- Slice Number:
+- Slice Name:
+- Date Closed:
+- Last Commit SHA:
+- Author:
 
 ---
 
-## 3. Intentional Exclusions (Explicit Non-Goals)
+## 2. Intent (What this slice set out to do)
 
-The following items were explicitly excluded from this slice:
-
-- [ ] Excluded Feature X — *reason*
-- [ ] Excluded Feature Y — *reason*
-
-**Rationale:**
-- Avoids unnecessary complexity
-- Preserves UX clarity
-- Belongs in a future slice if ever needed
-
-*This section is mandatory.*
-*If nothing is excluded, explicitly state: "No intentional exclusions."*
+Briefly state the purpose of the slice in one or two sentences.
 
 ---
 
-## 4. Gate Status
+## 3. Scope Summary
 
-**Gate Summary at Closure:**
+### In Scope
+- …
 
-| Gate Type | Gate Numbers | Status |
-|-----------|--------------|--------|
-| Core | 0–10 | PASS |
-| Scale | 11–13 | PASS / N/A |
-| Trust | 14–… | PASS / N/A |
-| Surface | 15 | PASS / N/A |
-| Slice-Specific | — | Not required |
-
-**Notes:**
-- No existing gates were modified.
-- No regressions observed.
+### Out of Scope
+- …
 
 ---
 
-## 5. Slice-Specific Gates (If Any)
+## 4. Result Summary
 
-- [ ] New gate introduced
-- [x] No new gate required
-
-If no new gate was added, explain why:
-
-> No slice-specific gate was introduced because:
-> - The slice added no new data paths, mutations, or discovery surfaces
-> - Existing gates already enforce correctness and isolation
-> - Adding a gate would duplicate coverage without increasing safety
-
-*(This explanation is optional but recommended.)*
+Describe what is now true that was not true before this slice.
+Focus on observable system behavior.
 
 ---
 
-## 6. Code Changes
+## 5. Gate Impact Summary
 
-- [ ] No code changes required
-- [ ] Code changes made
+### Existing Gates
+- List all existing gates affected or relied upon.
+- Confirm they continue to pass unchanged.
 
-If changes were made, list them:
-- `file.tsx` — description
-- `file.ts` — description
-
----
-
-## 7. Behavioral Integrity Check
-
-Confirmed unchanged:
-
-- [ ] URL structure
-- [ ] Canonicals
-- [ ] Trailing slashes
-- [ ] Internal linking rules
-- [ ] Ordering / ranking
-- [ ] Sitemap semantics
-
-*This section asserts non-regression.*
+### New Gates Introduced
+- ☐ None
+- ☐ Yes → List gate number(s) and name(s)
 
 ---
 
-## 8. Verification Performed
+## 6. Gate Decision (Required)
 
-- [ ] Gate verification (`npx tsx scripts/gates-verify.ts`)
-- [ ] Visual inspection
-- [ ] No unexpected network calls
-- [ ] No new DB writes
-- [ ] No sitemap changes
+⚠️ **This section is mandatory for every slice. Do not remove.**
 
----
+### 6a. Failure Mode Analysis
 
-## 9. Closure Statement (Authoritative)
+Answer briefly.
 
-> **Slice \<N\> is formally closed.**
->
-> The system behaves identically before and after this slice, except for the verified enhancements listed above.
->
-> No deferred work remains within this slice's scope.
+- What could go wrong if this slice were incorrect?
+- Would failure be silent or obvious?
+- Would failure affect trust, SEO, data integrity, or determinism?
 
 ---
 
-## 10. Next Slice
+### 6b. Gate Decision Matrix
 
-**Next planned slice:** Slice \<N+1\> — \<NAME\>
+Answer **Yes / No** to each:
 
-**Blocking dependencies:** None / List if any
+- Does this slice allow untrusted data to become public?
+- Does it introduce irreversible data mutation?
+- Does it modify URL structure, canonicals, or routing?
+- Does it affect sitemap composition or crawlable surfaces?
+- Does it bypass or weaken an adapter boundary?
+- Does it rely on human discipline instead of code enforcement?
+- Does it introduce external system coupling with risk of drift?
 
 ---
 
-*End of Slice Closure Record*
+### 6c. Decision
+
+- ☐ New gate required
+- ☐ No new gate required
+
+**Justification (required):**
+
+Explain why existing gates are sufficient **or** why a new permanent invariant is necessary.
+
+> "No new gate required" is a valid outcome — but must be justified.
+
+---
+
+## 7. Verification Evidence
+
+List how correctness was verified.
+
+- Gates run:
+- Manual checks:
+- Diff comparisons (if applicable):
+
+---
+
+## 8. Non-Changes (Important)
+
+Explicitly list what this slice did **not** change.
+
+Examples:
+- No new routes
+- No DB schema changes
+- No SEO surface changes
+- No trust boundary changes
+
+---
+
+## 9. Closure Statement
+
+This slice is considered **closed** when:
+
+- This document exists
+- All referenced gates pass
+- No unresolved risks remain
+
+**Definition of Done satisfied:** ☐ Yes
+
+---
+
+## 10. Sign-off
+
+- Author:
+- Date:
