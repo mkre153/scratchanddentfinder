@@ -173,9 +173,14 @@ export default async function BillingPage({
                   {store.featuredUntil && (
                     <p className="mt-1 text-xs text-gray-500">
                       {store.subscription?.status === 'canceled'
-                        ? 'Expires'
+                        ? 'Featured until'
                         : 'Renews'}{' '}
                       {new Date(store.featuredUntil).toLocaleDateString()}
+                    </p>
+                  )}
+                  {store.subscription?.status === 'canceled' && (
+                    <p className="mt-1 text-xs text-gray-400">
+                      Subscription canceled - you keep featured status until expiration
                     </p>
                   )}
                 </div>

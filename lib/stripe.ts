@@ -58,17 +58,26 @@ export type PriceTier = keyof typeof PRICES
 /**
  * Calculate featured_until date based on tier
  *
- * Monthly: 30 days from now
- * Annual: 365 days from now
+ * Monthly: 1 month from now (proper calendar month)
+ * Annual: 1 year from now (handles leap years)
+ *
+ * NOTE: Uses calendar-aware date math instead of fixed days
+ * to handle months with different lengths correctly.
  */
 export function calculateFeaturedUntil(tier: PriceTier): Date {
   const now = new Date()
+  const result = new Date(now) // Don't mutate original
+
   switch (tier) {
     case 'monthly':
-      return new Date(now.setDate(now.getDate() + 30))
+      result.setMonth(result.getMonth() + 1)
+      break
     case 'annual':
-      return new Date(now.setDate(now.getDate() + 365))
+      result.setFullYear(result.getFullYear() + 1)
+      break
   }
+
+  return result
 }
 
 // =============================================================================

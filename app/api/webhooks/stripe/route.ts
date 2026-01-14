@@ -20,6 +20,7 @@ import {
   setStoreTierFromCheckout,
   syncSubscription,
   updateSubscriptionStatus,
+  updateStoreFeaturedUntil,
   getWebhookEvent,
   recordWebhookEvent,
 } from '@/lib/queries'
@@ -187,8 +188,11 @@ async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
 /**
  * Handle customer.subscription.updated
  *
- * RESPONSIBILITY: Update subscription record ONLY
- * DOES NOT: Touch store tier
+ * RESPONSIBILITY: Update subscription record AND extend featured_until on renewal
+ *
+ * CRITICAL FIX: When subscription auto-renews (status='active'), we must extend
+ * featured_until to match the new period end. Without this, stores lose featured
+ * status mid-subscription because featured_until was only set at initial checkout.
  */
 async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
   console.log('Processing customer.subscription.updated:', subscription.id)
@@ -210,9 +214,11 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
     return
   }
 
-  // Update subscription record (sync all fields)
   // Note: current_period_end is a Unix timestamp
   const periodEnd = (subscription as unknown as { current_period_end: number }).current_period_end
+  const newPeriodEndDate = new Date(periodEnd * 1000)
+
+  // Update subscription record (sync all fields)
   await syncSubscription({
     stripeSubscriptionId: subscription.id,
     stripeCustomerId: subscription.customer as string,
@@ -220,8 +226,15 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
     userId,
     tier,
     status: subscription.status,
-    currentPeriodEnd: new Date(periodEnd * 1000),
+    currentPeriodEnd: newPeriodEndDate,
   })
+
+  // CRITICAL: Extend featured_until when subscription is active (renewal scenario)
+  // This ensures the store stays featured as long as subscription is paid
+  if (subscription.status === 'active') {
+    await updateStoreFeaturedUntil(storeIdNum, newPeriodEndDate)
+    console.log(`Store ${storeIdNum} featured_until extended to ${newPeriodEndDate.toISOString()}`)
+  }
 
   console.log(`Subscription ${subscription.id} updated, status: ${subscription.status}`)
 }

@@ -242,7 +242,15 @@ export async function getNearbyCities(
 // =============================================================================
 
 /**
- * Get stores for a city, ordered by is_featured DESC, name ASC (Gate 10)
+ * Get stores for a city, ordered by effective featured status DESC, name ASC (Gate 10)
+ *
+ * FEATURED STATUS LOGIC:
+ * A store is "effectively featured" when BOTH conditions are met:
+ * 1. is_featured = true (admin quality gate)
+ * 2. featured_until > NOW() (has active paid tier)
+ *
+ * This prevents expired tiers from showing as featured, and ensures
+ * paying customers without admin approval don't auto-get top placement.
  */
 export async function getStoresByCityId(cityId: number): Promise<Store[]> {
   const { data, error } = await supabaseAdmin
@@ -250,11 +258,24 @@ export async function getStoresByCityId(cityId: number): Promise<Store[]> {
     .select('*')
     .eq('city_id', cityId)
     .eq('is_approved', true)
-    .order('is_featured', { ascending: false })
-    .order('name', { ascending: true })
 
   if (error) throw error
-  return (data ?? []).map(storeRowToModel)
+
+  const stores = (data ?? []).map(storeRowToModel)
+  const now = new Date()
+
+  // Sort by effective featured status, then by name
+  return stores.sort((a, b) => {
+    const aEffectiveFeatured = a.isFeatured && a.featuredUntil && new Date(a.featuredUntil) > now
+    const bEffectiveFeatured = b.isFeatured && b.featuredUntil && new Date(b.featuredUntil) > now
+
+    // Featured stores first
+    if (aEffectiveFeatured && !bEffectiveFeatured) return -1
+    if (!aEffectiveFeatured && bEffectiveFeatured) return 1
+
+    // Then by name
+    return a.name.localeCompare(b.name)
+  })
 }
 
 /**
@@ -820,6 +841,26 @@ export async function setStoreTierFromCheckout(
 }
 
 /**
+ * Update store featured_until from subscription renewal
+ * Called from customer.subscription.updated when subscription renews.
+ * This ensures featured_until extends when subscription auto-renews.
+ */
+export async function updateStoreFeaturedUntil(
+  storeId: number,
+  featuredUntil: Date
+): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabaseAdmin as any)
+    .from('stores')
+    .update({
+      featured_until: featuredUntil.toISOString(),
+    })
+    .eq('id', storeId)
+
+  if (error) throw error
+}
+
+/**
  * Create or update subscription from webhook
  * Called from customer.subscription.created/updated events.
  * NEVER touches store tier - that's handled by checkout event.
@@ -947,6 +988,28 @@ export async function recordWebhookEvent(
     if (error.code === '23505') return
     throw error
   }
+}
+
+/**
+ * Clean up old webhook events for table hygiene
+ * Deletes events older than specified days (default 90 days).
+ * Call periodically via cron or admin action.
+ */
+export async function cleanupOldWebhookEvents(
+  daysOld: number = 90
+): Promise<number> {
+  const cutoffDate = new Date()
+  cutoffDate.setDate(cutoffDate.getDate() - daysOld)
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabaseAdmin as any)
+    .from('stripe_webhook_events')
+    .delete()
+    .lt('processed_at', cutoffDate.toISOString())
+    .select('event_id')
+
+  if (error) throw error
+  return data?.length ?? 0
 }
 
 // =============================================================================
