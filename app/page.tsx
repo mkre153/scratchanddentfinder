@@ -13,6 +13,9 @@ import { getAllStates } from '@/lib/queries'
 
 export const metadata: Metadata = generateHomepageMetadata()
 
+// ISR: Revalidate every 5 minutes (directory data changes infrequently)
+export const revalidate = 300
+
 export default async function HomePage() {
   // Fetch states - handles empty database gracefully
   const states = await getAllStates()

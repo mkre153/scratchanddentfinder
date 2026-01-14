@@ -13,6 +13,9 @@ import { JsonLd, generateAllStatesBreadcrumbs } from '@/lib/schema'
 
 export const metadata: Metadata = generateAllStatesMetadata()
 
+// ISR: Revalidate every 5 minutes (directory data changes infrequently)
+export const revalidate = 300
+
 export default async function AllStatesPage() {
   // Fetch states - already ordered alphabetically by name from queries.ts
   const states = await getAllStates()

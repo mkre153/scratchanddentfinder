@@ -17,6 +17,9 @@ import {
 import { CityCard } from '@/components/directory'
 import { JsonLd, generateStateBreadcrumbs } from '@/lib/schema'
 
+// ISR: Revalidate every 5 minutes (directory data changes infrequently)
+export const revalidate = 300
+
 interface PageProps {
   params: Promise<{ state: string }>
 }
