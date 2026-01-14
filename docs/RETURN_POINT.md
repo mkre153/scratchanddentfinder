@@ -10,10 +10,13 @@
 
 | Slice | Name | Status |
 |-------|------|--------|
-| 0 | Apify Import Pipeline | ✅ Complete |
+| 0 | ~~Apify Import Pipeline~~ | 🗑️ Removed (ADR-00X) |
 | 1-9 | Engine Parity | ✅ Complete |
 | 10 | Operator Control + Monetization Readiness | ✅ Complete |
 | 11 | Hardening Guardrails | ✅ Complete |
+
+> **ADR-00X:** Data mining (Apify, Outscraper, etc.) is intentionally external to this codebase.
+> All store data must be pre-normalized and ingested via CSV or user submissions.
 
 ---
 
@@ -74,6 +77,7 @@ This is a **Next.js 14 directory site** for scratch & dent appliance stores.
 - `lib/urls.ts` - Single source of truth for all URLs (Gate 5)
 - `lib/queries.ts` - Data access layer (Gate 7)
 - `lib/supabase/admin.ts` - Only Supabase import point
+- `lib/ingestion/index.ts` - Ingestion boundary (Gate 16) - NO scraping adapters
 - `docs/OPERATOR_RUNBOOK.md` - Operational procedures
 - `docs/GATES/` - Quality gate definitions
 

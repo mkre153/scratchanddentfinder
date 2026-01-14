@@ -688,55 +688,29 @@ async function gate11_deterministicOrdering(): Promise<GateResult> {
 
 async function gate12_importDiscipline(): Promise<GateResult> {
   const violations: string[] = []
-  const importScriptPath = 'scripts/import-apify.ts'
-  const ingestionApifyPath = 'lib/ingestion/apify.ts'
 
-  if (!fs.existsSync(importScriptPath)) {
-    return {
-      gate: 12,
-      name: 'Import Discipline',
-      passed: false,
-      message: 'FAIL: scripts/import-apify.ts does not exist',
-    }
-  }
-
-  const content = fs.readFileSync(importScriptPath, 'utf8')
-
-  // Check that no search query generation/construction happens in the script
-  // The script should filter by category AFTER Apify returns data, not generate queries
-  if (content.includes('searchQuery') || content.includes('generateQuery')) {
-    violations.push('import-apify.ts: must NOT generate or construct search queries')
-  }
-
-  // Check for AI/dynamic query patterns
-  const forbiddenPatterns = [
-    'Math.random',
-    'Date.now()',  // Random seed
-    'crypto.random',
+  // ADR-00X: Scraping is intentionally external
+  // Verify no scraping adapters exist in the codebase
+  const forbiddenFiles = [
+    'lib/ingestion/apify.ts',
+    'lib/ingestion/outscraper.ts',
+    'scripts/import-apify.ts',
+    'scripts/import-outscraper.ts',
   ]
 
-  for (const pattern of forbiddenPatterns) {
-    if (content.includes(pattern)) {
-      violations.push(`import-apify.ts: contains non-deterministic pattern "${pattern}"`)
+  for (const file of forbiddenFiles) {
+    if (fs.existsSync(file)) {
+      violations.push(`${file}: scraping adapter should not exist (ADR-00X)`)
     }
   }
 
-  // Check that category filtering exists in either import script OR ingestion boundary
-  const hasFilteringInScript = content.includes('INCLUDE_CATEGORIES') || content.includes('isRelevantCategory')
-  let hasFilteringInBoundary = false
-
-  if (fs.existsSync(ingestionApifyPath)) {
-    const boundaryContent = fs.readFileSync(ingestionApifyPath, 'utf8')
-    hasFilteringInBoundary = boundaryContent.includes('INCLUDE_CATEGORIES') || boundaryContent.includes('isRelevantCategory')
-  }
-
-  if (!hasFilteringInScript && !hasFilteringInBoundary) {
-    violations.push('import-apify.ts or lib/ingestion/apify.ts: must have category filtering for post-import qualification')
-  }
-
-  // Check that state lookup fails on unknown state (not auto-creates)
-  if (content.includes('createState') || content.includes('upsertState')) {
-    violations.push('import-apify.ts: must NOT auto-create states (should error on unknown state)')
+  // Verify ingestion boundary has the guard comment
+  const boundaryPath = 'lib/ingestion/index.ts'
+  if (fs.existsSync(boundaryPath)) {
+    const content = fs.readFileSync(boundaryPath, 'utf8')
+    if (!content.includes('SCRAPING IS INTENTIONALLY EXTERNAL')) {
+      violations.push('lib/ingestion/index.ts: missing ADR-00X guard comment')
+    }
   }
 
   if (violations.length > 0) {
@@ -752,7 +726,7 @@ async function gate12_importDiscipline(): Promise<GateResult> {
     gate: 12,
     name: 'Import Discipline',
     passed: true,
-    message: 'PASS: Import script uses category filtering, no query generation, no state auto-creation',
+    message: 'PASS: No scraping adapters, scraping is external (ADR-00X)',
   }
 }
 
@@ -982,7 +956,6 @@ async function gate16_ingestionBoundary(): Promise<GateResult> {
 
   // Files allowed to insert into stores/cities tables
   const allowedFiles = [
-    'lib/ingestion/apify.ts',
     'lib/ingestion/submissions.ts',
     'lib/ingestion/index.ts',
     'scripts/gates-verify.ts', // Gate code itself contains pattern strings
@@ -1056,7 +1029,6 @@ async function gate16_ingestionBoundary(): Promise<GateResult> {
   // Verify ingestion boundary files exist
   const boundaryFiles = [
     'lib/ingestion/index.ts',
-    'lib/ingestion/apify.ts',
     'lib/ingestion/submissions.ts',
   ]
 
@@ -1069,9 +1041,6 @@ async function gate16_ingestionBoundary(): Promise<GateResult> {
   // Verify ingestion boundary exports required functions
   if (fs.existsSync('lib/ingestion/index.ts')) {
     const indexContent = fs.readFileSync('lib/ingestion/index.ts', 'utf8')
-    if (!indexContent.includes('ingestStoresFromApify')) {
-      violations.push('lib/ingestion/index.ts: missing ingestStoresFromApify export')
-    }
     if (!indexContent.includes('ingestStoreFromSubmission')) {
       violations.push('lib/ingestion/index.ts: missing ingestStoreFromSubmission export')
     }

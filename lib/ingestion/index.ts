@@ -12,6 +12,14 @@
  * 2. All city inserts go through this module
  * 3. Every operation is logged to ingestion_log
  * 4. All ingested stores get is_verified = true
+ *
+ * ============================================================================
+ * IMPORTANT: SCRAPING IS INTENTIONALLY EXTERNAL (ADR-00X)
+ * ============================================================================
+ * Do NOT add Apify, Outscraper, or any scraping/crawling logic here.
+ * Data mining is a separate system with its own legal and operational risks.
+ * All data must be pre-normalized externally before ingestion.
+ * ============================================================================
  */
 
 import { supabaseAdmin } from '@/lib/supabase/admin'
@@ -21,7 +29,7 @@ import type { City, CityRow, CityInsert } from '@/lib/types'
 // Types
 // =============================================================================
 
-export type IngestionOperation = 'apify_import' | 'submission_approved'
+export type IngestionOperation = 'csv_import' | 'submission_approved'
 
 export interface IngestionLogEntry {
   operation: IngestionOperation
@@ -159,6 +167,4 @@ export async function ensureCity(
 // Re-exports (Source Functions)
 // =============================================================================
 
-export { ingestStoresFromApify } from './apify'
-export type { ApifyPlace, ApifyImportResult } from './apify'
 export { ingestStoreFromSubmission } from './submissions'
