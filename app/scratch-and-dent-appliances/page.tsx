@@ -9,6 +9,7 @@ import type { Metadata } from 'next'
 import { generateAllStatesMetadata } from '@/lib/seo'
 import { getAllStates } from '@/lib/queries'
 import { StateCard } from '@/components/directory'
+import { JsonLd, generateAllStatesBreadcrumbs } from '@/lib/schema'
 
 export const metadata: Metadata = generateAllStatesMetadata()
 
@@ -37,6 +38,9 @@ export default async function AllStatesPage() {
 
   return (
     <>
+      {/* JSON-LD: BreadcrumbList */}
+      <JsonLd data={generateAllStatesBreadcrumbs()} />
+
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-blue-700 to-indigo-900 py-16 text-white">
         <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">

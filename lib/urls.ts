@@ -114,3 +114,17 @@ export function getLeadsApiUrl(): string {
 export function getStripeWebhookUrl(): string {
   return '/api/webhooks/stripe/'
 }
+
+/**
+ * Get checkout API URL (Slice 13)
+ */
+export function getCheckoutApiUrl(): string {
+  return '/api/checkout/'
+}
+
+/**
+ * Get billing portal API URL (Slice 13)
+ */
+export function getBillingPortalApiUrl(): string {
+  return '/api/billing-portal/'
+}

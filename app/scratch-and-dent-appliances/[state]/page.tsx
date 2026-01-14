@@ -15,6 +15,7 @@ import {
   getStateBreadcrumbs,
 } from '@/components/layout/Breadcrumbs'
 import { CityCard } from '@/components/directory'
+import { JsonLd, generateStateBreadcrumbs } from '@/lib/schema'
 
 interface PageProps {
   params: Promise<{ state: string }>
@@ -46,6 +47,9 @@ export default async function StatePage({ params }: PageProps) {
 
   return (
     <>
+      {/* JSON-LD: BreadcrumbList */}
+      <JsonLd data={generateStateBreadcrumbs(state)} />
+
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-blue-700 to-indigo-900 py-16 text-white">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

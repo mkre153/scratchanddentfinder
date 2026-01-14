@@ -25,6 +25,12 @@ import {
   getCityBreadcrumbs,
 } from '@/components/layout/Breadcrumbs'
 import { CityStoreSection, NearbyCities } from '@/components/directory'
+import {
+  JsonLd,
+  JsonLdMultiple,
+  generateCityBreadcrumbs,
+  generateLocalBusinessSchema,
+} from '@/lib/schema'
 
 interface PageProps {
   params: Promise<{ state: string; city: string }>
@@ -69,8 +75,18 @@ export default async function CityPage({ params }: PageProps) {
   // Fetch nearby cities - exactly 12 (Gate 4)
   const nearbyCities = await getNearbyCities(city, 12)
 
+  // Generate LocalBusiness schemas for eligible stores (Guardrail 2)
+  // Only stores with: isApproved AND address+geo AND (phone OR website)
+  const storeSchemas = stores.map((store) =>
+    generateLocalBusinessSchema(store, state, city)
+  )
+
   return (
     <>
+      {/* JSON-LD: BreadcrumbList → LocalBusiness (deterministic order) */}
+      <JsonLd data={generateCityBreadcrumbs(state, city)} />
+      <JsonLdMultiple schemas={storeSchemas} />
+
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-blue-700 to-indigo-900 py-16 text-white">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

@@ -153,7 +153,7 @@ export interface StoreRow {
   rating: number | null
   review_count: number | null
   is_featured: boolean
-  featured_tier: 'monthly' | 'annual' | 'lifetime' | null
+  featured_tier: 'monthly' | 'annual' | null
   featured_until: string | null
   lat: number | null
   lng: number | null
@@ -186,7 +186,7 @@ export interface Store {
   rating: number | null
   reviewCount: number | null
   isFeatured: boolean
-  featuredTier: 'monthly' | 'annual' | 'lifetime' | null
+  featuredTier: 'monthly' | 'annual' | null
   featuredUntil: string | null
   lat: number | null
   lng: number | null
@@ -220,7 +220,7 @@ export interface SubscriptionRow {
   store_id: number
   stripe_customer_id: string
   stripe_subscription_id: string | null
-  tier: 'monthly' | 'annual' | 'lifetime'
+  tier: 'monthly' | 'annual'
   status: 'active' | 'canceled' | 'past_due' | 'incomplete'
   current_period_end: string | null
   created_at: string

@@ -51,3 +51,44 @@ export function createServerClient() {
 
   return createClient<Database>(supabaseUrl!, anonKey)
 }
+
+/**
+ * Create a Supabase client for Server Components with cookie-based auth
+ * Used for authenticated routes (dashboard, API routes, etc.)
+ *
+ * Slice 13: Stripe Integration
+ */
+export async function createAuthClient(cookieStore: {
+  get: (name: string) => { value: string } | undefined
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  set: (name: string, value: string, options?: any) => void
+}) {
+  const { createServerClient: createSSRClient } = await import('@supabase/ssr')
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  if (!anonKey) {
+    throw new Error('Missing NEXT_PUBLIC_SUPABASE_ANON_KEY environment variable')
+  }
+
+  return createSSRClient<Database>(supabaseUrl!, anonKey, {
+    cookies: {
+      get(name: string) {
+        return cookieStore.get(name)?.value
+      },
+      set(name: string, value: string, options) {
+        try {
+          cookieStore.set(name, value, options)
+        } catch {
+          // Ignore - cookies can't be set in Server Components
+        }
+      },
+      remove(name: string, options) {
+        try {
+          cookieStore.set(name, '', { ...options, maxAge: 0 })
+        } catch {
+          // Ignore - cookies can't be set in Server Components
+        }
+      },
+    },
+  })
+}

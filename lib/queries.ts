@@ -779,10 +779,11 @@ export async function getStoresForAdmin(
 /**
  * Set store tier (does NOT modify is_featured)
  * Tier ≠ Exposure. Tier is monetization status, is_featured is SEO exposure.
+ * Used by admin UI for manual tier assignment.
  */
 export async function setStoreTier(
   storeId: number,
-  tier: 'monthly' | 'annual' | 'lifetime' | null,
+  tier: 'monthly' | 'annual' | null,
   featuredUntil: string | null
 ): Promise<void> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -921,4 +922,236 @@ export async function storeExists(storeId: number): Promise<boolean> {
   }
 
   return data !== null
+}
+
+// =============================================================================
+// Stripe Integration Queries (Slice 13)
+// =============================================================================
+//
+// ARCHITECTURAL INVARIANTS:
+// 1. setStoreTierFromCheckout - called ONLY from checkout.session.completed
+// 2. syncSubscription - called ONLY from customer.subscription.* events
+// 3. NEVER clear tier from webhooks - tier lifecycle is time-based
+// 4. is_featured is NEVER touched by these functions
+//
+
+/**
+ * Set store tier from checkout (webhook handler only)
+ * Called from checkout.session.completed event.
+ * Does NOT create subscription record - that happens in subscription.created event.
+ * Does NOT touch is_featured - that requires admin quality gate.
+ */
+export async function setStoreTierFromCheckout(
+  storeId: number,
+  tier: 'monthly' | 'annual',
+  featuredUntil: Date
+): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabaseAdmin as any)
+    .from('stores')
+    .update({
+      featured_tier: tier,
+      featured_until: featuredUntil.toISOString(),
+    })
+    .eq('id', storeId)
+
+  if (error) throw error
+}
+
+/**
+ * Create or update subscription from webhook
+ * Called from customer.subscription.created/updated events.
+ * NEVER touches store tier - that's handled by checkout event.
+ */
+export async function syncSubscription(data: {
+  stripeSubscriptionId: string
+  stripeCustomerId: string
+  storeId: number
+  userId: string
+  tier: 'monthly' | 'annual'
+  status: string
+  currentPeriodEnd: Date
+}): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabaseAdmin as any)
+    .from('subscriptions')
+    .upsert(
+      {
+        stripe_subscription_id: data.stripeSubscriptionId,
+        stripe_customer_id: data.stripeCustomerId,
+        store_id: data.storeId,
+        user_id: data.userId,
+        tier: data.tier,
+        status: data.status,
+        current_period_end: data.currentPeriodEnd.toISOString(),
+      },
+      { onConflict: 'stripe_subscription_id' }
+    )
+
+  if (error) throw error
+}
+
+/**
+ * Update subscription status only
+ * Called from customer.subscription.deleted or invoice.payment_failed.
+ * Does NOT touch store tier - let featured_until govern expiration.
+ */
+export async function updateSubscriptionStatus(
+  stripeSubscriptionId: string,
+  status: string
+): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabaseAdmin as any)
+    .from('subscriptions')
+    .update({ status })
+    .eq('stripe_subscription_id', stripeSubscriptionId)
+
+  if (error) throw error
+}
+
+/**
+ * Get subscription by Stripe customer ID
+ */
+export async function getSubscriptionByStripeCustomerId(
+  stripeCustomerId: string
+): Promise<{
+  id: number
+  storeId: number
+  tier: 'monthly' | 'annual'
+  status: string
+  currentPeriodEnd: string
+} | null> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabaseAdmin as any)
+    .from('subscriptions')
+    .select('id, store_id, tier, status, current_period_end')
+    .eq('stripe_customer_id', stripeCustomerId)
+    .maybeSingle()
+
+  if (error) throw error
+  if (!data) return null
+
+  return {
+    id: data.id,
+    storeId: data.store_id,
+    tier: data.tier,
+    status: data.status,
+    currentPeriodEnd: data.current_period_end,
+  }
+}
+
+// =============================================================================
+// Webhook Idempotency Queries (Slice 13)
+// =============================================================================
+
+/**
+ * Check if a webhook event has already been processed
+ */
+export async function getWebhookEvent(
+  eventId: string
+): Promise<{ event_id: string } | null> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabaseAdmin as any)
+    .from('stripe_webhook_events')
+    .select('event_id')
+    .eq('event_id', eventId)
+    .maybeSingle()
+
+  if (error) {
+    // Table might not exist yet, treat as not processed
+    if (error.code === '42P01') return null
+    throw error
+  }
+
+  return data
+}
+
+/**
+ * Record a webhook event as processed
+ */
+export async function recordWebhookEvent(
+  eventId: string,
+  eventType: string
+): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabaseAdmin as any)
+    .from('stripe_webhook_events')
+    .insert({
+      event_id: eventId,
+      event_type: eventType,
+    })
+
+  if (error) {
+    // Ignore duplicate key errors (idempotency working as expected)
+    if (error.code === '23505') return
+    throw error
+  }
+}
+
+// =============================================================================
+// Stripe Customer Queries (Slice 13)
+// =============================================================================
+
+/**
+ * Get Stripe customer ID for a user
+ */
+export async function getStripeCustomerId(
+  userId: string
+): Promise<string | null> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabaseAdmin as any)
+    .from('profiles')
+    .select('stripe_customer_id')
+    .eq('id', userId)
+    .maybeSingle()
+
+  if (error) throw error
+  return data?.stripe_customer_id ?? null
+}
+
+/**
+ * Save Stripe customer ID for a user
+ */
+export async function saveStripeCustomerId(
+  userId: string,
+  stripeCustomerId: string
+): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabaseAdmin as any)
+    .from('profiles')
+    .update({ stripe_customer_id: stripeCustomerId })
+    .eq('id', userId)
+
+  if (error) throw error
+}
+
+/**
+ * Get a store by ID (for validation in checkout)
+ */
+export async function getStoreById(storeId: number): Promise<Store | null> {
+  const { data, error } = await supabaseAdmin
+    .from('stores')
+    .select('*')
+    .eq('id', storeId)
+    .single()
+
+  if (error) {
+    if (error.code === 'PGRST116') return null
+    throw error
+  }
+  return storeRowToModel(data)
+}
+
+/**
+ * Get user's stores (for dashboard)
+ */
+export async function getStoresByUserId(userId: string): Promise<Store[]> {
+  const { data, error } = await supabaseAdmin
+    .from('stores')
+    .select('*')
+    .eq('claimed_by', userId)
+    .order('name', { ascending: true })
+
+  if (error) throw error
+  return (data ?? []).map(storeRowToModel)
 }

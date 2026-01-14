@@ -1,8 +1,9 @@
 /**
  * Header Component
  *
- * Minimal navigation for Slice 1.
+ * Navigation with mobile menu support.
  * Uses lib/urls.ts for all route generation (Gate 5).
+ * Slice 12: Added mobile navigation.
  */
 
 import Link from 'next/link'
@@ -14,6 +15,7 @@ import {
   getContactUrl,
   getStoreSubmitUrl,
 } from '@/lib/urls'
+import { MobileMenuButton } from './MobileMenuButton'
 
 export function Header() {
   return (
@@ -27,7 +29,7 @@ export function Header() {
             </span>
           </Link>
 
-          {/* Navigation Links */}
+          {/* Desktop Navigation Links */}
           <div className="hidden md:flex md:items-center md:gap-6">
             <Link
               href={getHomepageUrl()}
@@ -61,13 +63,19 @@ export function Header() {
             </Link>
           </div>
 
-          {/* CTA Button */}
-          <Link
-            href={getStoreSubmitUrl()}
-            className="rounded-md bg-yellow-400 px-4 py-2 text-sm font-semibold text-gray-900 hover:bg-yellow-500"
-          >
-            + Add Your Store
-          </Link>
+          {/* CTA + Mobile Menu */}
+          <div className="flex items-center gap-2">
+            {/* CTA Button - hidden on small mobile */}
+            <Link
+              href={getStoreSubmitUrl()}
+              className="hidden sm:block rounded-md bg-yellow-400 px-4 py-2 text-sm font-semibold text-gray-900 hover:bg-yellow-500"
+            >
+              + Add Your Store
+            </Link>
+
+            {/* Mobile Menu Button */}
+            <MobileMenuButton />
+          </div>
         </div>
       </nav>
     </header>

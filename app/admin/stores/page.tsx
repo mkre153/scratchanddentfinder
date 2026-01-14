@@ -32,7 +32,7 @@ async function handleSetTier(formData: FormData) {
   try {
     await setStoreTier(
       storeId,
-      tier === 'none' ? null : (tier as 'monthly' | 'annual' | 'lifetime'),
+      tier === 'none' ? null : (tier as 'monthly' | 'annual'),
       tier === 'none' ? null : featuredUntil || null
     )
     revalidatePath('/admin/stores/')
@@ -139,7 +139,6 @@ export default async function AdminStores() {
                         <option value="none">None</option>
                         <option value="monthly">Monthly</option>
                         <option value="annual">Annual</option>
-                        <option value="lifetime">Lifetime</option>
                       </select>
                       <input
                         type="date"

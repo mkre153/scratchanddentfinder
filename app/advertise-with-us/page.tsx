@@ -69,7 +69,7 @@ export default async function AdvertisePage() {
             Stand out from the competition with a featured listing
           </p>
 
-          <div className="mt-12 grid gap-8 md:grid-cols-3">
+          <div className="mt-12 grid gap-8 md:grid-cols-2 max-w-4xl mx-auto">
             {/* Monthly Plan */}
             <div className="rounded-lg border border-gray-200 bg-white p-8 shadow-sm">
               <h3 className="text-xl font-bold text-gray-900">
@@ -79,6 +79,9 @@ export default async function AdvertisePage() {
                 <span className="text-4xl font-bold">$29</span>
                 <span className="text-gray-600">/month</span>
               </div>
+              <p className="mt-2 text-sm text-gray-500">
+                Billed monthly
+              </p>
               <ul className="mt-6 space-y-3">
                 <li className="flex items-start gap-2">
                   <span className="text-green-600">✓</span>
@@ -141,44 +144,6 @@ export default async function AdvertisePage() {
               <Link
                 href={getStoreSubmitUrl()}
                 className="mt-8 block w-full rounded-md bg-yellow-400 py-3 text-center font-semibold text-gray-900 hover:bg-yellow-500"
-              >
-                Get Started
-              </Link>
-            </div>
-
-            {/* Lifetime Plan */}
-            <div className="rounded-lg border border-gray-200 bg-white p-8 shadow-sm">
-              <h3 className="text-xl font-bold text-gray-900">
-                Featured Lifetime
-              </h3>
-              <div className="mt-4">
-                <span className="text-4xl font-bold">$999</span>
-                <span className="text-gray-600"> one-time</span>
-              </div>
-              <p className="mt-2 text-sm text-green-600 font-semibold">
-                Pay once, featured forever
-              </p>
-              <ul className="mt-6 space-y-3">
-                <li className="flex items-start gap-2">
-                  <span className="text-green-600">✓</span>
-                  <span>Everything in Annual</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-green-600">✓</span>
-                  <span>Permanent featured status</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-green-600">✓</span>
-                  <span>Never pay again</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-green-600">✓</span>
-                  <span>Legacy pricing locked in</span>
-                </li>
-              </ul>
-              <Link
-                href={getStoreSubmitUrl()}
-                className="mt-8 block w-full rounded-md bg-blue-700 py-3 text-center font-semibold text-white hover:bg-blue-800"
               >
                 Get Started
               </Link>
