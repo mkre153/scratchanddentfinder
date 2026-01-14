@@ -128,3 +128,28 @@ export function getCheckoutApiUrl(): string {
 export function getBillingPortalApiUrl(): string {
   return '/api/billing-portal/'
 }
+
+// =============================================================================
+// Auth Routes
+// =============================================================================
+
+/**
+ * Get sign in URL
+ */
+export function getSignInUrl(): string {
+  return '/auth/signin/'
+}
+
+/**
+ * Get sign up URL
+ */
+export function getSignUpUrl(): string {
+  return '/auth/signup/'
+}
+
+/**
+ * Get auth callback URL (for OAuth redirect)
+ */
+export function getAuthCallbackUrl(): string {
+  return '/auth/callback/'
+}
