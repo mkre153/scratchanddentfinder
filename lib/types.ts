@@ -158,13 +158,16 @@ export interface StoreRow {
   lat: number | null
   lng: number | null
   is_approved: boolean
+  is_verified: boolean // True if entered through trusted ingestion boundary
   claimed_by: string | null
   claimed_at: string | null
   created_at: string
   updated_at: string
 }
 
-export type StoreInsert = Omit<StoreRow, 'id' | 'created_at' | 'updated_at'>
+// Note: is_verified is automatically set by the ingestion boundary (Gate 16)
+// and should not be set by callers
+export type StoreInsert = Omit<StoreRow, 'id' | 'created_at' | 'updated_at' | 'is_verified'>
 export type StoreUpdate = Partial<StoreInsert>
 
 export interface Store {
@@ -191,6 +194,7 @@ export interface Store {
   lat: number | null
   lng: number | null
   isApproved: boolean
+  isVerified: boolean // True if entered through trusted ingestion boundary
   claimedBy: string | null
   claimedAt: string | null
 }

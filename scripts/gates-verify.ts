@@ -689,6 +689,7 @@ async function gate11_deterministicOrdering(): Promise<GateResult> {
 async function gate12_importDiscipline(): Promise<GateResult> {
   const violations: string[] = []
   const importScriptPath = 'scripts/import-apify.ts'
+  const ingestionApifyPath = 'lib/ingestion/apify.ts'
 
   if (!fs.existsSync(importScriptPath)) {
     return {
@@ -700,13 +701,6 @@ async function gate12_importDiscipline(): Promise<GateResult> {
   }
 
   const content = fs.readFileSync(importScriptPath, 'utf8')
-
-  // Approved queries from VerticalProfile.discovery.queries
-  const approvedQueries = [
-    'scratch and dent appliances',
-    'discount appliances',
-    'appliance outlet',
-  ]
 
   // Check that no search query generation/construction happens in the script
   // The script should filter by category AFTER Apify returns data, not generate queries
@@ -727,9 +721,17 @@ async function gate12_importDiscipline(): Promise<GateResult> {
     }
   }
 
-  // Check that category filtering exists (post-import qualification)
-  if (!content.includes('INCLUDE_CATEGORIES') && !content.includes('isRelevantCategory')) {
-    violations.push('import-apify.ts: must have category filtering for post-import qualification')
+  // Check that category filtering exists in either import script OR ingestion boundary
+  const hasFilteringInScript = content.includes('INCLUDE_CATEGORIES') || content.includes('isRelevantCategory')
+  let hasFilteringInBoundary = false
+
+  if (fs.existsSync(ingestionApifyPath)) {
+    const boundaryContent = fs.readFileSync(ingestionApifyPath, 'utf8')
+    hasFilteringInBoundary = boundaryContent.includes('INCLUDE_CATEGORIES') || boundaryContent.includes('isRelevantCategory')
+  }
+
+  if (!hasFilteringInScript && !hasFilteringInBoundary) {
+    violations.push('import-apify.ts or lib/ingestion/apify.ts: must have category filtering for post-import qualification')
   }
 
   // Check that state lookup fails on unknown state (not auto-creates)
@@ -972,6 +974,130 @@ async function gate15_marketingSurfaceIsolation(): Promise<GateResult> {
 }
 
 // =============================================================================
+// Gate 16: Ingestion Boundary (Trusted Data Entry)
+// =============================================================================
+
+async function gate16_ingestionBoundary(): Promise<GateResult> {
+  const violations: string[] = []
+
+  // Files allowed to insert into stores/cities tables
+  const allowedFiles = [
+    'lib/ingestion/apify.ts',
+    'lib/ingestion/submissions.ts',
+    'lib/ingestion/index.ts',
+    'scripts/gates-verify.ts', // Gate code itself contains pattern strings
+  ]
+
+  // Check all files in app/, components/, lib/, and scripts/
+  const files = await glob('{app,components,lib,scripts}/**/*.{ts,tsx}')
+
+  for (const file of files) {
+    // Skip allowed files
+    if (allowedFiles.some((allowed) => file.endsWith(allowed))) {
+      continue
+    }
+
+    const content = fs.readFileSync(file, 'utf8')
+    const lines = content.split('\n')
+
+    // Check each line for store/city inserts
+    // This avoids false positives from multi-line regex matching unrelated code
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i]
+
+      // Look for .from('stores').insert or .from('stores').upsert patterns
+      // Could span 2-3 lines, so check a small window
+      const window = lines.slice(i, Math.min(i + 5, lines.length)).join('\n')
+
+      // Store inserts - must have .from('stores') followed by .insert/.upsert within close proximity
+      if (window.includes(".from('stores')") || window.includes('.from("stores")')) {
+        if (window.includes('.insert(') || window.includes('.upsert(')) {
+          // Verify it's actually a stores insert/upsert, not just nearby code
+          const storesIndex = Math.max(
+            window.indexOf(".from('stores')"),
+            window.indexOf('.from("stores")')
+          )
+          const insertIndex = window.indexOf('.insert(')
+          const upsertIndex = window.indexOf('.upsert(')
+
+          // Check if insert/upsert comes after .from('stores') in the window
+          if (
+            (insertIndex > storesIndex && insertIndex - storesIndex < 100) ||
+            (upsertIndex > storesIndex && upsertIndex - storesIndex < 100)
+          ) {
+            violations.push(`${file}:${i + 1}: direct store insert/upsert outside ingestion boundary`)
+            break
+          }
+        }
+      }
+
+      // City inserts - must have .from('cities') followed by .insert/.upsert within close proximity
+      if (window.includes(".from('cities')") || window.includes('.from("cities")')) {
+        if (window.includes('.insert(') || window.includes('.upsert(')) {
+          const citiesIndex = Math.max(
+            window.indexOf(".from('cities')"),
+            window.indexOf('.from("cities")')
+          )
+          const insertIndex = window.indexOf('.insert(')
+          const upsertIndex = window.indexOf('.upsert(')
+
+          if (
+            (insertIndex > citiesIndex && insertIndex - citiesIndex < 100) ||
+            (upsertIndex > citiesIndex && upsertIndex - citiesIndex < 100)
+          ) {
+            violations.push(`${file}:${i + 1}: direct city insert/upsert outside ingestion boundary`)
+            break
+          }
+        }
+      }
+    }
+  }
+
+  // Verify ingestion boundary files exist
+  const boundaryFiles = [
+    'lib/ingestion/index.ts',
+    'lib/ingestion/apify.ts',
+    'lib/ingestion/submissions.ts',
+  ]
+
+  for (const boundaryFile of boundaryFiles) {
+    if (!fs.existsSync(boundaryFile)) {
+      violations.push(`${boundaryFile} does not exist`)
+    }
+  }
+
+  // Verify ingestion boundary exports required functions
+  if (fs.existsSync('lib/ingestion/index.ts')) {
+    const indexContent = fs.readFileSync('lib/ingestion/index.ts', 'utf8')
+    if (!indexContent.includes('ingestStoresFromApify')) {
+      violations.push('lib/ingestion/index.ts: missing ingestStoresFromApify export')
+    }
+    if (!indexContent.includes('ingestStoreFromSubmission')) {
+      violations.push('lib/ingestion/index.ts: missing ingestStoreFromSubmission export')
+    }
+    if (!indexContent.includes('logIngestion')) {
+      violations.push('lib/ingestion/index.ts: missing logIngestion export')
+    }
+  }
+
+  if (violations.length > 0) {
+    return {
+      gate: 16,
+      name: 'Ingestion Boundary',
+      passed: false,
+      message: `FAIL: Ingestion boundary issues:\n  ${violations.join('\n  ')}`,
+    }
+  }
+
+  return {
+    gate: 16,
+    name: 'Ingestion Boundary',
+    passed: true,
+    message: 'PASS: All store/city inserts go through lib/ingestion/',
+  }
+}
+
+// =============================================================================
 // Main
 // =============================================================================
 
@@ -1009,6 +1135,8 @@ async function runGate(gateNumber: number): Promise<GateResult> {
       return await gate14_trustPromotionIsolation()
     case 15:
       return await gate15_marketingSurfaceIsolation()
+    case 16:
+      return await gate16_ingestionBoundary()
     default:
       return {
         gate: gateNumber,
@@ -1038,8 +1166,8 @@ async function main() {
     process.exit(result.passed ? 0 : 1)
   }
 
-  // Run all Core Gates (0-10) + Scale Gates (11-13) + Trust Gates (14) + Surface Gates (15)
-  const allGates = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+  // Run all Core Gates (0-10) + Scale Gates (11-13) + Trust Gates (14) + Surface Gates (15) + Ingestion Gate (16)
+  const allGates = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
   const results: GateResult[] = []
 
   for (const gate of allGates) {
