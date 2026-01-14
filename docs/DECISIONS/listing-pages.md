@@ -7,7 +7,7 @@
 
 ## Rationale
 
-1. **Target site behavior** - scratchanddentlocator.com shows store cards only on city pages
+1. **Target site behavior** - scratchanddentfinder.com shows store cards only on city pages
 2. **City aggregation is the ranking surface** - "scratch and dent appliances in [city]" is the SEO target
 3. **Avoids premature SEO surface explosion** - fewer pages = higher quality signals
 4. **Keeps monetization optional** - featured placement works without dedicated pages

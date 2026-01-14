@@ -38,7 +38,7 @@ export function generateOrganizationSchema(): object {
     logo: `${SITE_URL}/icon`,
     contactPoint: {
       '@type': 'ContactPoint',
-      email: 'scratchanddentlocator@gmail.com',
+      email: 'scratchanddentfinder@gmail.com',
       contactType: 'customer service',
     },
   }

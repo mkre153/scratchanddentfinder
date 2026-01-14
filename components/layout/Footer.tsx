@@ -81,8 +81,8 @@ export function Footer() {
           <div>
             <h3 className="text-lg font-semibold text-white">Contact</h3>
             <ul className="mt-4 space-y-2 text-sm">
-              <li>scratchanddentlocator@gmail.com</li>
-              <li>business@scratchanddentlocator.com</li>
+              <li>scratchanddentfinder@gmail.com</li>
+              <li>business@scratchanddentfinder.com</li>
             </ul>
           </div>
         </div>

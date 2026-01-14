@@ -1,19 +1,19 @@
 /**
- * Sign In Page
+ * Sign Up Page
  *
- * Uses Supabase Auth UI for authentication.
+ * Uses Supabase Auth UI for new user registration.
  * Supports email/password and magic link.
  */
 
-import { SignInForm } from './SignInForm'
+import { SignUpForm } from './SignUpForm'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Sign In | Scratch & Dent Finder',
-  description: 'Sign in to manage your store listing',
+  title: 'Sign Up | Scratch & Dent Finder',
+  description: 'Create an account to manage your store listing',
 }
 
-export default function SignInPage({
+export default function SignUpPage({
   searchParams,
 }: {
   searchParams: { redirect?: string; error?: string }
@@ -25,10 +25,10 @@ export default function SignInPage({
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
           <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-            Sign in to your account
+            Create your account
           </h1>
           <p className="mt-2 text-sm text-gray-600">
-            Or create a new account to get started
+            Sign up to claim and manage your store listing
           </p>
         </div>
 
@@ -38,7 +38,7 @@ export default function SignInPage({
           </div>
         )}
 
-        <SignInForm redirectTo={redirectTo} />
+        <SignUpForm redirectTo={redirectTo} />
       </div>
     </div>
   )

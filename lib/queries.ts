@@ -1016,3 +1016,198 @@ export async function getStoresByUserId(userId: string): Promise<Store[]> {
   if (error) throw error
   return (data ?? []).map(storeRowToModel)
 }
+
+// =============================================================================
+// Subscription Queries (Stripe Hardening)
+// =============================================================================
+
+/**
+ * Get subscriptions for a user (for billing dashboard)
+ */
+export async function getSubscriptionsByUserId(userId: string): Promise<{
+  id: number
+  storeId: number
+  stripeCustomerId: string
+  stripeSubscriptionId: string | null
+  tier: 'monthly' | 'annual'
+  status: 'active' | 'canceled' | 'past_due' | 'incomplete'
+  currentPeriodEnd: string | null
+  createdAt: string
+}[]> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabaseAdmin as any)
+    .from('subscriptions')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+
+  if (error) throw error
+
+  return (data ?? []).map((row: {
+    id: number
+    store_id: number
+    stripe_customer_id: string
+    stripe_subscription_id: string | null
+    tier: 'monthly' | 'annual'
+    status: 'active' | 'canceled' | 'past_due' | 'incomplete'
+    current_period_end: string | null
+    created_at: string
+  }) => ({
+    id: row.id,
+    storeId: row.store_id,
+    stripeCustomerId: row.stripe_customer_id,
+    stripeSubscriptionId: row.stripe_subscription_id,
+    tier: row.tier,
+    status: row.status,
+    currentPeriodEnd: row.current_period_end,
+    createdAt: row.created_at,
+  }))
+}
+
+// =============================================================================
+// Admin Subscription Queries (Admin Visibility)
+// =============================================================================
+
+export interface SubscriptionWithStore {
+  id: number
+  storeId: number
+  storeName: string
+  storeAddress: string
+  userId: string
+  userEmail: string | null
+  stripeCustomerId: string
+  stripeSubscriptionId: string | null
+  tier: 'monthly' | 'annual'
+  status: 'active' | 'canceled' | 'past_due' | 'incomplete'
+  currentPeriodEnd: string | null
+  createdAt: string
+  featuredUntil: string | null
+}
+
+/**
+ * Get all subscriptions with store info for admin view
+ */
+export async function getAllSubscriptionsForAdmin(
+  limit: number = 100,
+  offset: number = 0,
+  statusFilter?: 'active' | 'past_due' | 'canceled' | 'all'
+): Promise<SubscriptionWithStore[]> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let query = (supabaseAdmin as any)
+    .from('subscriptions')
+    .select(`
+      id,
+      store_id,
+      user_id,
+      stripe_customer_id,
+      stripe_subscription_id,
+      tier,
+      status,
+      current_period_end,
+      created_at,
+      stores!inner(name, address, featured_until),
+      profiles!inner(email)
+    `)
+    .order('current_period_end', { ascending: true, nullsFirst: false })
+    .range(offset, offset + limit - 1)
+
+  if (statusFilter && statusFilter !== 'all') {
+    query = query.eq('status', statusFilter)
+  }
+
+  const { data, error } = await query
+
+  if (error) throw error
+
+  return (data ?? []).map((row: {
+    id: number
+    store_id: number
+    user_id: string
+    stripe_customer_id: string
+    stripe_subscription_id: string | null
+    tier: 'monthly' | 'annual'
+    status: 'active' | 'canceled' | 'past_due' | 'incomplete'
+    current_period_end: string | null
+    created_at: string
+    stores: { name: string; address: string; featured_until: string | null }
+    profiles: { email: string | null }
+  }) => ({
+    id: row.id,
+    storeId: row.store_id,
+    storeName: row.stores.name,
+    storeAddress: row.stores.address,
+    userId: row.user_id,
+    userEmail: row.profiles.email,
+    stripeCustomerId: row.stripe_customer_id,
+    stripeSubscriptionId: row.stripe_subscription_id,
+    tier: row.tier,
+    status: row.status,
+    currentPeriodEnd: row.current_period_end,
+    createdAt: row.created_at,
+    featuredUntil: row.stores.featured_until,
+  }))
+}
+
+/**
+ * Get subscription counts for admin dashboard
+ */
+export async function getSubscriptionCounts(): Promise<{
+  active: number
+  pastDue: number
+  canceled: number
+  total: number
+}> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabaseAdmin as any)
+    .from('subscriptions')
+    .select('status')
+
+  if (error) throw error
+
+  const counts = {
+    active: 0,
+    pastDue: 0,
+    canceled: 0,
+    total: (data ?? []).length,
+  }
+
+  for (const row of data ?? []) {
+    if (row.status === 'active') counts.active++
+    else if (row.status === 'past_due') counts.pastDue++
+    else if (row.status === 'canceled') counts.canceled++
+  }
+
+  return counts
+}
+
+/**
+ * Extend store featured_until by N days (admin override)
+ */
+export async function extendStoreFeatured(
+  storeId: number,
+  days: number
+): Promise<void> {
+  // First get current featured_until
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: store, error: fetchError } = await (supabaseAdmin as any)
+    .from('stores')
+    .select('featured_until')
+    .eq('id', storeId)
+    .single()
+
+  if (fetchError) throw fetchError
+
+  // Calculate new date: extend from current date or featured_until, whichever is later
+  const now = new Date()
+  const currentFeaturedUntil = store?.featured_until ? new Date(store.featured_until) : now
+  const baseDate = currentFeaturedUntil > now ? currentFeaturedUntil : now
+  const newFeaturedUntil = new Date(baseDate.getTime() + days * 24 * 60 * 60 * 1000)
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error: updateError } = await (supabaseAdmin as any)
+    .from('stores')
+    .update({ featured_until: newFeaturedUntil.toISOString() })
+    .eq('id', storeId)
+
+  if (updateError) throw updateError
+}

@@ -1,9 +1,10 @@
 'use client'
 
 /**
- * Sign In Form
+ * Sign Up Form
  *
  * Client component using Supabase Auth UI.
+ * Shows sign-up view by default with link to sign-in.
  */
 
 import { Auth } from '@supabase/auth-ui-react'
@@ -11,14 +12,12 @@ import { ThemeSupa } from '@supabase/auth-ui-shared'
 import { createClient } from '@/lib/supabase/browser'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { getResetPasswordUrl } from '@/lib/urls'
 
-interface SignInFormProps {
+interface SignUpFormProps {
   redirectTo: string
 }
 
-export function SignInForm({ redirectTo }: SignInFormProps) {
+export function SignUpForm({ redirectTo }: SignUpFormProps) {
   const supabase = createClient()
   const router = useRouter()
   const [origin, setOrigin] = useState<string | null>(null)
@@ -32,8 +31,13 @@ export function SignInForm({ redirectTo }: SignInFormProps) {
     // Listen for auth state changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session) {
+        // Send welcome email (fire and forget - don't block navigation)
+        fetch('/api/email/welcome/', { method: 'POST' }).catch(() => {
+          // Silently fail - welcome email is not critical
+        })
+
         router.push(redirectTo)
         router.refresh()
       }
@@ -72,33 +76,25 @@ export function SignInForm({ redirectTo }: SignInFormProps) {
         }}
         providers={[]}
         redirectTo={`${origin}/auth/callback/?redirect=${encodeURIComponent(redirectTo)}`}
-        view="sign_in"
+        view="sign_up"
         showLinks={true}
         localization={{
           variables: {
+            sign_up: {
+              email_label: 'Email',
+              password_label: 'Password',
+              button_label: 'Create Account',
+              link_text: 'Already have an account? Sign in',
+            },
             sign_in: {
               email_label: 'Email',
               password_label: 'Password',
               button_label: 'Sign In',
               link_text: "Don't have an account? Sign up",
             },
-            sign_up: {
-              email_label: 'Email',
-              password_label: 'Password',
-              button_label: 'Sign Up',
-              link_text: 'Already have an account? Sign in',
-            },
           },
         }}
       />
-      <div className="mt-4 text-center">
-        <Link
-          href={getResetPasswordUrl()}
-          className="text-sm text-blue-700 hover:text-blue-800"
-        >
-          Forgot your password?
-        </Link>
-      </div>
     </div>
   )
 }

@@ -6,7 +6,7 @@
  */
 
 /**
- * PARITY_MODE: When true, enforces exact behavioral parity with scratchanddentlocator.com
+ * PARITY_MODE: When true, enforces exact behavioral parity with scratchanddentfinder.com
  *
  * Effects:
  * - No forms on directory pages (/, /scratch-and-dent-appliances/**, city pages)
@@ -25,7 +25,7 @@ export const SITE_URL =
 /**
  * Site name for metadata
  */
-export const SITE_NAME = 'Scratch & Dent Locator'
+export const SITE_NAME = 'Scratch & Dent Finder'
 
 /**
  * Default meta description

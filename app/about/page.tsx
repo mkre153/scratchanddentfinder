@@ -28,7 +28,7 @@ export default async function AboutPage() {
       <section className="bg-gradient-to-br from-blue-700 to-indigo-900 py-16 text-white">
         <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
           <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
-            About Scratch & Dent Locator
+            About Scratch & Dent Finder
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-xl text-blue-100">
             Helping families find affordable appliances since 2024
@@ -133,19 +133,19 @@ export default async function AboutPage() {
             <p className="text-gray-600">
               <span className="font-semibold">General Inquiries:</span>{' '}
               <a
-                href="mailto:scratchanddentlocator@gmail.com"
+                href="mailto:scratchanddentfinder@gmail.com"
                 className="text-blue-700 hover:underline"
               >
-                scratchanddentlocator@gmail.com
+                scratchanddentfinder@gmail.com
               </a>
             </p>
             <p className="text-gray-600">
               <span className="font-semibold">Business:</span>{' '}
               <a
-                href="mailto:business@scratchanddentlocator.com"
+                href="mailto:business@scratchanddentfinder.com"
                 className="text-blue-700 hover:underline"
               >
-                business@scratchanddentlocator.com
+                business@scratchanddentfinder.com
               </a>
             </p>
           </div>

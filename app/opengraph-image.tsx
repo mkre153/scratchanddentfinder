@@ -11,7 +11,7 @@ import { SITE_NAME } from '@/lib/config'
 
 export const runtime = 'edge'
 
-export const alt = 'Scratch & Dent Locator - Find Discount Appliance Stores'
+export const alt = 'Scratch & Dent Finder - Find Discount Appliance Stores'
 
 export const size = {
   width: 1200,

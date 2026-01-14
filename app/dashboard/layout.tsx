@@ -12,6 +12,7 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { getDashboardUrl, getDashboardBillingUrl, getHomepageUrl } from '@/lib/urls'
+import { LogoutButton } from '@/components/auth/LogoutButton'
 
 export default async function DashboardLayout({
   children,
@@ -49,6 +50,7 @@ export default async function DashboardLayout({
               >
                 Billing
               </Link>
+              <LogoutButton />
             </nav>
           </div>
         </div>

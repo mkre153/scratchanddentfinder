@@ -208,7 +208,7 @@ export function generateCityMetadata(
 export function generateAboutMetadata(): Metadata {
   const title = `About Us | ${SITE_NAME}`
   const description =
-    'Learn about Scratch & Dent Locator - helping families find affordable appliances with minor cosmetic damage at 30-70% off retail prices.'
+    'Learn about Scratch & Dent Finder - helping families find affordable appliances with minor cosmetic damage at 30-70% off retail prices.'
   const path = getAboutUrl()
 
   return {
@@ -228,7 +228,7 @@ export function generateAboutMetadata(): Metadata {
 export function generateContactMetadata(): Metadata {
   const title = `Contact Us | ${SITE_NAME}`
   const description =
-    'Get in touch with Scratch & Dent Locator. Questions about our directory, store submissions, or business inquiries.'
+    'Get in touch with Scratch & Dent Finder. Questions about our directory, store submissions, or business inquiries.'
   const path = getContactUrl()
 
   return {
@@ -248,7 +248,7 @@ export function generateContactMetadata(): Metadata {
 export function generateAdvertiseMetadata(): Metadata {
   const title = `Advertise With Us | ${SITE_NAME}`
   const description =
-    'Promote your appliance store on Scratch & Dent Locator. Featured listings get top placement and increased visibility.'
+    'Promote your appliance store on Scratch & Dent Finder. Featured listings get top placement and increased visibility.'
   const path = getAdvertiseUrl()
 
   return {

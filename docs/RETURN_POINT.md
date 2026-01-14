@@ -77,4 +77,4 @@ This is a **Next.js 14 directory site** for scratch & dent appliance stores.
 - `docs/OPERATOR_RUNBOOK.md` - Operational procedures
 - `docs/GATES/` - Quality gate definitions
 
-**Architecture pattern:** Factory boundaries + centralized URL generation + parity mode with scratchanddentlocator.com
+**Architecture pattern:** Factory boundaries + centralized URL generation + parity mode with scratchanddentfinder.com

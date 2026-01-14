@@ -1,24 +1,54 @@
 /**
  * Dashboard Billing Page
  *
- * Minimal MVP billing UI:
- * 1. Current plan status (tier + featured_until)
- * 2. "Manage Billing" button → Stripe Customer Portal
+ * Billing UI with subscription status:
+ * 1. Current plan status (tier + status badge + featured_until)
+ * 2. Past due warning with update payment CTA
+ * 3. "Manage Billing" button → Stripe Customer Portal
  *
  * Slice 13: Stripe Integration
- *
- * Deferred to Slice 13.5:
- * - Invoice history display
- * - Multi-store subscription management
- * - In-app upgrade/downgrade UI
+ * Enhanced: Stripe Hardening - status display and warnings
  */
 
 import { createAuthClient } from '@/lib/supabase/admin'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
-import { getStoresByUserId, getStripeCustomerId } from '@/lib/queries'
+import {
+  getStoresByUserId,
+  getStripeCustomerId,
+  getSubscriptionsByUserId,
+} from '@/lib/queries'
 import { getAdvertiseUrl, getBillingPortalApiUrl } from '@/lib/urls'
 import { BillingPortalButton } from './BillingPortalButton'
+
+// Status badge component
+function StatusBadge({
+  status,
+}: {
+  status: 'active' | 'past_due' | 'canceled' | 'incomplete'
+}) {
+  const styles = {
+    active: 'bg-green-100 text-green-800',
+    past_due: 'bg-red-100 text-red-800',
+    canceled: 'bg-gray-100 text-gray-800',
+    incomplete: 'bg-yellow-100 text-yellow-800',
+  }
+
+  const labels = {
+    active: 'Active',
+    past_due: 'Past Due',
+    canceled: 'Canceled',
+    incomplete: 'Incomplete',
+  }
+
+  return (
+    <span
+      className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${styles[status]}`}
+    >
+      {labels[status]}
+    </span>
+  )
+}
 
 export default async function BillingPage({
   searchParams,
@@ -31,19 +61,75 @@ export default async function BillingPage({
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Get user's stores and Stripe customer status
-  const [stores, stripeCustomerId] = await Promise.all([
+  // Get user's stores, subscriptions, and Stripe customer status
+  const [stores, subscriptions, stripeCustomerId] = await Promise.all([
     getStoresByUserId(user!.id),
+    getSubscriptionsByUserId(user!.id),
     getStripeCustomerId(user!.id),
   ])
 
-  // Find stores with active subscriptions
-  const featuredStores = stores.filter((s) => s.featuredTier)
+  // Create a map of store subscriptions for quick lookup
+  const subscriptionByStoreId = new Map(
+    subscriptions.map((sub) => [sub.storeId, sub])
+  )
+
+  // Find stores with featured tier (from store data) and merge with subscription status
+  const featuredStores = stores
+    .filter((s) => s.featuredTier)
+    .map((store) => ({
+      ...store,
+      subscription: subscriptionByStoreId.get(store.id),
+    }))
+
   const hasActiveSubscription = featuredStores.length > 0
+
+  // Check if any subscription is past_due
+  const hasPastDueSubscription = subscriptions.some(
+    (sub) => sub.status === 'past_due'
+  )
 
   return (
     <div>
       <h2 className="text-2xl font-bold text-gray-900">Billing</h2>
+
+      {/* Past Due Warning Banner */}
+      {hasPastDueSubscription && (
+        <div className="mt-4 rounded-lg bg-red-50 border border-red-200 p-4">
+          <div className="flex items-start">
+            <div className="flex-shrink-0">
+              <svg
+                className="h-5 w-5 text-red-400"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <h3 className="text-sm font-medium text-red-800">
+                Payment Failed
+              </h3>
+              <p className="mt-1 text-sm text-red-700">
+                Your payment method was declined. Please update your payment
+                information to keep your featured listing active.
+              </p>
+              {stripeCustomerId && (
+                <div className="mt-3">
+                  <BillingPortalButton
+                    apiUrl={getBillingPortalApiUrl()}
+                    variant="danger"
+                    label="Update Payment Method"
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Success/Cancel messages from Stripe redirect */}
       {searchParams.success && (
@@ -81,12 +167,14 @@ export default async function BillingPage({
                   </p>
                 </div>
                 <div className="text-right">
-                  <span className="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-800">
-                    Active
-                  </span>
+                  <StatusBadge
+                    status={store.subscription?.status ?? 'active'}
+                  />
                   {store.featuredUntil && (
                     <p className="mt-1 text-xs text-gray-500">
-                      Renews{' '}
+                      {store.subscription?.status === 'canceled'
+                        ? 'Expires'
+                        : 'Renews'}{' '}
                       {new Date(store.featuredUntil).toLocaleDateString()}
                     </p>
                   )}
@@ -110,7 +198,7 @@ export default async function BillingPage({
       </div>
 
       {/* Manage Billing Button (Stripe Customer Portal) */}
-      {stripeCustomerId && (
+      {stripeCustomerId && !hasPastDueSubscription && (
         <div className="mt-6">
           <BillingPortalButton apiUrl={getBillingPortalApiUrl()} />
         </div>
@@ -122,10 +210,15 @@ export default async function BillingPage({
           Payment Information
         </h3>
         {stripeCustomerId ? (
-          <p className="mt-2 text-gray-600">
-            Manage your payment methods, view invoices, and update billing
-            details through the Stripe Customer Portal above.
-          </p>
+          <div>
+            <p className="mt-2 text-gray-600">
+              Manage your payment methods, view invoices, and update billing
+              details through the Stripe Customer Portal.
+            </p>
+            <p className="mt-2 text-xs text-gray-400">
+              Customer ID: {stripeCustomerId}
+            </p>
+          </div>
         ) : (
           <p className="mt-2 text-gray-600">
             No payment methods on file. Subscribe to a featured listing to add a

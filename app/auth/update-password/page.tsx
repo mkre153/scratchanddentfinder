@@ -1,34 +1,32 @@
 /**
- * Sign In Page
+ * Update Password Page
  *
- * Uses Supabase Auth UI for authentication.
- * Supports email/password and magic link.
+ * Users land here after clicking the password reset email link.
+ * Supabase automatically handles the token exchange via the callback.
  */
 
-import { SignInForm } from './SignInForm'
+import { UpdatePasswordForm } from './UpdatePasswordForm'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Sign In | Scratch & Dent Finder',
-  description: 'Sign in to manage your store listing',
+  title: 'Set New Password | Scratch & Dent Finder',
+  description: 'Set a new password for your account',
 }
 
-export default function SignInPage({
+export default function UpdatePasswordPage({
   searchParams,
 }: {
-  searchParams: { redirect?: string; error?: string }
+  searchParams: { error?: string }
 }) {
-  const redirectTo = searchParams.redirect || '/dashboard/'
-
   return (
     <div className="min-h-[calc(100vh-200px)] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
           <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-            Sign in to your account
+            Set new password
           </h1>
           <p className="mt-2 text-sm text-gray-600">
-            Or create a new account to get started
+            Enter your new password below
           </p>
         </div>
 
@@ -38,7 +36,7 @@ export default function SignInPage({
           </div>
         )}
 
-        <SignInForm redirectTo={redirectTo} />
+        <UpdatePasswordForm />
       </div>
     </div>
   )

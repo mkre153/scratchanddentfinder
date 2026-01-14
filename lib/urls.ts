@@ -153,3 +153,17 @@ export function getSignUpUrl(): string {
 export function getAuthCallbackUrl(): string {
   return '/auth/callback/'
 }
+
+/**
+ * Get password reset URL
+ */
+export function getResetPasswordUrl(): string {
+  return '/auth/reset-password/'
+}
+
+/**
+ * Get update password URL (for password reset flow)
+ */
+export function getUpdatePasswordUrl(): string {
+  return '/auth/update-password/'
+}

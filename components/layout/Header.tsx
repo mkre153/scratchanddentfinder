@@ -25,7 +25,7 @@ export function Header() {
           {/* Logo */}
           <Link href={getHomepageUrl()} className="flex items-center gap-2">
             <span className="text-xl font-bold text-blue-700">
-              Scratch & Dent Locator
+              Scratch & Dent Finder
             </span>
           </Link>
 
