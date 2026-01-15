@@ -104,7 +104,16 @@ export function Footer() {
 
         {/* Copyright */}
         <div className="mt-8 border-t border-gray-700 pt-8 text-center text-sm">
-          <p>&copy; 2026 Scratch & Dent Appliance Directory. All rights reserved.</p>
+          <p>&copy; 2026 Scratch & Dent Finder. Operated by MK153 Inc.</p>
+          <div className="mt-2 flex justify-center gap-4">
+            <Link href="/privacy/" className="hover:text-white">
+              Privacy Policy
+            </Link>
+            <span className="text-gray-600">|</span>
+            <Link href="/terms/" className="hover:text-white">
+              Terms of Service
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

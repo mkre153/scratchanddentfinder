@@ -40,21 +40,33 @@ export async function requireAdmin(): Promise<{
   userId: string | null
   role: 'admin' | 'super_admin' | null
 }> {
+  // Full bypass for development - skip database check entirely
+  const bypassUserId = process.env.ADMIN_BYPASS_USER_ID
+  if (bypassUserId && process.env.NODE_ENV === 'development') {
+    console.log('[Admin Auth] DEV BYPASS ACTIVE - skipping DB check')
+    return { isAuthorized: true, userId: bypassUserId, role: 'super_admin' }
+  }
+
   const userId = await getCurrentUserId()
+  console.log('[Admin Auth] userId:', userId)
 
   if (!userId) {
+    console.log('[Admin Auth] No userId found')
     return { isAuthorized: false, userId: null, role: null }
   }
 
   try {
     const authorized = await isAdmin(userId)
+    console.log('[Admin Auth] isAdmin result:', authorized)
     if (!authorized) {
       return { isAuthorized: false, userId, role: null }
     }
 
     const role = await getAdminRole(userId)
+    console.log('[Admin Auth] role:', role)
     return { isAuthorized: true, userId, role }
-  } catch {
+  } catch (err) {
+    console.error('[Admin Auth] Error:', err)
     return { isAuthorized: false, userId, role: null }
   }
 }

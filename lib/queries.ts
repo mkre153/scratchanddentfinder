@@ -874,7 +874,7 @@ export async function isAdmin(userId: string): Promise<boolean> {
   const { data, error } = await (supabaseAdmin as any)
     .from('admin_users')
     .select('id')
-    .eq('id', userId)
+    .eq('user_id', userId)
     .maybeSingle()
 
   if (error) throw error
@@ -891,7 +891,7 @@ export async function getAdminRole(
   const { data, error } = await (supabaseAdmin as any)
     .from('admin_users')
     .select('role')
-    .eq('id', userId)
+    .eq('user_id', userId)
     .maybeSingle()
 
   if (error) throw error
