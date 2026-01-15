@@ -1,22 +1,20 @@
 /**
- * Remaining Cities Pack for Data-Miner
+ * ScratchAndDentFinder City Coverage
  *
- * Generated: 2026-01-14
- * Scope: Top 200 US Cities by population minus 35 already configured
- * Total: 165 cities
+ * Baseline (Apify v1): 35 cities (see data/baselines/apify-v1-cities.ts)
+ * Remaining: 133 cities
+ * Total intentional coverage: 168 cities
+ *
+ * NOTE: This is NOT a "Top 200" list. It is the curated coverage target.
  *
  * FORMAT: "City, ST" (exact names, state abbreviations)
- * SOURCE: US Census Bureau population estimates
+ * SOURCE: US Census Bureau population estimates, curated for appliance market density
  *
  * IMPORTANT: This is the source of truth for background ingestion.
- * DO NOT MODIFY without updating the data-miner directive.
+ * The data-miner MUST import from this file - never maintain a separate copy.
  *
- * Already configured (35 cities - NOT included here):
- * Atlanta, Austin, Baltimore, Boston, Charlotte, Chicago, Columbus, Dallas,
- * Denver, Detroit, Houston, Indianapolis, Jacksonville, Kansas City, Las Vegas,
- * Los Angeles, Louisville, Miami, Milwaukee, Minneapolis, Nashville, New York,
- * Oklahoma City, Orlando, Philadelphia, Phoenix, Portland, Raleigh, Sacramento,
- * Salt Lake City, San Antonio, San Francisco, Seattle, St. Louis, Tampa
+ * BASELINE (35 cities - scraped via Apify, DO NOT RE-SCRAPE):
+ * See: data/baselines/apify-v1-cities.ts
  */
 
 export const scratchAndDentRemainingCities = [
