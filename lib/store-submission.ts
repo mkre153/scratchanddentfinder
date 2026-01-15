@@ -13,8 +13,11 @@ export interface SubmissionFormData {
   streetAddress: string
   city: string
   state: string
-  phone?: string
+  zipcode: string
+  phone: string
+  email: string
   website?: string
+  googlePlaceId?: string
 }
 
 export interface ValidationResult {
@@ -109,6 +112,31 @@ export function validateSubmission(data: SubmissionFormData): ValidationResult {
     }
   }
 
+  if (!data.zipcode?.trim()) {
+    errors.zipcode = 'Zipcode is required'
+  } else {
+    // Validate 5-digit or 5+4 format
+    const zipRegex = /^\d{5}(-\d{4})?$/
+    if (!zipRegex.test(data.zipcode.trim())) {
+      errors.zipcode = 'Please enter a valid zipcode (e.g., 12345 or 12345-6789)'
+    }
+  }
+
+  // Phone is required
+  if (!data.phone?.trim()) {
+    errors.phone = 'Phone number is required'
+  }
+
+  // Email is required and must be valid format
+  if (!data.email?.trim()) {
+    errors.email = 'Email is required'
+  } else {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(data.email.trim())) {
+      errors.email = 'Please enter a valid email address'
+    }
+  }
+
   // Optional fields - validate format if provided
   if (data.website?.trim()) {
     try {
@@ -128,8 +156,13 @@ export function validateSubmission(data: SubmissionFormData): ValidationResult {
     street_address: data.streetAddress.trim(),
     city: data.city.trim(),
     state: data.state.toUpperCase(),
-    phone: data.phone?.trim() || null,
+    zipcode: data.zipcode.trim(),
+    phone: data.phone.trim(),
+    email: data.email.trim(),
     website: data.website?.trim() || null,
+    google_place_id: data.googlePlaceId?.trim() || null,
+    verification_code_hash: null,
+    verification_expires_at: null,
   }
 
   return { valid: true, errors: {}, data: submission }

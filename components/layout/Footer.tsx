@@ -12,6 +12,7 @@ import {
   getAdvertiseUrl,
   getAboutUrl,
   getContactUrl,
+  getStoreSubmitUrl,
 } from '@/lib/urls'
 
 export function Footer() {
@@ -71,10 +72,24 @@ export function Footer() {
             <h3 className="text-lg font-semibold text-white">
               For Store Owners
             </h3>
-            <p className="mt-4 text-sm">
-              List your scratch and dent appliance store for free. Upgrade to
-              featured for premium visibility.
-            </p>
+            <ul className="mt-4 space-y-2">
+              <li>
+                <Link
+                  href={getStoreSubmitUrl()}
+                  className="hover:text-white"
+                >
+                  Add Your Store
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href={getAdvertiseUrl()}
+                  className="hover:text-white"
+                >
+                  Get Featured
+                </Link>
+              </li>
+            </ul>
           </div>
 
           {/* Contact */}

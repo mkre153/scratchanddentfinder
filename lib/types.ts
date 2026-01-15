@@ -279,14 +279,24 @@ export interface StoreSubmissionRow {
   street_address: string
   city: string
   state: string
+  zipcode: string | null
   phone: string | null
   website: string | null
+  email: string | null
+  email_verified_at: string | null
+  verification_code_hash: string | null
+  verification_expires_at: string | null
+  verification_attempts: number
+  google_place_id: string | null
   status: 'pending' | 'approved' | 'rejected'
   submitted_at: string
   rejected_at: string | null
 }
 
-export type StoreSubmissionInsert = Omit<StoreSubmissionRow, 'id' | 'submitted_at' | 'status' | 'rejected_at'>
+export type StoreSubmissionInsert = Omit<
+  StoreSubmissionRow,
+  'id' | 'submitted_at' | 'status' | 'rejected_at' | 'email_verified_at' | 'verification_attempts'
+>
 
 export interface StoreSubmission {
   id: string
@@ -294,8 +304,12 @@ export interface StoreSubmission {
   streetAddress: string
   city: string
   state: string
+  zipcode: string | null
   phone: string | null
   website: string | null
+  email: string | null
+  emailVerifiedAt: string | null
+  googlePlaceId: string | null
   status: 'pending' | 'approved' | 'rejected'
   submittedAt: string
   rejectedAt: string | null
@@ -367,6 +381,11 @@ export interface StoreClaimRow {
   user_id: string
   status: 'pending' | 'approved' | 'rejected'
   notes: string | null
+  claimer_name: string | null
+  claimer_email: string | null
+  claimer_phone: string | null
+  claimer_relationship: 'owner' | 'manager' | 'employee' | 'other' | null
+  verification_notes: string | null
   created_at: string
   reviewed_at: string | null
   reviewed_by: string | null
@@ -382,6 +401,11 @@ export interface StoreClaim {
   userId: string
   status: 'pending' | 'approved' | 'rejected'
   notes: string | null
+  claimerName: string | null
+  claimerEmail: string | null
+  claimerPhone: string | null
+  claimerRelationship: 'owner' | 'manager' | 'employee' | 'other' | null
+  verificationNotes: string | null
   createdAt: string
   reviewedAt: string | null
   reviewedBy: string | null

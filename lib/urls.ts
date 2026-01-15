@@ -129,6 +129,13 @@ export function getBillingPortalApiUrl(): string {
   return '/api/billing-portal/'
 }
 
+/**
+ * Get claims API URL (Slice 10)
+ */
+export function getClaimsApiUrl(): string {
+  return '/api/claims/'
+}
+
 // =============================================================================
 // Auth Routes
 // =============================================================================

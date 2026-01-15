@@ -91,23 +91,54 @@ export default async function AdminClaims() {
                 className="bg-white rounded-lg shadow p-6"
               >
                 <div className="flex justify-between items-start">
-                  <div className="space-y-2">
-                    <h2 className="text-xl font-semibold text-gray-900">
-                      {claim.storeName}
-                    </h2>
-                    <p className="text-gray-600">{claim.storeAddress}</p>
-                    <p className="text-sm text-gray-500">
-                      Claim ID: {claim.id}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      User ID: {claim.userId}
-                    </p>
-                    {claim.notes && (
-                      <p className="text-gray-600">Notes: {claim.notes}</p>
-                    )}
-                    <p className="text-sm text-gray-500">
-                      Submitted: {new Date(claim.createdAt).toLocaleString()}
-                    </p>
+                  <div className="flex-1 space-y-4">
+                    {/* Store Info */}
+                    <div>
+                      <h2 className="text-xl font-semibold text-gray-900">
+                        {claim.storeName}
+                      </h2>
+                      <p className="text-gray-600">{claim.storeAddress}</p>
+                    </div>
+
+                    {/* Claimer Verification Info */}
+                    <div className="bg-blue-50 rounded-md p-4 space-y-2">
+                      <h3 className="font-semibold text-blue-900">Claimer Information</h3>
+                      <div className="grid grid-cols-2 gap-2 text-sm">
+                        <div>
+                          <span className="text-gray-500">Name:</span>{' '}
+                          <span className="text-gray-900">{claim.claimerName || 'Not provided'}</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-500">Email:</span>{' '}
+                          <a href={`mailto:${claim.claimerEmail}`} className="text-blue-600 hover:underline">
+                            {claim.claimerEmail || 'Not provided'}
+                          </a>
+                        </div>
+                        <div>
+                          <span className="text-gray-500">Phone:</span>{' '}
+                          <a href={`tel:${claim.claimerPhone}`} className="text-blue-600 hover:underline">
+                            {claim.claimerPhone || 'Not provided'}
+                          </a>
+                        </div>
+                        <div>
+                          <span className="text-gray-500">Relationship:</span>{' '}
+                          <span className="text-gray-900 capitalize">{claim.claimerRelationship || 'Not provided'}</span>
+                        </div>
+                      </div>
+                      {claim.verificationNotes && (
+                        <div className="mt-2 pt-2 border-t border-blue-200">
+                          <span className="text-gray-500 text-sm">How they can verify:</span>
+                          <p className="text-gray-900 mt-1">{claim.verificationNotes}</p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Metadata */}
+                    <div className="text-sm text-gray-500 space-y-1">
+                      <p>Claim ID: {claim.id}</p>
+                      <p>User ID: {claim.userId}</p>
+                      <p>Submitted: {new Date(claim.createdAt).toLocaleString()}</p>
+                    </div>
                   </div>
 
                   <div className="flex gap-2">

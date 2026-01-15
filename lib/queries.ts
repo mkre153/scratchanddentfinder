@@ -141,18 +141,26 @@ export async function getCitiesByStateId(stateId: number): Promise<City[]> {
 }
 
 /**
- * Get a city by slug and state code
+ * Get a city by slug and state (accepts state slug or state ID)
  */
 export async function getCityBySlug(
-  stateCode: string,
+  stateSlugOrId: string | number,
   citySlug: string
 ): Promise<City | null> {
-  const { data, error } = await supabaseAdmin
+  // Build query based on whether we got a state slug or ID
+  let query = supabaseAdmin
     .from('cities')
-    .select('*')
-    .eq('state_code', stateCode.toLowerCase())
+    .select('*, states!inner(slug)')
     .eq('slug', citySlug)
-    .single()
+
+  if (typeof stateSlugOrId === 'number') {
+    query = query.eq('state_id', stateSlugOrId)
+  } else {
+    // Join with states table to match by state slug
+    query = query.eq('states.slug', stateSlugOrId.toLowerCase())
+  }
+
+  const { data, error } = await query.single()
 
   if (error) {
     if (error.code === 'PGRST116') return null
@@ -428,6 +436,106 @@ export async function createStoreSubmission(
   if (error) throw error
 }
 
+/**
+ * Create a pending submission with verification code (for email verification flow)
+ * Returns the created submission with ID
+ */
+export async function createPendingSubmission(
+  submission: StoreSubmissionInsert
+): Promise<{ id: string }> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabaseAdmin as any)
+    .from('store_submissions')
+    .insert(submission)
+    .select('id')
+    .single()
+
+  if (error) throw error
+  return { id: data.id }
+}
+
+/**
+ * Get a submission by ID (includes verification fields)
+ */
+export async function getSubmissionById(
+  submissionId: string
+): Promise<StoreSubmissionRow | null> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabaseAdmin as any)
+    .from('store_submissions')
+    .select('*')
+    .eq('id', submissionId)
+    .single()
+
+  if (error && error.code !== 'PGRST116') throw error
+  return data || null
+}
+
+/**
+ * Mark a submission as email verified
+ */
+export async function verifySubmission(submissionId: string): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabaseAdmin as any)
+    .from('store_submissions')
+    .update({
+      email_verified_at: new Date().toISOString(),
+      verification_code_hash: null, // Clear the code after verification
+    })
+    .eq('id', submissionId)
+
+  if (error) throw error
+}
+
+/**
+ * Increment verification attempts for a submission
+ */
+export async function incrementVerificationAttempts(
+  submissionId: string
+): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabaseAdmin as any)
+    .rpc('increment_verification_attempts', { submission_id: submissionId })
+
+  // If RPC doesn't exist, fall back to manual update
+  if (error) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data } = await (supabaseAdmin as any)
+      .from('store_submissions')
+      .select('verification_attempts')
+      .eq('id', submissionId)
+      .single()
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (supabaseAdmin as any)
+      .from('store_submissions')
+      .update({ verification_attempts: (data?.verification_attempts || 0) + 1 })
+      .eq('id', submissionId)
+  }
+}
+
+/**
+ * Resend verification code for a submission
+ * Returns the new code (unhashed) for sending via email
+ */
+export async function updateVerificationCode(
+  submissionId: string,
+  codeHash: string,
+  expiresAt: string
+): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabaseAdmin as any)
+    .from('store_submissions')
+    .update({
+      verification_code_hash: codeHash,
+      verification_expires_at: expiresAt,
+      verification_attempts: 0, // Reset attempts on resend
+    })
+    .eq('id', submissionId)
+
+  if (error) throw error
+}
+
 // =============================================================================
 // Admin Queries (Slice 6 - Trust Promotion)
 // =============================================================================
@@ -439,8 +547,12 @@ function storeSubmissionRowToModel(row: StoreSubmissionRow): StoreSubmission {
     streetAddress: row.street_address,
     city: row.city,
     state: row.state,
+    zipcode: row.zipcode,
     phone: row.phone,
     website: row.website,
+    email: row.email,
+    emailVerifiedAt: row.email_verified_at,
+    googlePlaceId: row.google_place_id,
     status: row.status,
     submittedAt: row.submitted_at,
     rejectedAt: row.rejected_at,
@@ -449,7 +561,7 @@ function storeSubmissionRowToModel(row: StoreSubmissionRow): StoreSubmission {
 
 /**
  * Get all pending store submissions (admin only)
- * Returns submissions with status='pending', ordered by submitted_at DESC
+ * Returns submissions with status='pending' AND email verified, ordered by submitted_at DESC
  */
 export async function getPendingSubmissions(): Promise<StoreSubmission[]> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -457,6 +569,7 @@ export async function getPendingSubmissions(): Promise<StoreSubmission[]> {
     .from('store_submissions')
     .select('*')
     .eq('status', 'pending')
+    .not('email_verified_at', 'is', null)
     .order('submitted_at', { ascending: false })
 
   if (error) throw error
@@ -530,6 +643,11 @@ function storeClaimRowToModel(row: StoreClaimRow): StoreClaim {
     userId: row.user_id,
     status: row.status,
     notes: row.notes,
+    claimerName: row.claimer_name,
+    claimerEmail: row.claimer_email,
+    claimerPhone: row.claimer_phone,
+    claimerRelationship: row.claimer_relationship,
+    verificationNotes: row.verification_notes,
     createdAt: row.created_at,
     reviewedAt: row.reviewed_at,
     reviewedBy: row.reviewed_by,
@@ -631,6 +749,53 @@ export async function rejectClaim(
     .eq('status', 'pending')
 
   if (error) throw error
+}
+
+/**
+ * Get existing claim for a store by a specific user
+ * Used to prevent duplicate claims
+ */
+export async function getExistingClaim(
+  storeId: number,
+  userId: string
+): Promise<StoreClaim | null> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabaseAdmin as any)
+    .from('store_claims')
+    .select('*')
+    .eq('store_id', storeId)
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .single()
+
+  if (error && error.code !== 'PGRST116') throw error // PGRST116 = no rows found
+  if (!data) return null
+  return storeClaimRowToModel(data as StoreClaimRow)
+}
+
+/**
+ * Get all claims by a user with store details
+ * Used to show pending/rejected claims in user dashboard
+ */
+export async function getClaimsByUserId(
+  userId: string
+): Promise<Array<StoreClaim & { storeName: string; storeAddress: string }>> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabaseAdmin as any)
+    .from('store_claims')
+    .select('*, stores(name, address)')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+
+  if (error) throw error
+  return (data ?? []).map(
+    (row: StoreClaimRow & { stores: { name: string; address: string } }) => ({
+      ...storeClaimRowToModel(row),
+      storeName: row.stores?.name ?? 'Unknown',
+      storeAddress: row.stores?.address ?? '',
+    })
+  )
 }
 
 // =============================================================================

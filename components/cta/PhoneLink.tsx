@@ -8,6 +8,7 @@
  */
 
 import { trackOutboundEvent } from '@/lib/trackers/outbound'
+import { formatPhoneNumber } from '@/lib/format'
 
 interface PhoneLinkProps {
   storeId: number
@@ -32,7 +33,7 @@ export function PhoneLink({ storeId, phone, className }: PhoneLinkProps) {
       className={className}
       data-testid="phone-cta"
     >
-      {phone}
+      {formatPhoneNumber(phone)}
     </a>
   )
 }

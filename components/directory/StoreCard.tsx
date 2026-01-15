@@ -7,10 +7,11 @@
 
 import type { Store } from '@/lib/types'
 import { PhoneLink, DirectionsLink, WebsiteLink } from '@/components/cta'
+import { ClaimButton } from '@/components/claim'
 
 interface StoreCardProps {
   store: Store
-  index: number
+  index?: number // Optional - featured stores don't need numbering
 }
 
 function isStoreOpen(hours: Store['hours']): { isOpen: boolean; todayHours: string | null } {
@@ -33,21 +34,36 @@ export function StoreCard({ store, index }: StoreCardProps) {
 
   return (
     <article
-      className="rounded-lg border bg-white p-6 shadow-sm"
+      className={`rounded-lg border p-6 ${
+        store.isFeatured
+          ? 'border-l-4 border-l-amber-400 bg-gradient-to-r from-amber-50 to-white shadow-md'
+          : 'bg-white shadow-sm'
+      }`}
       data-testid="store-card"
     >
       <div className="flex items-start gap-4">
-        {/* Numbered Badge */}
-        <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-700">
-          {index + 1}
-        </div>
+        {/* Star Badge for Featured, Numbered Badge for Regular */}
+        {store.isFeatured ? (
+          <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+            <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+            </svg>
+          </div>
+        ) : (
+          <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-700">
+            {(index ?? 0) + 1}
+          </div>
+        )}
 
         <div className="flex-1">
           {/* Store Name + Featured Badge */}
           <div className="flex items-center gap-2">
             <h3 className="text-lg font-semibold text-gray-900">{store.name}</h3>
             {store.isFeatured && (
-              <span className="rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800">
+              <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-800">
+                <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
                 Featured
               </span>
             )}
@@ -74,7 +90,7 @@ export function StoreCard({ store, index }: StoreCardProps) {
                 d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
               />
             </svg>
-            {store.address}
+            {store.address}{store.zip ? ` ${store.zip}` : ''}
           </p>
 
           {/* Phone */}
@@ -206,6 +222,16 @@ export function StoreCard({ store, index }: StoreCardProps) {
                   available={store.services.installation}
                 />
               </div>
+            </div>
+          )}
+
+          {/* Claim Button - Only show if not already claimed */}
+          {!store.claimedBy && (
+            <div className="mt-4 border-t pt-4">
+              <ClaimButton
+                storeId={store.id}
+                storeName={store.name}
+              />
             </div>
           )}
         </div>
