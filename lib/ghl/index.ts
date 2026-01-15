@@ -6,7 +6,9 @@
 
 export {
   createOrUpdateContact,
-  syncStoreSubmission,
+  syncNewSubmission,
+  updateSubmissionVerified,
+  syncStoreSubmission, // @deprecated - use syncNewSubmission + updateSubmissionVerified
   syncOwnershipClaim,
   syncStripePurchase,
 } from './contacts'

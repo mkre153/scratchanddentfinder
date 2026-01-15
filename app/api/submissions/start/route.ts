@@ -13,6 +13,7 @@ import { validateSubmission, type SubmissionFormData } from '@/lib/store-submiss
 import { createPendingSubmission } from '@/lib/queries'
 import { getResendClient } from '@/lib/email/resend'
 import { VerificationCodeEmail } from '@/lib/email/templates/verification-code'
+import { syncNewSubmission } from '@/lib/ghl'
 
 // Generate a random 6-digit code
 function generateCode(): string {
@@ -74,6 +75,16 @@ export async function POST(request: NextRequest) {
         businessName: formData.businessName,
       }),
     })
+
+    // Phase 1: Sync to GHL immediately (non-blocking)
+    // Creates contact with pending-verification tags for early outreach
+    syncNewSubmission({
+      email: formData.email,
+      phone: formData.phone,
+      businessName: formData.businessName,
+      city: formData.city,
+      state: formData.state,
+    }).catch((err) => console.error('[GHL] New submission sync failed:', err))
 
     return NextResponse.json({
       success: true,

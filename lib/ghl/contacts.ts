@@ -76,11 +76,14 @@ export async function createOrUpdateContact(
 }
 
 /**
- * Sync a store submission to GHL
+ * Phase 1: Sync new store submission to GHL (on form submit)
  *
- * Convenience function with preset tags for store submissions.
+ * Creates contact immediately with pending-verification tags.
+ * Enables assistive workflows (email reminders, soft nudges).
+ *
+ * Tags: store-submission, pending-verification, unverified
  */
-export async function syncStoreSubmission(submission: {
+export async function syncNewSubmission(submission: {
   email: string
   phone?: string
   businessName: string
@@ -91,14 +94,46 @@ export async function syncStoreSubmission(submission: {
     email: submission.email,
     phone: submission.phone,
     name: submission.businessName,
-    tags: ['store-submission', 'pending-review'],
-    source: 'Store Submission Form',
+    tags: ['store-submission', 'pending-verification', 'unverified'],
+    source: 'Add Your Store',
     customFields: [
       { key: 'business_name', field_value: submission.businessName },
       { key: 'city', field_value: submission.city },
       { key: 'state', field_value: submission.state },
     ],
   })
+}
+
+/**
+ * Phase 2: Update contact after email verification
+ *
+ * Removes pending-verification/unverified tags, adds verified/ready-for-review.
+ * Enables sales-qualified workflows.
+ *
+ * Tags: store-submission, verified, ready-for-review
+ * Removes: pending-verification, unverified
+ */
+export async function updateSubmissionVerified(
+  email: string
+): Promise<GHLResult<{ contactId: string }>> {
+  return createOrUpdateContact({
+    email: email,
+    tags: ['store-submission', 'verified', 'ready-for-review'],
+    // Upsert replaces tags on existing contact (keyed by email)
+  })
+}
+
+/**
+ * @deprecated Use syncNewSubmission() + updateSubmissionVerified() for two-phase lifecycle
+ */
+export async function syncStoreSubmission(submission: {
+  email: string
+  phone?: string
+  businessName: string
+  city: string
+  state: string
+}): Promise<GHLResult<{ contactId: string }>> {
+  return syncNewSubmission(submission)
 }
 
 /**
