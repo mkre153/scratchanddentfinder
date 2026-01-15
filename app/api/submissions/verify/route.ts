@@ -94,8 +94,10 @@ export async function POST(request: NextRequest) {
 
     // Phase 2: Update GHL contact tags (non-blocking)
     // Removes pending-verification/unverified, adds verified/ready-for-review
-    updateSubmissionVerified(submission.email)
-      .catch((err) => console.error('[GHL] Verification update failed:', err))
+    if (submission.email) {
+      updateSubmissionVerified(submission.email)
+        .catch((err) => console.error('[GHL] Verification update failed:', err))
+    }
 
     return NextResponse.json({
       success: true,

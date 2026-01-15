@@ -14,6 +14,9 @@ import { createAuthClient } from '@/lib/supabase/admin'
 import { cookies } from 'next/headers'
 import { syncOwnershipClaim } from '@/lib/ghl'
 
+type ClaimerRelationship = 'owner' | 'manager' | 'employee' | 'other'
+const VALID_RELATIONSHIPS: ClaimerRelationship[] = ['owner', 'manager', 'employee', 'other']
+
 export async function POST(request: NextRequest) {
   try {
     // 1. Get authenticated user
@@ -63,6 +66,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Validate relationship is one of the allowed values
+    if (!VALID_RELATIONSHIPS.includes(claimerRelationship as ClaimerRelationship)) {
+      return NextResponse.json(
+        { error: 'Invalid relationship. Must be: owner, manager, employee, or other' },
+        { status: 400 }
+      )
+    }
+
     // 3. Validate store exists
     const store = await getStoreById(storeId)
     if (!store) {
@@ -99,10 +110,11 @@ export async function POST(request: NextRequest) {
     const claim = await createClaim({
       store_id: storeId,
       user_id: user.id,
+      notes: null, // Legacy field - verification_notes is used instead
       claimer_name: claimerName,
       claimer_email: claimerEmail,
       claimer_phone: claimerPhone,
-      claimer_relationship: claimerRelationship,
+      claimer_relationship: claimerRelationship as ClaimerRelationship,
       verification_notes: verificationNotes,
     })
 
@@ -111,7 +123,7 @@ export async function POST(request: NextRequest) {
       email: claimerEmail,
       phone: claimerPhone || undefined,
       name: claimerName,
-      storeName: store.business_name,
+      storeName: store.name,
       relationship: claimerRelationship,
     }).catch((err) => console.error('[GHL] Claim sync failed:', err))
 

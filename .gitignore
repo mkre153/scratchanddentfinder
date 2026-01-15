@@ -41,3 +41,4 @@ supabase/config.toml
 
 # Data exports (sensitive)
 data/*.json
+.vercel
