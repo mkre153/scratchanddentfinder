@@ -12,6 +12,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClaim, getStoreById, getExistingClaim } from '@/lib/queries'
 import { createAuthClient } from '@/lib/supabase/admin'
 import { cookies } from 'next/headers'
+import { syncOwnershipClaim } from '@/lib/ghl'
 
 export async function POST(request: NextRequest) {
   try {
@@ -105,7 +106,16 @@ export async function POST(request: NextRequest) {
       verification_notes: verificationNotes,
     })
 
-    // 7. Return success with claim ID
+    // 7. Sync to GoHighLevel (non-blocking - errors logged but don't fail the request)
+    syncOwnershipClaim({
+      email: claimerEmail,
+      phone: claimerPhone || undefined,
+      name: claimerName,
+      storeName: store.business_name,
+      relationship: claimerRelationship,
+    }).catch((err) => console.error('[GHL] Claim sync failed:', err))
+
+    // 8. Return success with claim ID
     return NextResponse.json({
       success: true,
       claimId: claim.id,

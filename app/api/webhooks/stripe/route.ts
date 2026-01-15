@@ -24,6 +24,7 @@ import {
   getWebhookEvent,
   recordWebhookEvent,
 } from '@/lib/queries'
+import { syncStripePurchase } from '@/lib/ghl'
 import Stripe from 'stripe'
 
 // Disable body parsing - we need the raw body for signature verification
@@ -142,6 +143,15 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   await setStoreTierFromCheckout(storeIdNum, tier, featuredUntil)
 
   console.log(`Store ${storeIdNum} tier set to ${tier} until ${featuredUntil.toISOString()}`)
+
+  // Sync to GoHighLevel (non-blocking - errors logged but don't fail the webhook)
+  const customerEmail = session.customer_email || session.customer_details?.email
+  if (customerEmail) {
+    syncStripePurchase({
+      email: customerEmail,
+      tier: tier,
+    }).catch((err) => console.error('[GHL] Stripe purchase sync failed:', err))
+  }
 }
 
 /**

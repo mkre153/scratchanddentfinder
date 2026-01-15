@@ -14,6 +14,7 @@ import {
   verifySubmission,
   incrementVerificationAttempts,
 } from '@/lib/queries'
+import { syncStoreSubmission } from '@/lib/ghl'
 
 const MAX_ATTEMPTS = 5
 
@@ -90,6 +91,15 @@ export async function POST(request: NextRequest) {
 
     // Code is valid - mark as verified
     await verifySubmission(submissionId)
+
+    // Sync to GoHighLevel (non-blocking - errors logged but don't fail the request)
+    syncStoreSubmission({
+      email: submission.email,
+      phone: submission.phone || undefined,
+      businessName: submission.business_name,
+      city: submission.city,
+      state: submission.state,
+    }).catch((err) => console.error('[GHL] Sync failed:', err))
 
     return NextResponse.json({
       success: true,
