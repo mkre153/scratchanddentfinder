@@ -67,6 +67,27 @@ export function getAdvertiseUrl(): string {
   return '/advertise-with-us/'
 }
 
+/**
+ * Get privacy policy page URL
+ */
+export function getPrivacyUrl(): string {
+  return '/privacy/'
+}
+
+/**
+ * Get terms of service page URL
+ */
+export function getTermsUrl(): string {
+  return '/terms/'
+}
+
+/**
+ * Get cancellation policy page URL
+ */
+export function getCancellationUrl(): string {
+  return '/cancellation/'
+}
+
 // =============================================================================
 // Store Routes
 // =============================================================================

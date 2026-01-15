@@ -13,6 +13,9 @@ import {
   getAboutUrl,
   getContactUrl,
   getStoreSubmitUrl,
+  getPrivacyUrl,
+  getTermsUrl,
+  getCancellationUrl,
 } from '@/lib/urls'
 
 export function Footer() {
@@ -106,12 +109,16 @@ export function Footer() {
         <div className="mt-8 border-t border-gray-700 pt-8 text-center text-sm">
           <p>&copy; 2026 Scratch & Dent Finder. Operated by MK153 Inc.</p>
           <div className="mt-2 flex justify-center gap-4">
-            <Link href="/privacy/" className="hover:text-white">
+            <Link href={getPrivacyUrl()} className="hover:text-white">
               Privacy Policy
             </Link>
             <span className="text-gray-600">|</span>
-            <Link href="/terms/" className="hover:text-white">
+            <Link href={getTermsUrl()} className="hover:text-white">
               Terms of Service
+            </Link>
+            <span className="text-gray-600">|</span>
+            <Link href={getCancellationUrl()} className="hover:text-white">
+              Cancellation Policy
             </Link>
           </div>
         </div>
