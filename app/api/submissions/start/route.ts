@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
       from: 'Scratch & Dent Finder <info@scratchanddentfinder.com>',
       to: formData.email,
       subject: `Your verification code: ${code}`,
-      react: VerificationCodeEmail({
+      html: VerificationCodeEmail({
         code,
         businessName: formData.businessName,
       }),
