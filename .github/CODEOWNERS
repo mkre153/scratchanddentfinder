@@ -1,0 +1,40 @@
+# CODEOWNERS — UX Contract Enforcement
+#
+# These rules require explicit approval before merging changes
+# to user-facing pages and UX-governed components.
+#
+# Docs: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# ─────────────────────────────────────────────────────────────
+# UX CONTRACT PROTECTED PATHS
+# Changes to these files require UX review before merge.
+# ─────────────────────────────────────────────────────────────
+
+# UX Template Specifications (the contracts themselves)
+/docs/ux/                                    @mkre153
+
+# Homepage
+/app/page.tsx                                @mkre153
+
+# State Pages
+/app/scratch-and-dent-appliances/[state]/    @mkre153
+
+# City Pages (most critical — action-oriented)
+/app/scratch-and-dent-appliances/[state]/[city]/  @mkre153
+
+# Marketing Components (TrustStrip, HowItWorks, BuyerTips, SoftCTA)
+/components/marketing/                       @mkre153
+
+# Directory Components (StateGrid, CityCard, StoreCard, NearbyCities)
+/components/directory/                       @mkre153
+
+# PR Template (governance changes require review)
+/.github/pull_request_template.md            @mkre153
+
+# This file itself (meta-governance)
+/.github/CODEOWNERS                          @mkre153
+
+# ─────────────────────────────────────────────────────────────
+# OPTIONAL: Add team handles for larger organizations
+# Example: @myorg/ux-team or @myorg/frontend
+# ─────────────────────────────────────────────────────────────
