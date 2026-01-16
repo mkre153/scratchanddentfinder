@@ -1,20 +1,35 @@
 /**
  * State Page
  *
- * Lists all cities in a state with stores.
- * NO DATA ASSUMPTIONS: Renders safely with empty database.
- * Uses lib/urls.ts for all route generation (Gate 5).
+ * UX Template: /docs/ux/state-template.md
+ *
+ * Goal: Confirm relevance, explain scratch-and-dent locally, route to cities/stores.
+ * Primary user question: "Is this relevant where I live?"
+ *
+ * STRICT SECTION ORDER:
+ * 1. State Hero (headline, Browse Stores CTA, How It Works CTA)
+ * 2. Trust Strip (4 bullets)
+ * 3. Short Explainer (2-3 sentences)
+ * 4. City Navigation (top cities)
+ * 5. Store Listings (statewide)
+ * 6. State Buying Guide (1 paragraph)
+ * 7. Soft CTA (suggest store)
  */
 
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { generateStateMetadata } from '@/lib/seo'
-import { getStateBySlug, getCitiesByStateId } from '@/lib/queries'
+import {
+  getStateBySlug,
+  getCitiesByStateId,
+  getStoresByStateId,
+} from '@/lib/queries'
 import {
   Breadcrumbs,
   getStateBreadcrumbs,
 } from '@/components/layout/Breadcrumbs'
-import { CityCard } from '@/components/directory'
+import { CityCard, StoreCard } from '@/components/directory'
+import { TrustStrip, SoftCTA } from '@/components/marketing'
 import { JsonLd, generateStateBreadcrumbs } from '@/lib/schema'
 
 // ISR: Revalidate every 5 minutes (directory data changes infrequently)
@@ -45,15 +60,18 @@ export default async function StatePage({ params }: PageProps) {
     notFound()
   }
 
-  // Fetch cities - ordered by store_count DESC, name ASC from queries.ts
-  const cities = await getCitiesByStateId(state.id)
+  // Fetch cities and stores in parallel
+  const [cities, stores] = await Promise.all([
+    getCitiesByStateId(state.id),
+    getStoresByStateId(state.id),
+  ])
 
   return (
     <>
       {/* JSON-LD: BreadcrumbList */}
       <JsonLd data={generateStateBreadcrumbs(state)} />
 
-      {/* Hero Section */}
+      {/* Section 1: State Hero */}
       <section className="bg-warm-50 py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           {/* Breadcrumbs */}
@@ -62,47 +80,61 @@ export default async function StatePage({ params }: PageProps) {
           </div>
 
           <h1 className="text-4xl font-bold tracking-tight text-charcoal sm:text-5xl">
-            {state.emoji} {state.name}
+            Scratch & Dent Appliances in {state.name}
           </h1>
           <p className="mt-4 text-xl text-gray-600">
-            Scratch & Dent Appliance Directory
+            Find discounted appliances at {state.storeCount} local stores across{' '}
+            {state.cityCount} cities.
           </p>
 
-          {/* Stats */}
-          <div className="mt-8 flex gap-8 text-center">
-            <div>
-              <div className="text-3xl font-bold text-sage-700">{state.storeCount}</div>
-              <div className="text-sm text-gray-500">Stores</div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-sage-700">{state.cityCount}</div>
-              <div className="text-sm text-gray-500">Cities</div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-sage-700">30-70%</div>
-              <div className="text-sm text-gray-500">Avg Savings</div>
-            </div>
+          {/* CTAs */}
+          <div className="mt-8 flex flex-col gap-4 sm:flex-row">
+            <a
+              href="#stores"
+              className="rounded-md bg-yellow-400 px-6 py-3 text-center font-semibold text-gray-900 hover:bg-yellow-500"
+            >
+              Browse {state.storeCount} Stores
+            </a>
+            <a
+              href="#how-it-works"
+              className="rounded-md border border-gray-300 bg-white px-6 py-3 text-center font-semibold text-gray-700 hover:bg-gray-50"
+            >
+              How Scratch & Dent Works
+            </a>
           </div>
         </div>
       </section>
 
-      {/* City Directory */}
-      <section className="py-16">
+      {/* Section 2: Trust Strip */}
+      <TrustStrip />
+
+      {/* Section 3: Short Explainer */}
+      <section className="py-10" id="how-it-works">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="mb-8 text-2xl font-bold text-gray-900">
-            Cities in {state.name}
+          <div className="mx-auto max-w-3xl text-center">
+            <p className="text-gray-700">
+              Scratch and dent appliances are brand-new units with minor cosmetic
+              imperfections—a small dent, scuff, or packaging damage—that don&apos;t
+              affect performance. Most come with full manufacturer warranties and
+              deliver the same reliability as retail-priced models, but at 20–60%
+              less.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Section 4: City Navigation */}
+      <section className="py-10">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <h2 className="mb-6 text-xl font-bold text-gray-900">
+            Browse by City in {state.name}
           </h2>
 
           {cities.length === 0 ? (
-            /* Empty State */
-            <div className="text-center">
-              <p className="text-gray-600">
-                No cities with stores found yet in {state.name}. Check back
-                soon!
-              </p>
-            </div>
+            <p className="text-gray-600">
+              No cities with stores found yet in {state.name}. Check back soon!
+            </p>
           ) : (
-            /* City Grid */
             <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
               {cities.map((city) => (
                 <CityCard key={city.id} city={city} state={state} />
@@ -111,6 +143,47 @@ export default async function StatePage({ params }: PageProps) {
           )}
         </div>
       </section>
+
+      {/* Section 5: Store Listings (Statewide) */}
+      <section className="bg-gray-50 py-10" id="stores">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <h2 className="mb-6 text-xl font-bold text-gray-900">
+            All Stores in {state.name}
+          </h2>
+
+          {stores.length === 0 ? (
+            <p className="text-gray-600">
+              No stores found yet in {state.name}. Check back soon!
+            </p>
+          ) : (
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {stores.map((store) => (
+                <StoreCard key={store.id} store={store} state={state} />
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Section 6: State Buying Guide */}
+      <section className="py-10">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <h2 className="mb-4 text-lg font-semibold text-gray-900">
+            Buying Scratch & Dent in {state.name}
+          </h2>
+          <p className="max-w-3xl text-sm text-gray-600">
+            {state.name} has a healthy market for scratch and dent appliances,
+            with outlets and liquidation stores in most metro areas. Inventory
+            turns over quickly—especially for refrigerators, washers, and
+            dryers—so visiting stores in person and checking back regularly can
+            help you find the best deals. Many {state.name} dealers offer delivery
+            and installation.
+          </p>
+        </div>
+      </section>
+
+      {/* Section 7: Soft CTA */}
+      <SoftCTA variant="state" stateName={state.name} />
     </>
   )
 }
