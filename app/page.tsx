@@ -1,8 +1,18 @@
 /**
  * Homepage
  *
- * Minimal hero + stats + CTA for Slice 1.
- * NO DATA ASSUMPTIONS: Renders safely with empty database.
+ * UX Template: /docs/ux/homepage-template.md
+ *
+ * Goal: Establish trust, explain what we do, route users to their state.
+ * Primary user question: "Is this site useful and trustworthy?"
+ *
+ * STRICT SECTION ORDER:
+ * 1. Hero (outcome headline, Browse States CTA, How It Works CTA)
+ * 2. Trust Strip (4 bullets)
+ * 3. How It Works (3 steps)
+ * 4. Browse by State (grid)
+ * 5. Why Use Scratch & Dent Finder (outcome-focused bullets)
+ * 6. Soft CTA (suggest store)
  */
 
 import Link from 'next/link'
@@ -10,6 +20,9 @@ import type { Metadata } from 'next'
 import { getAllStatesUrl } from '@/lib/urls'
 import { generateHomepageMetadata } from '@/lib/seo'
 import { getAllStates } from '@/lib/queries'
+import { TrustStrip, HowItWorks, SoftCTA } from '@/components/marketing'
+import { StateGrid } from '@/components/directory'
+import { Search, Zap, Scale } from 'lucide-react'
 
 export const metadata: Metadata = generateHomepageMetadata()
 
@@ -20,92 +33,104 @@ export default async function HomePage() {
   // Fetch states - handles empty database gracefully
   const states = await getAllStates()
 
-  // Calculate stats from actual data
-  const totalStores = states.reduce((sum, s) => sum + s.storeCount, 0)
-  const totalStates = states.length
-  const totalCities = states.reduce((sum, s) => sum + s.cityCount, 0)
-
   return (
     <>
-      {/* Hero Section */}
+      {/* Section 1: Hero */}
       <section className="bg-warm-50 py-20">
         <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
           <h1 className="text-4xl font-bold tracking-tight text-charcoal sm:text-5xl md:text-6xl">
             Save 30-70% on Quality Appliances
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-xl text-gray-600">
-            Your trusted source for finding discount appliances with minor
-            cosmetic damage. Find scratch and dent appliance stores near you.
+            Find scratch and dent appliance stores near you. Real local stores,
+            real savings, no paid rankings.
           </p>
 
-          {/* Stats Bar */}
-          <div className="mt-10 flex justify-center gap-8 text-center">
-            <div>
-              <div className="text-3xl font-bold text-sage-700">
-                {totalStores.toLocaleString()}
-              </div>
-              <div className="text-sm text-gray-500">Stores</div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-sage-700">{totalStates}</div>
-              <div className="text-sm text-gray-500">States</div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-sage-700">
-                {totalCities.toLocaleString()}
-              </div>
-              <div className="text-sm text-gray-500">Cities</div>
-            </div>
-          </div>
-
-          {/* CTA Buttons */}
+          {/* CTA Buttons - Primary: Browse States, Secondary: How It Works */}
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
               href={getAllStatesUrl()}
               className="rounded-md bg-yellow-400 px-8 py-3 text-lg font-semibold text-gray-900 hover:bg-yellow-500"
             >
-              Browse All States
+              Browse Stores by State
             </Link>
+            <a
+              href="#how-it-works"
+              className="rounded-md border border-gray-300 bg-white px-8 py-3 text-lg font-semibold text-gray-700 hover:bg-gray-50"
+            >
+              How It Works
+            </a>
           </div>
         </div>
       </section>
 
-      {/* Benefits Section */}
-      <section className="py-16">
+      {/* Section 2: Trust Strip */}
+      <TrustStrip />
+
+      {/* Section 3: How It Works */}
+      <HowItWorks />
+
+      {/* Section 4: Browse by State */}
+      {states.length > 0 && <StateGrid states={states} />}
+
+      {/* Section 5: Why Use Scratch & Dent Finder */}
+      <section className="py-12">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="text-center text-3xl font-bold text-gray-900">
-            Why Shop Scratch & Dent?
+          <h2 className="mb-8 text-center text-2xl font-bold text-gray-900">
+            Why Use Scratch & Dent Finder?
           </h2>
-          <div className="mt-12 grid gap-8 md:grid-cols-3">
-            <div className="text-center">
-              <div className="text-4xl">💰</div>
-              <h3 className="mt-4 text-xl font-semibold">Save 30-70%</h3>
-              <p className="mt-2 text-gray-600">
-                Get the same quality appliances at a fraction of the retail
-                price.
-              </p>
+
+          <div className="grid gap-6 md:grid-cols-3">
+            <div className="flex items-start gap-4">
+              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-sage-100">
+                <Search className="h-5 w-5 text-sage-700" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900">
+                  Find local outlets fast
+                </h3>
+                <p className="mt-1 text-sm text-gray-600">
+                  Search by state and city to discover stores in your area.
+                </p>
+              </div>
             </div>
-            <div className="text-center">
-              <div className="text-4xl">✅</div>
-              <h3 className="mt-4 text-xl font-semibold">Full Warranties</h3>
-              <p className="mt-2 text-gray-600">
-                Many scratch and dent appliances come with full manufacturer
-                warranties.
-              </p>
+
+            <div className="flex items-start gap-4">
+              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-sage-100">
+                <Scale className="h-5 w-5 text-sage-700" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900">
+                  Compare multiple stores
+                </h3>
+                <p className="mt-1 text-sm text-gray-600">
+                  See all your options in one place before you visit.
+                </p>
+              </div>
             </div>
-            <div className="text-center">
-              <div className="text-4xl">🚚</div>
-              <h3 className="mt-4 text-xl font-semibold">Delivery Available</h3>
-              <p className="mt-2 text-gray-600">
-                Most stores offer delivery and installation services.
-              </p>
+
+            <div className="flex items-start gap-4">
+              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-sage-100">
+                <Zap className="h-5 w-5 text-sage-700" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900">
+                  Avoid paying full retail
+                </h3>
+                <p className="mt-1 text-sm text-gray-600">
+                  Get brand-name appliances at a fraction of the price.
+                </p>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Empty State Message */}
-      {totalStores === 0 && (
+      {/* Section 6: Soft CTA */}
+      <SoftCTA variant="homepage" />
+
+      {/* Empty State - Only show if no stores */}
+      {states.length === 0 && (
         <section className="bg-gray-50 py-16">
           <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
             <h2 className="text-2xl font-bold text-gray-900">
