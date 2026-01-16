@@ -107,10 +107,10 @@ export async function syncNewSubmission(submission: {
 /**
  * Phase 2: Update contact after email verification
  *
- * Removes pending-verification/unverified tags, adds verified/ready-for-review.
+ * Removes pending-verification/unverified tags, adds verified/ready-for-review/confirmation-sent.
  * Enables sales-qualified workflows.
  *
- * Tags: store-submission, verified, ready-for-review
+ * Tags: store-submission, verified, ready-for-review, confirmation-sent
  * Removes: pending-verification, unverified
  */
 export async function updateSubmissionVerified(
@@ -118,7 +118,7 @@ export async function updateSubmissionVerified(
 ): Promise<GHLResult<{ contactId: string }>> {
   return createOrUpdateContact({
     email: email,
-    tags: ['store-submission', 'verified', 'ready-for-review'],
+    tags: ['store-submission', 'verified', 'ready-for-review', 'confirmation-sent'],
     // Upsert replaces tags on existing contact (keyed by email)
   })
 }

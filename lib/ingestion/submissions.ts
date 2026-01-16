@@ -13,6 +13,7 @@
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import type { StoreInsert, Store, StoreRow } from '@/lib/types'
 import { ensureCity, logIngestion } from './index'
+import { hashAddress, normalizePhone } from '@/lib/utils/address-normalizer'
 
 // =============================================================================
 // Row to Model Transformer
@@ -134,10 +135,33 @@ export async function ingestStoreFromSubmission(
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '')
 
-  // 5. Generate a unique place_id for self-submitted stores
+  // 5. Generate address hash for deduplication
+  const addressHash = hashAddress(submission.street_address)
+  const phoneNormalized = normalizePhone(submission.phone)
+
+  // 6. Check for existing store at this address (duplicate prevention)
+  if (addressHash) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: existingStore } = await (supabaseAdmin as any)
+      .from('stores')
+      .select('id, name, slug')
+      .eq('address_hash', addressHash)
+      .or('is_archived.is.null,is_archived.eq.false')
+      .single()
+
+    if (existingStore) {
+      throw new Error(
+        `Duplicate detected: A store already exists at this address. ` +
+        `Existing store: "${existingStore.name}" (ID: ${existingStore.id}). ` +
+        `Consider claiming the existing listing instead.`
+      )
+    }
+  }
+
+  // 7. Generate a unique place_id for self-submitted stores
   const placeId = `submission_${submissionId}`
 
-  // 6. Create the store record with is_verified = true
+  // 8. Create the store record with is_verified = true
   const storeInsert: StoreInsert = {
     place_id: placeId,
     user_id: null,
@@ -163,11 +187,14 @@ export async function ingestStoreFromSubmission(
     is_approved: true,
     claimed_by: null,
     claimed_at: null,
+    // Deduplication fields
+    address_hash: addressHash,
+    phone_normalized: phoneNormalized,
   }
 
   const store = await upsertVerifiedStore(storeInsert)
 
-  // 7. Mark submission as approved (only after store created successfully)
+  // 9. Mark submission as approved (only after store created successfully)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { error: updateError } = await (supabaseAdmin as any)
     .from('store_submissions')
@@ -180,7 +207,7 @@ export async function ingestStoreFromSubmission(
     console.error('Failed to mark submission as approved:', updateError)
   }
 
-  // 8. Log the ingestion operation
+  // 10. Log the ingestion operation
   await logIngestion(
     'submission_approved',
     `submission_${submissionId}`,

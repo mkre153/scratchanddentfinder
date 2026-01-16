@@ -163,11 +163,17 @@ export interface StoreRow {
   claimed_at: string | null
   created_at: string
   updated_at: string
+  // Deduplication fields (migration 0014)
+  address_hash: string | null
+  phone_normalized: string | null
+  is_archived: boolean
+  archived_reason: string | null
+  merged_into_store_id: number | null
 }
 
 // Note: is_verified is automatically set by the ingestion boundary (Gate 16)
-// and should not be set by callers
-export type StoreInsert = Omit<StoreRow, 'id' | 'created_at' | 'updated_at' | 'is_verified'>
+// and should not be set by callers. Archive fields have DB defaults.
+export type StoreInsert = Omit<StoreRow, 'id' | 'created_at' | 'updated_at' | 'is_verified' | 'is_archived' | 'archived_reason' | 'merged_into_store_id'>
 export type StoreUpdate = Partial<StoreInsert>
 
 export interface Store {

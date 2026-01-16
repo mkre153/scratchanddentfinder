@@ -15,6 +15,8 @@ import {
   incrementVerificationAttempts,
 } from '@/lib/queries'
 import { updateSubmissionVerified } from '@/lib/ghl'
+import { getResendClient } from '@/lib/email/resend'
+import { SubmissionConfirmedEmail } from '@/lib/email/templates/submission-confirmed'
 
 const MAX_ATTEMPTS = 5
 
@@ -92,8 +94,21 @@ export async function POST(request: NextRequest) {
     // Code is valid - mark as verified
     await verifySubmission(submissionId)
 
+    // Send confirmation email (non-blocking)
+    if (submission.email && submission.business_name) {
+      const resend = getResendClient()
+      resend.emails.send({
+        from: 'Scratch & Dent Finder <info@scratchanddentfinder.com>',
+        to: submission.email,
+        subject: 'Your store submission is under review',
+        html: SubmissionConfirmedEmail({
+          businessName: submission.business_name,
+        }),
+      }).catch((err) => console.error('[Resend] Confirmation email failed:', err))
+    }
+
     // Phase 2: Update GHL contact tags (non-blocking)
-    // Removes pending-verification/unverified, adds verified/ready-for-review
+    // Removes pending-verification/unverified, adds verified/ready-for-review/confirmation-sent
     if (submission.email) {
       updateSubmissionVerified(submission.email)
         .catch((err) => console.error('[GHL] Verification update failed:', err))
