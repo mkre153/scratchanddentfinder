@@ -116,3 +116,38 @@ export function normalizeBusinessName(name: string): string {
     .replace(/\s+/g, ' ')
     .trim()
 }
+
+/**
+ * Extract US ZIP code from an address string
+ *
+ * Handles formats:
+ * - 5-digit ZIP: "Phoenix, AZ 85017"
+ * - ZIP+4: "Phoenix, AZ 85017-1234"
+ * - With or without state: "123 Main St, 85017"
+ *
+ * Returns null if no valid ZIP found.
+ *
+ * @example
+ * extractZipFromAddress("2983 W Fairmount Ave, Phoenix, Arizona, 85017") // "85017"
+ * extractZipFromAddress("3434 W Greenway Rd Suite 114, Phoenix, Arizona") // null
+ */
+export function extractZipFromAddress(address: string | null | undefined): string | null {
+  if (!address) return null
+
+  // Match 5-digit ZIP, optionally with +4 extension
+  // Look for it at the end of the string or followed by common suffixes
+  // US ZIP codes: 00501 (NY) to 99950 (AK)
+  const zipPattern = /\b(\d{5})(?:-\d{4})?\s*(?:,?\s*(?:USA?|United States)?)?$/i
+
+  const match = address.match(zipPattern)
+  if (match) {
+    const zip = match[1]
+    // Basic validation: US ZIPs are 00501-99950
+    const zipNum = parseInt(zip, 10)
+    if (zipNum >= 501 && zipNum <= 99950) {
+      return zip
+    }
+  }
+
+  return null
+}

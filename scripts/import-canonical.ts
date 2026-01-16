@@ -295,6 +295,7 @@ async function main(): Promise<void> {
   // Now import database modules (after env is loaded)
   const { supabaseAdmin } = await import('../lib/supabase/admin')
   const { ensureCity, logIngestion } = await import('../lib/ingestion')
+  const { extractZipFromAddress } = await import('../lib/utils/address-normalizer')
 
   // -------------------------------------------------------------------------
   // Database helper functions (use loaded supabaseAdmin)
@@ -344,6 +345,9 @@ async function main(): Promise<void> {
     // Generate place_id from google_place_id
     const placeId = `google_${place.external_ids.google_place_id}`
 
+    // Extract ZIP from address string (may be null)
+    const zip = extractZipFromAddress(place.address)
+
     const now = new Date().toISOString()
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -357,7 +361,7 @@ async function main(): Promise<void> {
         address: place.address,
         city_id: cityId,
         state_id: stateId,
-        zip: null,
+        zip,
         phone: place.phone,
         website: place.website ?? null,
         description: null,
