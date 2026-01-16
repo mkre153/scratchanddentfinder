@@ -14,20 +14,160 @@ import { createHash } from 'crypto'
  * - Lowercase
  * - Remove punctuation
  * - Strip ZIP codes (including doubled patterns like "02903 02903")
- * - Strip state names and abbreviations
+ * - Extract and PRESERVE 2-letter state code (appended at end)
+ * - Strip full state names (converted to 2-letter code)
  * - Normalize street suffixes (Street → st, Avenue → av, etc.)
  * - Normalize directional prefixes (North → n, South → s, etc.)
  * - Remove unit/suite numbers
  * - Collapse whitespace
  *
  * This ensures the same physical address produces the same hash
- * regardless of ZIP/state formatting variations.
+ * regardless of ZIP/state formatting variations, while PREVENTING
+ * cross-state collisions (same street/city in different states).
  */
 export function normalizeAddress(address: string): string {
   if (!address) return ''
 
-  return address
-    .toLowerCase()
+  // State name → 2-letter code mapping
+  const stateNameToCode: Record<string, string> = {
+    alabama: 'al',
+    alaska: 'ak',
+    arizona: 'az',
+    arkansas: 'ar',
+    california: 'ca',
+    colorado: 'co',
+    connecticut: 'ct',
+    delaware: 'de',
+    florida: 'fl',
+    georgia: 'ga',
+    hawaii: 'hi',
+    idaho: 'id',
+    illinois: 'il',
+    indiana: 'in',
+    iowa: 'ia',
+    kansas: 'ks',
+    kentucky: 'ky',
+    louisiana: 'la',
+    maine: 'me',
+    maryland: 'md',
+    massachusetts: 'ma',
+    michigan: 'mi',
+    minnesota: 'mn',
+    mississippi: 'ms',
+    missouri: 'mo',
+    montana: 'mt',
+    nebraska: 'ne',
+    nevada: 'nv',
+    'new hampshire': 'nh',
+    'new jersey': 'nj',
+    'new mexico': 'nm',
+    'new york': 'ny',
+    'north carolina': 'nc',
+    'north dakota': 'nd',
+    ohio: 'oh',
+    oklahoma: 'ok',
+    oregon: 'or',
+    pennsylvania: 'pa',
+    'rhode island': 'ri',
+    'south carolina': 'sc',
+    'south dakota': 'sd',
+    tennessee: 'tn',
+    texas: 'tx',
+    utah: 'ut',
+    vermont: 'vt',
+    virginia: 'va',
+    washington: 'wa',
+    'west virginia': 'wv',
+    wisconsin: 'wi',
+    wyoming: 'wy',
+    'district of columbia': 'dc',
+  }
+
+  // Valid 2-letter state codes
+  const stateCodes = new Set([
+    'al',
+    'ak',
+    'az',
+    'ar',
+    'ca',
+    'co',
+    'ct',
+    'de',
+    'dc',
+    'fl',
+    'ga',
+    'hi',
+    'id',
+    'il',
+    'in',
+    'ia',
+    'ks',
+    'ky',
+    'la',
+    'me',
+    'md',
+    'ma',
+    'mi',
+    'mn',
+    'ms',
+    'mo',
+    'mt',
+    'ne',
+    'nv',
+    'nh',
+    'nj',
+    'nm',
+    'ny',
+    'nc',
+    'nd',
+    'oh',
+    'ok',
+    'or',
+    'pa',
+    'ri',
+    'sc',
+    'sd',
+    'tn',
+    'tx',
+    'ut',
+    'vt',
+    'va',
+    'wa',
+    'wv',
+    'wi',
+    'wy',
+  ])
+
+  let normalized = address.toLowerCase()
+
+  // STEP 1: Extract state code BEFORE any stripping
+  // This is critical to prevent cross-state collisions
+  let extractedStateCode: string | null = null
+
+  // Try to find 2-letter state code at end (before ZIP if present)
+  // Pattern: "city, ST 12345" or "city, ST" or "city ST"
+  const stateCodeMatch = normalized.match(
+    /[,\s]+(al|ak|az|ar|ca|co|ct|de|dc|fl|ga|hi|id|il|in|ia|ks|ky|la|me|md|ma|mi|mn|ms|mo|mt|ne|nv|nh|nj|nm|ny|nc|nd|oh|ok|or|pa|ri|sc|sd|tn|tx|ut|vt|va|wa|wv|wi|wy)(?:\s+\d{5})?(?:[-\s]*\d{4})?\s*$/i
+  )
+  if (stateCodeMatch) {
+    extractedStateCode = stateCodeMatch[1].toLowerCase()
+  }
+
+  // If no 2-letter code found, try full state names at END of address only
+  // This prevents matching "Pennsylvania" in "Pennsylvania Avenue"
+  if (!extractedStateCode) {
+    // Look for state names followed by optional ZIP at the end
+    const stateNamePattern =
+      /,\s*(alabama|alaska|arizona|arkansas|california|colorado|connecticut|delaware|florida|georgia|hawaii|idaho|illinois|indiana|iowa|kansas|kentucky|louisiana|maine|maryland|massachusetts|michigan|minnesota|mississippi|missouri|montana|nebraska|nevada|new\s+hampshire|new\s+jersey|new\s+mexico|new\s+york|north\s+carolina|north\s+dakota|ohio|oklahoma|oregon|pennsylvania|rhode\s+island|south\s+carolina|south\s+dakota|tennessee|texas|utah|vermont|virginia|washington|west\s+virginia|wisconsin|wyoming|district\s+of\s+columbia)(?:,?\s*\d{5})?(?:[-\s]*\d{4})?\s*$/i
+    const fullNameMatch = normalized.match(stateNamePattern)
+    if (fullNameMatch) {
+      const matchedState = fullNameMatch[1].toLowerCase().replace(/\s+/g, ' ')
+      extractedStateCode = stateNameToCode[matchedState] || null
+    }
+  }
+
+  // STEP 2: Now perform the normalization
+  normalized = normalized
     .replace(/[^\w\s]/g, ' ') // Remove punctuation
 
     // Strip doubled ZIP codes first (e.g., "02903 02903" → "")
@@ -38,18 +178,16 @@ export function normalizeAddress(address: string): string {
     // This avoids stripping 5-digit street numbers like "19201 W Warren Ave"
     .replace(/\s+\d{5}(?:[-\s]*\d{4})?\s*$/g, '')
 
-    // Strip full state names (must come before abbreviations to avoid partial matches)
+    // Strip full state names only when they appear AFTER punctuation (state position)
+    // This prevents stripping "Pennsylvania" from "Pennsylvania Avenue"
     .replace(
-      /\b(alabama|alaska|arizona|arkansas|california|colorado|connecticut|delaware|florida|georgia|hawaii|idaho|illinois|indiana|iowa|kansas|kentucky|louisiana|maine|maryland|massachusetts|michigan|minnesota|mississippi|missouri|montana|nebraska|nevada|new\s+hampshire|new\s+jersey|new\s+mexico|new\s+york|north\s+carolina|north\s+dakota|ohio|oklahoma|oregon|pennsylvania|rhode\s+island|south\s+carolina|south\s+dakota|tennessee|texas|utah|vermont|virginia|washington|west\s+virginia|wisconsin|wyoming)\b/g,
+      /(\s)(alabama|alaska|arizona|arkansas|california|colorado|connecticut|delaware|florida|georgia|hawaii|idaho|illinois|indiana|iowa|kansas|kentucky|louisiana|maine|maryland|massachusetts|michigan|minnesota|mississippi|missouri|montana|nebraska|nevada|new\s+hampshire|new\s+jersey|new\s+mexico|new\s+york|north\s+carolina|north\s+dakota|ohio|oklahoma|oregon|pennsylvania|rhode\s+island|south\s+carolina|south\s+dakota|tennessee|texas|utah|vermont|virginia|washington|west\s+virginia|wisconsin|wyoming|district\s+of\s+columbia)\s*$/gi,
       ''
     )
 
-    // Strip 2-letter state codes (careful not to remove valid street parts)
+    // Strip 2-letter state codes (we already extracted the code)
     // Only remove if they appear to be state codes (at end or before ZIP position)
-    .replace(
-      /\b(al|ak|az|ar|ca|co|ct|de|fl|ga|hi|id|il|in|ia|ks|ky|la|me|md|ma|mi|mn|ms|mo|mt|ne|nv|nh|nj|nm|ny|nc|nd|oh|ok|or|pa|ri|sc|sd|tn|tx|ut|vt|va|wa|wv|wi|wy)\s*$/g,
-      ''
-    )
+    .replace(/\b(al|ak|az|ar|ca|co|ct|de|dc|fl|ga|hi|id|il|in|ia|ks|ky|la|me|md|ma|mi|mn|ms|mo|mt|ne|nv|nh|nj|nm|ny|nc|nd|oh|ok|or|pa|ri|sc|sd|tn|tx|ut|vt|va|wa|wv|wi|wy)\s*$/g, '')
 
     // Street suffixes
     .replace(/\b(street|str)\b/g, 'st')
@@ -83,6 +221,13 @@ export function normalizeAddress(address: string): string {
     // Collapse whitespace
     .replace(/\s+/g, ' ')
     .trim()
+
+  // STEP 3: Append state code at end (critical for cross-state uniqueness)
+  if (extractedStateCode && stateCodes.has(extractedStateCode)) {
+    normalized = `${normalized} ${extractedStateCode}`
+  }
+
+  return normalized
 }
 
 /**

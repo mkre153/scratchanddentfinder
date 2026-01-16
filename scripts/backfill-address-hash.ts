@@ -14,6 +14,9 @@
  *                (Use after updating normalizer logic)
  */
 
+import * as dotenv from 'dotenv'
+dotenv.config({ path: '.env.local' })
+
 import { hashAddress, normalizePhone } from '../lib/utils/address-normalizer'
 
 interface BackfillStats {

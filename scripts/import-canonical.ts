@@ -48,6 +48,7 @@ interface ImportOptions {
   batchId: string
   dryRun: boolean
   confidenceThreshold: number
+  limit: number // 0 = no limit
 }
 
 interface ImportStats {
@@ -191,6 +192,7 @@ function parseArgs(): ImportOptions {
   let batchId = ''
   let dryRun = false
   let confidenceThreshold = 0.85
+  let limit = 0 // 0 = no limit
 
   for (let i = 0; i < args.length; i++) {
     switch (args[i]) {
@@ -206,6 +208,9 @@ function parseArgs(): ImportOptions {
       case '--confidence':
         confidenceThreshold = parseFloat(args[++i])
         break
+      case '--limit':
+        limit = parseInt(args[++i], 10)
+        break
       case '--help':
         console.log(`
 Usage: npx tsx scripts/import-canonical.ts [options]
@@ -215,6 +220,7 @@ Options:
   --batch-id <id>     Batch identifier for rollback (required)
   --dry-run           Preview without writing to database
   --confidence <n>    Minimum confidence threshold (default: 0.85)
+  --limit <n>         Maximum records to import (default: 0 = no limit)
   --help              Show this help message
 `)
         process.exit(0)
@@ -230,7 +236,7 @@ Options:
     process.exit(1)
   }
 
-  return { filePath, batchId, dryRun, confidenceThreshold }
+  return { filePath, batchId, dryRun, confidenceThreshold, limit }
 }
 
 // =============================================================================
@@ -245,6 +251,7 @@ async function main(): Promise<void> {
   console.log('═'.repeat(60))
   console.log(`  Batch ID:            ${options.batchId}`)
   console.log(`  Confidence Threshold: ${options.confidenceThreshold}`)
+  console.log(`  Limit:               ${options.limit > 0 ? options.limit : 'none'}`)
   console.log(`  Mode:                ${options.dryRun ? 'DRY RUN' : 'LIVE'}`)
   console.log('═'.repeat(60))
 
@@ -256,8 +263,14 @@ async function main(): Promise<void> {
   console.log(`   Total records: ${places.length}`)
 
   // Filter by confidence
-  const eligible = places.filter(p => p.confidence >= options.confidenceThreshold)
-  console.log(`   Meet threshold (≥${options.confidenceThreshold}): ${eligible.length}`)
+  const meetThreshold = places.filter(p => p.confidence >= options.confidenceThreshold)
+  console.log(`   Meet threshold (≥${options.confidenceThreshold}): ${meetThreshold.length}`)
+
+  // Apply limit if specified
+  const eligible = options.limit > 0 ? meetThreshold.slice(0, options.limit) : meetThreshold
+  if (options.limit > 0) {
+    console.log(`   After limit (${options.limit}): ${eligible.length}`)
+  }
   console.log()
 
   const stats: ImportStats = {
