@@ -13,10 +13,15 @@ import { createHash } from 'crypto'
  * Transformations:
  * - Lowercase
  * - Remove punctuation
+ * - Strip ZIP codes (including doubled patterns like "02903 02903")
+ * - Strip state names and abbreviations
  * - Normalize street suffixes (Street → st, Avenue → av, etc.)
  * - Normalize directional prefixes (North → n, South → s, etc.)
  * - Remove unit/suite numbers
  * - Collapse whitespace
+ *
+ * This ensures the same physical address produces the same hash
+ * regardless of ZIP/state formatting variations.
  */
 export function normalizeAddress(address: string): string {
   if (!address) return ''
@@ -24,6 +29,25 @@ export function normalizeAddress(address: string): string {
   return address
     .toLowerCase()
     .replace(/[^\w\s]/g, ' ') // Remove punctuation
+
+    // Strip doubled ZIP codes first (e.g., "02903 02903" → "")
+    .replace(/\b(\d{5})\s+\1\b/g, '')
+
+    // Strip remaining ZIP codes (5-digit with optional +4)
+    .replace(/\b\d{5}(?:\s*\d{4})?\b/g, '')
+
+    // Strip full state names (must come before abbreviations to avoid partial matches)
+    .replace(
+      /\b(alabama|alaska|arizona|arkansas|california|colorado|connecticut|delaware|florida|georgia|hawaii|idaho|illinois|indiana|iowa|kansas|kentucky|louisiana|maine|maryland|massachusetts|michigan|minnesota|mississippi|missouri|montana|nebraska|nevada|new\s+hampshire|new\s+jersey|new\s+mexico|new\s+york|north\s+carolina|north\s+dakota|ohio|oklahoma|oregon|pennsylvania|rhode\s+island|south\s+carolina|south\s+dakota|tennessee|texas|utah|vermont|virginia|washington|west\s+virginia|wisconsin|wyoming)\b/g,
+      ''
+    )
+
+    // Strip 2-letter state codes (careful not to remove valid street parts)
+    // Only remove if they appear to be state codes (at end or before ZIP position)
+    .replace(
+      /\b(al|ak|az|ar|ca|co|ct|de|fl|ga|hi|id|il|in|ia|ks|ky|la|me|md|ma|mi|mn|ms|mo|mt|ne|nv|nh|nj|nm|ny|nc|nd|oh|ok|or|pa|ri|sc|sd|tn|tx|ut|vt|va|wa|wv|wi|wy)\s*$/g,
+      ''
+    )
 
     // Street suffixes
     .replace(/\b(street|str)\b/g, 'st')
