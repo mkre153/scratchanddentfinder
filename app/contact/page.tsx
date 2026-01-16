@@ -41,13 +41,13 @@ export default function ContactPage() {
                 Questions about our directory, how it works, or general feedback.
               </p>
               <a
-                href="mailto:scratchanddentfinder@gmail.com?subject=General%20Inquiry"
+                href="mailto:support@scratchanddentfinder.com?subject=General%20Inquiry"
                 className="mt-4 inline-block rounded-md bg-blue-700 px-6 py-3 font-semibold text-white hover:bg-blue-800"
               >
                 Email Us
               </a>
               <p className="mt-3 text-sm text-gray-500">
-                scratchanddentfinder@gmail.com
+                support@scratchanddentfinder.com
               </p>
             </div>
 
@@ -60,13 +60,13 @@ export default function ContactPage() {
                 Partnership opportunities, advertising, or business proposals.
               </p>
               <a
-                href="mailto:business@scratchanddentfinder.com?subject=Business%20Inquiry"
+                href="mailto:support@scratchanddentfinder.com?subject=Business%20Inquiry"
                 className="mt-4 inline-block rounded-md bg-blue-700 px-6 py-3 font-semibold text-white hover:bg-blue-800"
               >
                 Contact Business Team
               </a>
               <p className="mt-3 text-sm text-gray-500">
-                business@scratchanddentfinder.com
+                support@scratchanddentfinder.com
               </p>
             </div>
 
@@ -94,13 +94,13 @@ export default function ContactPage() {
                 Found an issue? Have a suggestion? We appreciate your feedback.
               </p>
               <a
-                href="mailto:feedback@scratchanddentfinder.com?subject=Website%20Feedback"
+                href="mailto:support@scratchanddentfinder.com?subject=Website%20Feedback"
                 className="mt-4 inline-block rounded-md border border-blue-700 bg-white px-6 py-3 font-semibold text-blue-700 hover:bg-blue-50"
               >
                 Send Feedback
               </a>
               <p className="mt-3 text-sm text-gray-500">
-                feedback@scratchanddentfinder.com
+                support@scratchanddentfinder.com
               </p>
             </div>
           </div>
@@ -164,10 +164,10 @@ export default function ContactPage() {
               <p className="mt-2 text-gray-600">
                 Please email us at{' '}
                 <a
-                  href="mailto:scratchanddentfinder@gmail.com?subject=Store%20Information%20Correction"
+                  href="mailto:support@scratchanddentfinder.com?subject=Store%20Information%20Correction"
                   className="text-blue-700 hover:underline"
                 >
-                  scratchanddentfinder@gmail.com
+                  support@scratchanddentfinder.com
                 </a>{' '}
                 with the store name and the correction needed.
               </p>

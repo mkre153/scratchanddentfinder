@@ -133,19 +133,19 @@ export default async function AboutPage() {
             <p className="text-gray-600">
               <span className="font-semibold">General Inquiries:</span>{' '}
               <a
-                href="mailto:scratchanddentfinder@gmail.com"
+                href="mailto:support@scratchanddentfinder.com"
                 className="text-blue-700 hover:underline"
               >
-                scratchanddentfinder@gmail.com
+                support@scratchanddentfinder.com
               </a>
             </p>
             <p className="text-gray-600">
               <span className="font-semibold">Business:</span>{' '}
               <a
-                href="mailto:business@scratchanddentfinder.com"
+                href="mailto:support@scratchanddentfinder.com"
                 className="text-blue-700 hover:underline"
               >
-                business@scratchanddentfinder.com
+                support@scratchanddentfinder.com
               </a>
             </p>
           </div>
