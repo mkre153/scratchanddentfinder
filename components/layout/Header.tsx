@@ -24,7 +24,7 @@ export function Header() {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link href={getHomepageUrl()} className="flex items-center gap-2">
-            <span className="text-xl font-bold text-blue-700">
+            <span className="text-xl font-bold text-sage-700">
               Scratch & Dent Finder
             </span>
           </Link>
@@ -33,31 +33,31 @@ export function Header() {
           <div className="hidden md:flex md:items-center md:gap-6">
             <Link
               href={getHomepageUrl()}
-              className="text-gray-600 hover:text-blue-700"
+              className="text-gray-600 hover:text-sage-700"
             >
               Home
             </Link>
             <Link
               href={getAllStatesUrl()}
-              className="text-gray-600 hover:text-blue-700"
+              className="text-gray-600 hover:text-sage-700"
             >
               Browse States
             </Link>
             <Link
               href={getAdvertiseUrl()}
-              className="text-gray-600 hover:text-blue-700"
+              className="text-gray-600 hover:text-sage-700"
             >
               Advertise With Us
             </Link>
             <Link
               href={getAboutUrl()}
-              className="text-gray-600 hover:text-blue-700"
+              className="text-gray-600 hover:text-sage-700"
             >
               About Us
             </Link>
             <Link
               href={getContactUrl()}
-              className="text-gray-600 hover:text-blue-700"
+              className="text-gray-600 hover:text-sage-700"
             >
               Contact
             </Link>

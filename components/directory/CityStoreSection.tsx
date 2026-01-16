@@ -71,7 +71,7 @@ export function CityStoreSection({
               onClick={() => setView('list')}
               className={`px-4 py-2 text-sm font-medium transition-colors ${
                 view === 'list'
-                  ? 'bg-blue-700 text-white'
+                  ? 'bg-sage-500 text-white'
                   : 'text-gray-700 hover:bg-gray-50'
               } rounded-l-lg`}
             >
@@ -81,7 +81,7 @@ export function CityStoreSection({
               onClick={() => setView('map')}
               className={`px-4 py-2 text-sm font-medium transition-colors ${
                 view === 'map'
-                  ? 'bg-blue-700 text-white'
+                  ? 'bg-sage-500 text-white'
                   : 'text-gray-700 hover:bg-gray-50'
               } rounded-r-lg`}
             >
@@ -103,7 +103,7 @@ export function CityStoreSection({
           </p>
           <Link
             href={getStoreSubmitUrl()}
-            className="mt-4 inline-flex items-center gap-1 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+            className="mt-4 inline-flex items-center gap-1 rounded-md bg-sage-500 px-4 py-2 text-sm font-medium text-white hover:bg-sage-700"
           >
             + Add Your Store
           </Link>

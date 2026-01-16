@@ -28,12 +28,12 @@ export default async function HomePage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-blue-700 to-indigo-900 py-20 text-white">
+      <section className="bg-warm-50 py-20">
         <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
-          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
+          <h1 className="text-4xl font-bold tracking-tight text-charcoal sm:text-5xl md:text-6xl">
             Save 30-70% on Quality Appliances
           </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-xl text-blue-100">
+          <p className="mx-auto mt-6 max-w-2xl text-xl text-gray-600">
             Your trusted source for finding discount appliances with minor
             cosmetic damage. Find scratch and dent appliance stores near you.
           </p>
@@ -41,20 +41,20 @@ export default async function HomePage() {
           {/* Stats Bar */}
           <div className="mt-10 flex justify-center gap-8 text-center">
             <div>
-              <div className="text-3xl font-bold">
+              <div className="text-3xl font-bold text-sage-700">
                 {totalStores.toLocaleString()}
               </div>
-              <div className="text-sm text-blue-200">Stores</div>
+              <div className="text-sm text-gray-500">Stores</div>
             </div>
             <div>
-              <div className="text-3xl font-bold">{totalStates}</div>
-              <div className="text-sm text-blue-200">States</div>
+              <div className="text-3xl font-bold text-sage-700">{totalStates}</div>
+              <div className="text-sm text-gray-500">States</div>
             </div>
             <div>
-              <div className="text-3xl font-bold">
+              <div className="text-3xl font-bold text-sage-700">
                 {totalCities.toLocaleString()}
               </div>
-              <div className="text-sm text-blue-200">Cities</div>
+              <div className="text-sm text-gray-500">Cities</div>
             </div>
           </div>
 

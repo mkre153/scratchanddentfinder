@@ -62,35 +62,35 @@ export function MobileMenu({ onClose }: MobileMenuProps) {
             <Link
               href={getHomepageUrl()}
               onClick={onClose}
-              className="text-lg text-gray-700 hover:text-blue-700"
+              className="text-lg text-gray-700 hover:text-sage-700"
             >
               Home
             </Link>
             <Link
               href={getAllStatesUrl()}
               onClick={onClose}
-              className="text-lg text-gray-700 hover:text-blue-700"
+              className="text-lg text-gray-700 hover:text-sage-700"
             >
               Browse States
             </Link>
             <Link
               href={getAdvertiseUrl()}
               onClick={onClose}
-              className="text-lg text-gray-700 hover:text-blue-700"
+              className="text-lg text-gray-700 hover:text-sage-700"
             >
               Advertise With Us
             </Link>
             <Link
               href={getAboutUrl()}
               onClick={onClose}
-              className="text-lg text-gray-700 hover:text-blue-700"
+              className="text-lg text-gray-700 hover:text-sage-700"
             >
               About Us
             </Link>
             <Link
               href={getContactUrl()}
               onClick={onClose}
-              className="text-lg text-gray-700 hover:text-blue-700"
+              className="text-lg text-gray-700 hover:text-sage-700"
             >
               Contact
             </Link>

@@ -24,12 +24,12 @@ export default async function AdvertisePage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-blue-700 to-indigo-900 py-16 text-white">
+      <section className="bg-warm-50 py-16">
         <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
-          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
+          <h1 className="text-4xl font-bold tracking-tight text-charcoal sm:text-5xl">
             Advertise With Us
           </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-xl text-blue-100">
+          <p className="mx-auto mt-6 max-w-2xl text-xl text-gray-600">
             Get your appliance store in front of motivated buyers
           </p>
         </div>
@@ -40,19 +40,19 @@ export default async function AdvertisePage() {
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           <div className="grid gap-8 text-center md:grid-cols-3">
             <div>
-              <div className="text-3xl font-bold text-blue-700">
+              <div className="text-3xl font-bold text-sage-700">
                 {totalStores.toLocaleString()}+
               </div>
               <div className="text-gray-600">Store Listings</div>
             </div>
             <div>
-              <div className="text-3xl font-bold text-blue-700">
+              <div className="text-3xl font-bold text-sage-700">
                 {totalCities.toLocaleString()}+
               </div>
               <div className="text-gray-600">Cities Covered</div>
             </div>
             <div>
-              <div className="text-3xl font-bold text-blue-700">50</div>
+              <div className="text-3xl font-bold text-sage-700">50</div>
               <div className="text-gray-600">States</div>
             </div>
           </div>
@@ -102,15 +102,15 @@ export default async function AdvertisePage() {
               </ul>
               <Link
                 href={getStoreSubmitUrl()}
-                className="mt-8 block w-full rounded-md bg-blue-700 py-3 text-center font-semibold text-white hover:bg-blue-800"
+                className="mt-8 block w-full rounded-md bg-sage-500 py-3 text-center font-semibold text-white hover:bg-sage-700"
               >
                 Get Started
               </Link>
             </div>
 
             {/* Annual Plan */}
-            <div className="relative rounded-lg border-2 border-blue-700 bg-white p-8 shadow-lg">
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-blue-700 px-4 py-1 text-sm font-semibold text-white">
+            <div className="relative rounded-lg border-2 border-sage-500 bg-white p-8 shadow-lg">
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-sage-500 px-4 py-1 text-sm font-semibold text-white">
                 Best Value
               </div>
               <h3 className="text-xl font-bold text-gray-900">
@@ -211,7 +211,7 @@ export default async function AdvertisePage() {
           </h2>
           <div className="mt-12 grid gap-8 md:grid-cols-3">
             <div className="text-center">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-xl font-bold text-blue-700">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-sage-100 text-xl font-bold text-sage-700">
                 1
               </div>
               <h3 className="mt-4 text-lg font-semibold">Submit Your Store</h3>
@@ -220,7 +220,7 @@ export default async function AdvertisePage() {
               </p>
             </div>
             <div className="text-center">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-xl font-bold text-blue-700">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-sage-100 text-xl font-bold text-sage-700">
                 2
               </div>
               <h3 className="mt-4 text-lg font-semibold">Get Approved</h3>
@@ -229,7 +229,7 @@ export default async function AdvertisePage() {
               </p>
             </div>
             <div className="text-center">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-xl font-bold text-blue-700">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-sage-100 text-xl font-bold text-sage-700">
                 3
               </div>
               <h3 className="mt-4 text-lg font-semibold">Upgrade to Featured</h3>
@@ -242,10 +242,10 @@ export default async function AdvertisePage() {
       </section>
 
       {/* CTA Section */}
-      <section className="bg-gradient-to-br from-blue-700 to-indigo-900 py-16 text-white">
+      <section className="bg-sage-500 py-16">
         <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold">Ready to Grow Your Business?</h2>
-          <p className="mx-auto mt-4 max-w-2xl text-xl text-blue-100">
+          <h2 className="text-3xl font-bold text-white">Ready to Grow Your Business?</h2>
+          <p className="mx-auto mt-4 max-w-2xl text-xl text-sage-100">
             Join hundreds of appliance stores already benefiting from featured
             placement.
           </p>

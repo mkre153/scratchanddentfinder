@@ -54,33 +54,33 @@ export default async function StatePage({ params }: PageProps) {
       <JsonLd data={generateStateBreadcrumbs(state)} />
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-blue-700 to-indigo-900 py-16 text-white">
+      <section className="bg-warm-50 py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           {/* Breadcrumbs */}
           <div className="mb-6">
             <Breadcrumbs items={getStateBreadcrumbs(state.name)} />
           </div>
 
-          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
+          <h1 className="text-4xl font-bold tracking-tight text-charcoal sm:text-5xl">
             {state.emoji} {state.name}
           </h1>
-          <p className="mt-4 text-xl text-blue-100">
+          <p className="mt-4 text-xl text-gray-600">
             Scratch & Dent Appliance Directory
           </p>
 
           {/* Stats */}
           <div className="mt-8 flex gap-8 text-center">
             <div>
-              <div className="text-3xl font-bold">{state.storeCount}</div>
-              <div className="text-sm text-blue-200">Stores</div>
+              <div className="text-3xl font-bold text-sage-700">{state.storeCount}</div>
+              <div className="text-sm text-gray-500">Stores</div>
             </div>
             <div>
-              <div className="text-3xl font-bold">{state.cityCount}</div>
-              <div className="text-sm text-blue-200">Cities</div>
+              <div className="text-3xl font-bold text-sage-700">{state.cityCount}</div>
+              <div className="text-sm text-gray-500">Cities</div>
             </div>
             <div>
-              <div className="text-3xl font-bold">30-70%</div>
-              <div className="text-sm text-blue-200">Avg Savings</div>
+              <div className="text-3xl font-bold text-sage-700">30-70%</div>
+              <div className="text-sm text-gray-500">Avg Savings</div>
             </div>
           </div>
         </div>

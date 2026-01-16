@@ -21,12 +21,12 @@ export default function StoreSubmissionPage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-blue-700 to-indigo-900 py-12 text-white">
+      <section className="bg-warm-50 py-12">
         <div className="mx-auto max-w-3xl px-4 text-center sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+          <h1 className="text-3xl font-bold tracking-tight text-charcoal sm:text-4xl">
             Submit Your Store
           </h1>
-          <p className="mt-4 text-lg text-blue-100">
+          <p className="mt-4 text-lg text-gray-600">
             Add your scratch and dent appliance store to our directory.
             Submissions are reviewed before appearing publicly.
           </p>

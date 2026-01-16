@@ -25,12 +25,12 @@ export default async function AboutPage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-blue-700 to-indigo-900 py-16 text-white">
+      <section className="bg-warm-50 py-16">
         <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
-          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
+          <h1 className="text-4xl font-bold tracking-tight text-charcoal sm:text-5xl">
             About Scratch & Dent Finder
           </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-xl text-blue-100">
+          <p className="mx-auto mt-6 max-w-2xl text-xl text-gray-600">
             Helping families find affordable appliances since 2024
           </p>
         </div>
@@ -62,17 +62,17 @@ export default async function AboutPage() {
           </h2>
           <div className="mt-10 grid gap-8 md:grid-cols-3">
             <div className="rounded-lg bg-white p-6 text-center shadow">
-              <div className="text-4xl font-bold text-blue-700">
+              <div className="text-4xl font-bold text-sage-700">
                 {totalStores.toLocaleString()}
               </div>
               <div className="mt-2 text-gray-600">Store Listings</div>
             </div>
             <div className="rounded-lg bg-white p-6 text-center shadow">
-              <div className="text-4xl font-bold text-blue-700">{totalStates}</div>
+              <div className="text-4xl font-bold text-sage-700">{totalStates}</div>
               <div className="mt-2 text-gray-600">States Covered</div>
             </div>
             <div className="rounded-lg bg-white p-6 text-center shadow">
-              <div className="text-4xl font-bold text-blue-700">
+              <div className="text-4xl font-bold text-sage-700">
                 {totalCities.toLocaleString()}
               </div>
               <div className="mt-2 text-gray-600">Cities</div>
@@ -152,13 +152,13 @@ export default async function AboutPage() {
           <div className="mt-8 flex flex-wrap gap-4">
             <Link
               href={getContactUrl()}
-              className="rounded-md bg-blue-700 px-6 py-3 font-semibold text-white hover:bg-blue-800"
+              className="rounded-md bg-sage-500 px-6 py-3 font-semibold text-white hover:bg-sage-700"
             >
               Contact Us
             </Link>
             <Link
               href={getAllStatesUrl()}
-              className="rounded-md border border-blue-700 bg-white px-6 py-3 font-semibold text-blue-700 hover:bg-blue-50"
+              className="rounded-md border border-sage-500 bg-white px-6 py-3 font-semibold text-sage-700 hover:bg-sage-50"
             >
               Browse Directory
             </Link>

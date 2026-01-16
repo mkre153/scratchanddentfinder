@@ -50,7 +50,7 @@ export function StoreCard({ store, index }: StoreCardProps) {
             </svg>
           </div>
         ) : (
-          <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-700">
+          <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-sage-100 text-sm font-bold text-sage-700">
             {(index ?? 0) + 1}
           </div>
         )}
@@ -288,7 +288,7 @@ function ServiceBadge({
     <span
       className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs ${
         available
-          ? 'bg-blue-50 text-blue-700'
+          ? 'bg-sage-50 text-sage-700'
           : 'bg-gray-100 text-gray-400 line-through'
       }`}
     >

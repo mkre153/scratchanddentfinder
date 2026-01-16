@@ -45,32 +45,32 @@ export default async function AllStatesPage() {
       <JsonLd data={generateAllStatesBreadcrumbs()} />
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-blue-700 to-indigo-900 py-16 text-white">
+      <section className="bg-warm-50 py-16">
         <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
-          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
+          <h1 className="text-4xl font-bold tracking-tight text-charcoal sm:text-5xl">
             Scratch and Dent Appliances by State
           </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-xl text-blue-100">
+          <p className="mx-auto mt-4 max-w-2xl text-xl text-gray-600">
             Find scratch and dent appliance stores across the United States
           </p>
 
           {/* Stats */}
           <div className="mt-8 flex justify-center gap-8 text-center">
             <div>
-              <div className="text-3xl font-bold">
+              <div className="text-3xl font-bold text-sage-700">
                 {totalStores.toLocaleString()}
               </div>
-              <div className="text-sm text-blue-200">Stores</div>
+              <div className="text-sm text-gray-500">Stores</div>
             </div>
             <div>
-              <div className="text-3xl font-bold">{states.length}/50</div>
-              <div className="text-sm text-blue-200">States</div>
+              <div className="text-3xl font-bold text-sage-700">{states.length}/50</div>
+              <div className="text-sm text-gray-500">States</div>
             </div>
             <div>
-              <div className="text-3xl font-bold">
+              <div className="text-3xl font-bold text-sage-700">
                 {totalCities.toLocaleString()}
               </div>
-              <div className="text-sm text-blue-200">Cities</div>
+              <div className="text-sm text-gray-500">Cities</div>
             </div>
           </div>
         </div>

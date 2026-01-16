@@ -17,12 +17,12 @@ export default function ContactPage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-blue-700 to-indigo-900 py-16 text-white">
+      <section className="bg-warm-50 py-16">
         <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
-          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
+          <h1 className="text-4xl font-bold tracking-tight text-charcoal sm:text-5xl">
             Contact Us
           </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-xl text-blue-100">
+          <p className="mx-auto mt-6 max-w-2xl text-xl text-gray-600">
             We&apos;d love to hear from you
           </p>
         </div>
@@ -42,7 +42,7 @@ export default function ContactPage() {
               </p>
               <a
                 href="mailto:support@scratchanddentfinder.com?subject=General%20Inquiry"
-                className="mt-4 inline-block rounded-md bg-blue-700 px-6 py-3 font-semibold text-white hover:bg-blue-800"
+                className="mt-4 inline-block rounded-md bg-sage-500 px-6 py-3 font-semibold text-white hover:bg-sage-700"
               >
                 Email Us
               </a>
@@ -61,7 +61,7 @@ export default function ContactPage() {
               </p>
               <a
                 href="mailto:support@scratchanddentfinder.com?subject=Business%20Inquiry"
-                className="mt-4 inline-block rounded-md bg-blue-700 px-6 py-3 font-semibold text-white hover:bg-blue-800"
+                className="mt-4 inline-block rounded-md bg-sage-500 px-6 py-3 font-semibold text-white hover:bg-sage-700"
               >
                 Contact Business Team
               </a>
@@ -95,7 +95,7 @@ export default function ContactPage() {
               </p>
               <a
                 href="mailto:support@scratchanddentfinder.com?subject=Website%20Feedback"
-                className="mt-4 inline-block rounded-md border border-blue-700 bg-white px-6 py-3 font-semibold text-blue-700 hover:bg-blue-50"
+                className="mt-4 inline-block rounded-md border border-sage-500 bg-white px-6 py-3 font-semibold text-sage-700 hover:bg-sage-50"
               >
                 Send Feedback
               </a>
@@ -185,7 +185,7 @@ export default function ContactPage() {
           </p>
           <Link
             href={getAboutUrl()}
-            className="mt-6 inline-block rounded-md border border-blue-700 bg-white px-6 py-3 font-semibold text-blue-700 hover:bg-blue-50"
+            className="mt-6 inline-block rounded-md border border-sage-500 bg-white px-6 py-3 font-semibold text-sage-700 hover:bg-sage-50"
           >
             About Us
           </Link>

@@ -241,7 +241,7 @@ export function StoreSubmissionForm() {
         </p>
         <button
           onClick={() => router.push('/')}
-          className="mt-6 rounded-lg bg-blue-700 px-4 py-2 text-white hover:bg-blue-800"
+          className="mt-6 rounded-lg bg-sage-500 px-4 py-2 text-white hover:bg-sage-700"
         >
           Return Home
         </button>
@@ -491,7 +491,7 @@ export function StoreSubmissionForm() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full rounded-lg bg-blue-700 px-4 py-3 font-semibold text-white transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full rounded-lg bg-sage-500 px-4 py-3 font-semibold text-white transition hover:bg-sage-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isSubmitting ? 'Submitting...' : 'Submit Store'}
           </button>
