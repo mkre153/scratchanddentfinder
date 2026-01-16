@@ -7,28 +7,28 @@
  * Template spec: Icons + short text only. No testimonials, no stats.
  */
 
-import { CheckCircle, Ban, RefreshCw, Gift } from 'lucide-react'
+import { CheckCircle, MapPin, RefreshCw, Tag } from 'lucide-react'
 
 const trustItems = [
   {
     icon: CheckCircle,
-    text: 'Real local stores',
-    subtext: 'No fake listings',
+    text: 'Verified stores',
+    subtext: 'Every listing is reviewed',
   },
   {
-    icon: Ban,
-    text: 'No paid rankings',
-    subtext: "Results aren't bought",
+    icon: MapPin,
+    text: 'Nationwide coverage',
+    subtext: 'Stores across major U.S. markets',
   },
   {
     icon: RefreshCw,
-    text: 'Updated regularly',
-    subtext: 'Fresh data weekly',
+    text: 'Continuously updated',
+    subtext: 'New stores added regularly',
   },
   {
-    icon: Gift,
-    text: 'Free to use',
-    subtext: 'Always 100% free',
+    icon: Tag,
+    text: 'Featured listings disclosed',
+    subtext: 'Paid placements are clearly marked',
   },
 ]
 

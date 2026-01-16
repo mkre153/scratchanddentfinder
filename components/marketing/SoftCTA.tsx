@@ -12,7 +12,7 @@
 
 import Link from 'next/link'
 import { Plus, Bell } from 'lucide-react'
-import { getStoreSubmitUrl } from '@/lib/urls'
+import { getStoreSubmitUrl, getContactUrl } from '@/lib/urls'
 
 interface SoftCTAProps {
   variant: 'homepage' | 'state' | 'city'
@@ -71,6 +71,17 @@ export function SoftCTA({ variant, stateName, cityName }: SoftCTAProps) {
             </button>
             */}
           </div>
+
+          <p className="mt-4 text-sm text-gray-500">
+            Don&apos;t see a store near you?{' '}
+            <Link
+              href={getContactUrl()}
+              className="text-sage-600 underline hover:text-sage-700"
+            >
+              Contact us
+            </Link>{' '}
+            and let us know what&apos;s missing.
+          </p>
         </div>
       </div>
     </section>

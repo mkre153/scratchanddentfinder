@@ -30,10 +30,10 @@ Establish trust, clearly explain what ScratchAndDentFinder does, and route users
 **Purpose:** Reduce skepticism immediately
 
 **Must include (exactly 4 bullets):**
-- Real local stores
-- No paid rankings
-- Updated regularly
-- Free to use
+- Verified stores (every listing is reviewed)
+- Nationwide coverage (stores across major U.S. markets)
+- Continuously updated (new stores added regularly)
+- Featured listings disclosed (paid placements are clearly marked)
 
 **Constraints:**
 - Icons + short text only
