@@ -1,14 +1,18 @@
 /**
  * City Page
  *
- * Shows stores in a city with nearby cities.
- * NO DATA ASSUMPTIONS: Renders safely with empty database.
- * Uses lib/urls.ts for all route generation (Gate 5).
+ * UX Template: /docs/ux/city-template.md
  *
- * Slice 1: Basic structure only
- * Slice 2: StoreCard, NearbyCities components
- * Slice 3: Lead tracking CTAs
- * Slice 9: List/Map toggle (read-only visualization)
+ * Goal: Enable fast action by showing local stores and reducing buyer hesitation.
+ * Primary user question: "Where can I go right now to buy a discounted appliance?"
+ *
+ * STRICT SECTION ORDER:
+ * 1. City Hero (smaller, city + category headline)
+ * 2. Store Listings (above fold, tap-to-call)
+ * 3. Buyer Tips (max 3 bullets)
+ * 4. Local Context (optional, 2-3 sentences)
+ * 5. Soft CTA (suggest store)
+ * 6. Nearby Cities (de-emphasized, SEO-only)
  */
 
 import type { Metadata } from 'next'
@@ -25,6 +29,7 @@ import {
   getCityBreadcrumbs,
 } from '@/components/layout/Breadcrumbs'
 import { CityStoreSection, NearbyCities } from '@/components/directory'
+import { BuyerTips, SoftCTA } from '@/components/marketing'
 import {
   JsonLd,
   JsonLdMultiple,
@@ -75,11 +80,10 @@ export default async function CityPage({ params }: PageProps) {
   // Fetch stores - ordered by is_featured DESC, name ASC from queries.ts
   const stores = await getStoresByCityId(city.id)
 
-  // Fetch nearby cities - exactly 12 (Gate 4)
+  // Fetch nearby cities - up to 12 (Gate 4)
   const nearbyCities = await getNearbyCities(city, 12)
 
   // Generate LocalBusiness schemas for eligible stores (Guardrail 2)
-  // Only stores with: isApproved AND address+geo AND (phone OR website)
   const storeSchemas = stores.map((store) =>
     generateLocalBusinessSchema(store, state, city)
   )
@@ -90,34 +94,27 @@ export default async function CityPage({ params }: PageProps) {
       <JsonLd data={generateCityBreadcrumbs(state, city)} />
       <JsonLdMultiple schemas={storeSchemas} />
 
-      {/* Hero Section */}
-      <section className="bg-warm-50 py-16">
+      {/* Section 1: City Hero (smaller than state hero) */}
+      <section className="bg-warm-50 py-12">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           {/* Breadcrumbs */}
-          <div className="mb-6">
+          <div className="mb-4">
             <Breadcrumbs items={getCityBreadcrumbs(state, city.name)} />
           </div>
 
-          <h1 className="text-4xl font-bold tracking-tight text-charcoal sm:text-5xl">
-            Scratch and Dent Appliances in {city.name}, {state.name}
+          <h1 className="text-3xl font-bold tracking-tight text-charcoal sm:text-4xl">
+            Scratch & Dent Appliances in {city.name}, {state.name}
           </h1>
-
-          {/* Stats */}
-          <div className="mt-8 flex gap-8 text-center">
-            <div>
-              <div className="text-3xl font-bold text-sage-700">{stores.length}</div>
-              <div className="text-sm text-gray-500">Stores</div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-sage-700">30-70%</div>
-              <div className="text-sm text-gray-500">Avg Savings</div>
-            </div>
-          </div>
+          <p className="mt-2 text-lg text-gray-600">
+            {stores.length > 0
+              ? `${stores.length} local ${stores.length === 1 ? 'store' : 'stores'} with discounted appliances.`
+              : 'Find discounted appliances with minor cosmetic damage.'}
+          </p>
         </div>
       </section>
 
-      {/* Store Listings with List/Map Toggle — Slice 9 */}
-      <section className="py-16">
+      {/* Section 2: Store Listings (above the fold) */}
+      <section className="py-10">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <CityStoreSection
             stores={stores}
@@ -127,7 +124,25 @@ export default async function CityPage({ params }: PageProps) {
         </div>
       </section>
 
-      {/* Nearby Cities */}
+      {/* Section 3: Buyer Tips */}
+      <BuyerTips />
+
+      {/* Section 4: Local Context */}
+      <section className="py-8">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <p className="max-w-2xl text-sm text-gray-600">
+            {city.name} shoppers can find scratch and dent deals at local outlets
+            and appliance liquidation stores. Inventory changes frequently, so
+            checking in regularly and calling ahead can help you find the best
+            selection.
+          </p>
+        </div>
+      </section>
+
+      {/* Section 5: Soft CTA */}
+      <SoftCTA variant="city" cityName={city.name} />
+
+      {/* Section 6: Nearby Cities (de-emphasized, SEO-only) */}
       <NearbyCities cities={nearbyCities} state={state} currentCity={city} />
     </>
   )
