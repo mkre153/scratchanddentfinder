@@ -6,10 +6,12 @@
  * Run this AFTER applying migration 0014_dedup_infrastructure.sql.
  *
  * Usage:
- *   npx tsx scripts/backfill-address-hash.ts [--dry-run]
+ *   npx tsx scripts/backfill-address-hash.ts [--dry-run] [--force]
  *
  * Options:
  *   --dry-run    Preview changes without writing to database
+ *   --force      Re-hash ALL stores, even those with existing hash
+ *                (Use after updating normalizer logic)
  */
 
 import { hashAddress, normalizePhone } from '../lib/utils/address-normalizer'
@@ -23,11 +25,15 @@ interface BackfillStats {
 
 async function main() {
   const dryRun = process.argv.includes('--dry-run')
+  const forceRehash = process.argv.includes('--force')
 
   console.log('='.repeat(60))
   console.log('Backfill Address Hash')
   console.log('='.repeat(60))
   console.log(`Mode: ${dryRun ? 'DRY RUN (no changes)' : 'LIVE'}`)
+  if (forceRehash) {
+    console.log('Force: Re-hashing ALL stores (normalizer update mode)')
+  }
   console.log('')
 
   // Dynamic import to load env vars
@@ -40,30 +46,50 @@ async function main() {
     errors: 0,
   }
 
-  // Fetch all stores that need backfill
+  // Fetch all stores with pagination (Supabase limits to 1000 per query)
   console.log('Fetching stores...')
-  const { data: stores, error: fetchError } = await supabaseAdmin
-    .from('stores')
-    .select('id, address, phone, address_hash, phone_normalized')
-    .order('id')
+  let allStores: Array<{
+    id: number
+    address: string | null
+    phone: string | null
+    address_hash: string | null
+    phone_normalized: string | null
+  }> = []
+  let offset = 0
+  const limit = 1000
 
-  if (fetchError) {
-    console.error('Failed to fetch stores:', fetchError.message)
-    process.exit(1)
+  while (true) {
+    const { data, error: fetchError } = await supabaseAdmin
+      .from('stores')
+      .select('id, address, phone, address_hash, phone_normalized')
+      .order('id')
+      .range(offset, offset + limit - 1)
+
+    if (fetchError) {
+      console.error('Failed to fetch stores:', fetchError.message)
+      process.exit(1)
+    }
+
+    if (!data || data.length === 0) break
+
+    allStores = allStores.concat(data)
+    offset += limit
+    console.log(`  Fetched ${allStores.length} stores...`)
+    if (data.length < limit) break
   }
 
-  if (!stores || stores.length === 0) {
+  if (allStores.length === 0) {
     console.log('No stores found.')
     return
   }
 
-  stats.total = stores.length
-  console.log(`Found ${stores.length} stores\n`)
+  stats.total = allStores.length
+  console.log(`Found ${allStores.length} total stores\n`)
 
   // Process each store
-  for (const store of stores) {
-    // Skip if already has hash (idempotent)
-    if (store.address_hash) {
+  for (const store of allStores) {
+    // Skip if already has hash (unless --force is set)
+    if (store.address_hash && !forceRehash) {
       stats.skipped++
       continue
     }

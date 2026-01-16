@@ -266,6 +266,7 @@ export async function getStoresByCityId(cityId: number): Promise<Store[]> {
     .select('*')
     .eq('city_id', cityId)
     .eq('is_approved', true)
+    .or('is_archived.is.null,is_archived.eq.false')
 
   if (error) throw error
 
@@ -298,6 +299,7 @@ export async function getStoresByStateId(stateId: number): Promise<Store[]> {
     .select('*')
     .eq('state_id', stateId)
     .eq('is_approved', true)
+    .or('is_archived.is.null,is_archived.eq.false')
 
   if (error) throw error
 
