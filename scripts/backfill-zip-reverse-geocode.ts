@@ -143,10 +143,7 @@ async function main() {
     .not('lng', 'is', null)
     .is('zip', null)
     .order('id')
-
-  if (limit) {
-    query = query.limit(limit)
-  }
+    .limit(limit ?? 10000) // Override Supabase default 1000 row limit
 
   const { data: stores, error } = await query
 
