@@ -287,6 +287,38 @@ export async function getStoresByCityId(cityId: number): Promise<Store[]> {
 }
 
 /**
+ * Get stores for a state, ordered by effective featured status DESC, name ASC (Gate 10)
+ *
+ * Used on state pages per UX template requirements.
+ * Same featured logic as getStoresByCityId.
+ */
+export async function getStoresByStateId(stateId: number): Promise<Store[]> {
+  const { data, error } = await supabaseAdmin
+    .from('stores')
+    .select('*')
+    .eq('state_id', stateId)
+    .eq('is_approved', true)
+
+  if (error) throw error
+
+  const stores = (data ?? []).map(storeRowToModel)
+  const now = new Date()
+
+  // Sort by effective featured status, then by name
+  return stores.sort((a, b) => {
+    const aEffectiveFeatured = a.isFeatured && a.featuredUntil && new Date(a.featuredUntil) > now
+    const bEffectiveFeatured = b.isFeatured && b.featuredUntil && new Date(b.featuredUntil) > now
+
+    // Featured stores first
+    if (aEffectiveFeatured && !bEffectiveFeatured) return -1
+    if (!aEffectiveFeatured && bEffectiveFeatured) return 1
+
+    // Then by name
+    return a.name.localeCompare(b.name)
+  })
+}
+
+/**
  * Get a store by slug
  */
 export async function getStoreBySlug(slug: string): Promise<Store | null> {
