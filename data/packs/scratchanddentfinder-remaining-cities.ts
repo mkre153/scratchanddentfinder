@@ -2,8 +2,8 @@
  * ScratchAndDentFinder City Coverage
  *
  * Baseline (Apify v1): 35 cities (see data/baselines/apify-v1-cities.ts)
- * Remaining: 133 cities
- * Total intentional coverage: 168 cities
+ * Remaining: 138 cities (133 original + 5 Phase 2 additions)
+ * Total intentional coverage: 173 cities
  *
  * NOTE: This is NOT a "Top 200" list. It is the curated coverage target.
  *
@@ -80,6 +80,12 @@ export const scratchAndDentRemainingCities = [
   "Bridgeport, CT",
   "Hartford, CT",
   "New Haven, CT",
+
+  // ============================================================================
+  // DELAWARE (2 cities) - PHASE 2 ADDITION FOR 50-STATE COVERAGE
+  // ============================================================================
+  "Wilmington, DE",
+  "Dover, DE",
 
   // ============================================================================
   // FLORIDA (9 cities) - Jacksonville, Miami, Orlando, Tampa already configured
@@ -179,6 +185,13 @@ export const scratchAndDentRemainingCities = [
   // ============================================================================
   // MISSOURI (0 cities) - Kansas City, St. Louis already configured
   // ============================================================================
+
+  // ============================================================================
+  // MONTANA (3 cities) - PHASE 2 ADDITION FOR 50-STATE COVERAGE
+  // ============================================================================
+  "Billings, MT",
+  "Missoula, MT",
+  "Great Falls, MT",
 
   // ============================================================================
   // NEBRASKA (2 cities)

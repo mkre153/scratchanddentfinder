@@ -40,9 +40,13 @@ data/packs/scratchanddentfinder-remaining-cities.ts
 
 | Category | Count |
 |----------|-------|
-| Remaining (to scrape) | 133 |
+| Remaining (to scrape) | 138 |
 | Already configured | 35 |
-| Total coverage | 168 |
+| Total coverage | 173 |
+
+> **Update 2026-01-16:** Added 5 cities for Phase 2 (50-state coverage):
+> - Delaware: Wilmington, Dover
+> - Montana: Billings, Missoula, Great Falls
 
 ### Format
 
@@ -217,7 +221,7 @@ This directive does **NOT** authorize:
 
 | Criterion | Required |
 |-----------|----------|
-| All 133 requested cities ingested and staged | ✅ |
+| All 138 requested cities ingested and staged | ✅ |
 | Canonical records have full addresses | ✅ |
 | Confidence scores ≥ 0.85 where data allows | ✅ |
 | No staged data visible until promoted | ✅ |
