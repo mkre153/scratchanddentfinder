@@ -31,10 +31,12 @@ export function normalizeAddress(address: string): string {
     .replace(/[^\w\s]/g, ' ') // Remove punctuation
 
     // Strip doubled ZIP codes first (e.g., "02903 02903" → "")
-    .replace(/\b(\d{5})\s+\1\b/g, '')
+    // Only at end of address to avoid stripping street numbers
+    .replace(/\b(\d{5})\s+\1\s*$/g, '')
 
-    // Strip remaining ZIP codes (5-digit with optional +4)
-    .replace(/\b\d{5}(?:\s*\d{4})?\b/g, '')
+    // Strip ZIP codes at end of address only (5-digit with optional +4)
+    // This avoids stripping 5-digit street numbers like "19201 W Warren Ave"
+    .replace(/\s+\d{5}(?:[-\s]*\d{4})?\s*$/g, '')
 
     // Strip full state names (must come before abbreviations to avoid partial matches)
     .replace(
