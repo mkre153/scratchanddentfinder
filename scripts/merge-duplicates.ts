@@ -27,6 +27,9 @@
  *   npx tsx scripts/merge-duplicates.ts --include-risky    # Dry run including risky groups
  */
 
+import * as dotenv from 'dotenv'
+dotenv.config({ path: '.env.local' })
+
 import fs from 'node:fs'
 
 // =============================================================================
@@ -63,6 +66,9 @@ interface MergeStats {
   storesArchived: number
   claimsRepointed: number
   eventsRepointed: number
+  leadsRepointed: number
+  subscriptionsRepointed: number
+  rateLimitsRepointed: number
   redirectsCreated: number
   errors: number
 }
@@ -185,37 +191,57 @@ async function main() {
     storesArchived: 0,
     claimsRepointed: 0,
     eventsRepointed: 0,
+    leadsRepointed: 0,
+    subscriptionsRepointed: 0,
+    rateLimitsRepointed: 0,
     redirectsCreated: 0,
     errors: 0,
   }
 
   // =========================================================================
-  // Step 1: Fetch all stores and group by address_hash
+  // Step 1: Fetch all stores and group by address_hash (with pagination)
   // =========================================================================
   console.log('Fetching stores...')
-  const { data: stores, error: fetchError } = await supabaseAdmin
-    .from('stores')
-    .select(`
-      id,
-      name,
-      address,
-      slug,
-      phone,
-      address_hash,
-      google_place_id,
-      claimed_by,
-      is_verified,
-      is_archived,
-      created_at,
-      city:cities(name),
-      state:states(name)
-    `)
-    .or('is_archived.is.null,is_archived.eq.false')
-    .order('id')
+  const PAGE_SIZE = 1000
+  const stores: any[] = []
+  let offset = 0
+  let hasMore = true
 
-  if (fetchError) {
-    console.error('Failed to fetch stores:', fetchError.message)
-    process.exit(1)
+  while (hasMore) {
+    const { data, error: fetchError } = await supabaseAdmin
+      .from('stores')
+      .select(`
+        id,
+        name,
+        address,
+        slug,
+        phone,
+        address_hash,
+        google_place_id,
+        claimed_by,
+        is_verified,
+        is_archived,
+        created_at,
+        city:cities(name),
+        state:states(name)
+      `)
+      .or('is_archived.is.null,is_archived.eq.false')
+      .order('id')
+      .range(offset, offset + PAGE_SIZE - 1)
+
+    if (fetchError) {
+      console.error('Failed to fetch stores:', fetchError.message)
+      process.exit(1)
+    }
+
+    if (data && data.length > 0) {
+      stores.push(...data)
+      console.log(`  Fetched ${stores.length} stores...`)
+      offset += PAGE_SIZE
+      hasMore = data.length === PAGE_SIZE
+    } else {
+      hasMore = false
+    }
   }
 
   // Transform and group by address_hash
@@ -330,7 +356,52 @@ async function main() {
           stats.eventsRepointed += events.length
         }
 
-        // 2c. Create slug redirect
+        // 2c. Repoint leads
+        const { data: leads, error: leadsError } = await supabaseAdmin
+          .from('leads')
+          .update({ store_id: group.canonical.id })
+          .eq('store_id', duplicate.id)
+          .select('id')
+
+        if (leadsError) {
+          // leads table may not exist or have no FK - log warning but continue
+          console.warn(`  Warning: Failed to repoint leads for store ${duplicate.id}: ${leadsError.message}`)
+        } else if (leads && leads.length > 0) {
+          console.log(`  Repointed ${leads.length} lead(s) from store ${duplicate.id}`)
+          stats.leadsRepointed += leads.length
+        }
+
+        // 2d. Repoint subscriptions
+        const { data: subscriptions, error: subsError } = await supabaseAdmin
+          .from('subscriptions')
+          .update({ store_id: group.canonical.id })
+          .eq('store_id', duplicate.id)
+          .select('id')
+
+        if (subsError) {
+          // subscriptions table may not exist or have no FK - log warning but continue
+          console.warn(`  Warning: Failed to repoint subscriptions for store ${duplicate.id}: ${subsError.message}`)
+        } else if (subscriptions && subscriptions.length > 0) {
+          console.log(`  Repointed ${subscriptions.length} subscription(s) from store ${duplicate.id}`)
+          stats.subscriptionsRepointed += subscriptions.length
+        }
+
+        // 2e. Repoint cta_rate_limits
+        const { data: rateLimits, error: rateLimitError } = await supabaseAdmin
+          .from('cta_rate_limits')
+          .update({ store_id: group.canonical.id })
+          .eq('store_id', duplicate.id)
+          .select('id')
+
+        if (rateLimitError) {
+          // cta_rate_limits table may not exist or have no FK - log warning but continue
+          console.warn(`  Warning: Failed to repoint rate limits for store ${duplicate.id}: ${rateLimitError.message}`)
+        } else if (rateLimits && rateLimits.length > 0) {
+          console.log(`  Repointed ${rateLimits.length} rate limit(s) from store ${duplicate.id}`)
+          stats.rateLimitsRepointed += rateLimits.length
+        }
+
+        // 2g. Create slug redirect
         if (duplicate.slug && duplicate.slug !== group.canonical.slug) {
           const { error: redirectError } = await supabaseAdmin
             .from('store_slug_redirects')
@@ -346,7 +417,7 @@ async function main() {
           }
         }
 
-        // 2d. Archive the duplicate
+        // 2h. Archive the duplicate
         const { error: archiveError } = await supabaseAdmin
           .from('stores')
           .update({
@@ -364,7 +435,7 @@ async function main() {
         console.log(`  Archived store ${duplicate.id} → merged into ${group.canonical.id}`)
       }
 
-      // 2e. Log to ingestion_log
+      // 2i. Log to ingestion_log
       const { error: logError } = await supabaseAdmin
         .from('ingestion_log')
         .insert({
@@ -404,6 +475,9 @@ async function main() {
   console.log(`Stores archived:   ${stats.storesArchived}`)
   console.log(`Claims repointed:  ${stats.claimsRepointed}`)
   console.log(`Events repointed:  ${stats.eventsRepointed}`)
+  console.log(`Leads repointed:   ${stats.leadsRepointed}`)
+  console.log(`Subs repointed:    ${stats.subscriptionsRepointed}`)
+  console.log(`Limits repointed:  ${stats.rateLimitsRepointed}`)
   console.log(`Redirects created: ${stats.redirectsCreated}`)
   console.log(`Errors:            ${stats.errors}`)
 

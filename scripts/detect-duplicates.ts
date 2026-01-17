@@ -16,6 +16,9 @@
  *   --export    Export results to CSV files in /tmp/dedup/
  */
 
+import * as dotenv from 'dotenv'
+dotenv.config({ path: '.env.local' })
+
 import fs from 'node:fs'
 import path from 'node:path'
 
@@ -48,34 +51,51 @@ async function main() {
 
   const { supabaseAdmin } = await import('../lib/supabase/admin')
 
-  // Fetch all active stores with relevant fields
+  // Fetch all active stores with relevant fields (with pagination)
   console.log('Fetching stores...')
-  const { data: stores, error: fetchError } = await supabaseAdmin
-    .from('stores')
-    .select(`
-      id,
-      name,
-      address,
-      phone,
-      phone_normalized,
-      address_hash,
-      google_place_id,
-      claimed_by,
-      is_verified,
-      is_archived,
-      created_at,
-      city:cities(name),
-      state:states(name)
-    `)
-    .or('is_archived.is.null,is_archived.eq.false')
-    .order('id')
+  const PAGE_SIZE = 1000
+  const stores: any[] = []
+  let offset = 0
+  let hasMore = true
 
-  if (fetchError) {
-    console.error('Failed to fetch stores:', fetchError.message)
-    process.exit(1)
+  while (hasMore) {
+    const { data, error: fetchError } = await supabaseAdmin
+      .from('stores')
+      .select(`
+        id,
+        name,
+        address,
+        phone,
+        phone_normalized,
+        address_hash,
+        google_place_id,
+        claimed_by,
+        is_verified,
+        is_archived,
+        created_at,
+        city:cities(name),
+        state:states(name)
+      `)
+      .or('is_archived.is.null,is_archived.eq.false')
+      .order('id')
+      .range(offset, offset + PAGE_SIZE - 1)
+
+    if (fetchError) {
+      console.error('Failed to fetch stores:', fetchError.message)
+      process.exit(1)
+    }
+
+    if (data && data.length > 0) {
+      stores.push(...data)
+      console.log(`  Fetched ${stores.length} stores...`)
+      offset += PAGE_SIZE
+      hasMore = data.length === PAGE_SIZE
+    } else {
+      hasMore = false
+    }
   }
 
-  if (!stores || stores.length === 0) {
+  if (stores.length === 0) {
     console.log('No stores found.')
     return
   }

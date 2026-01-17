@@ -120,6 +120,10 @@ export function Footer() {
               Cancellation Policy
             </Link>
           </div>
+          <p className="mt-4 text-xs text-gray-500">
+            Some listings may be featured. Featured placements are clearly
+            labeled and do not affect the inclusion of other listings.
+          </p>
         </div>
       </div>
     </footer>

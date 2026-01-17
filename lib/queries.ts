@@ -322,12 +322,36 @@ export async function getStoresByStateId(stateId: number): Promise<Store[]> {
 
 /**
  * Get a store by slug
+ *
+ * Also handles redirects: if the slug was from a merged/archived store,
+ * returns the canonical store with _redirectedFrom metadata.
  */
 export async function getStoreBySlug(slug: string): Promise<Store | null> {
+  // First, check if this is a redirect from a merged store
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: redirect } = await (supabaseAdmin as any)
+    .from('store_slug_redirects')
+    .select('canonical_store_id')
+    .eq('old_slug', slug)
+    .single() as { data: { canonical_store_id: number } | null }
+
+  if (redirect) {
+    // Fetch the canonical store and mark it as a redirect
+    const canonical = await getStoreById(redirect.canonical_store_id)
+    if (canonical) {
+      return {
+        ...canonical,
+        _redirectedFrom: slug,
+      } as Store
+    }
+  }
+
+  // Normal lookup - filter out archived stores
   const { data, error } = await supabaseAdmin
     .from('stores')
     .select('*')
     .eq('slug', slug)
+    .or('is_archived.is.null,is_archived.eq.false')
     .single()
 
   if (error) {
@@ -339,12 +363,15 @@ export async function getStoreBySlug(slug: string): Promise<Store | null> {
 
 /**
  * Get a store by place_id (for deduplication)
+ *
+ * Excludes archived stores to prevent returning merged duplicates.
  */
 export async function getStoreByPlaceId(placeId: string): Promise<Store | null> {
   const { data, error } = await supabaseAdmin
     .from('stores')
     .select('*')
     .eq('place_id', placeId)
+    .or('is_archived.is.null,is_archived.eq.false')
     .single()
 
   if (error) {
@@ -1250,13 +1277,21 @@ export async function saveStripeCustomerId(
 
 /**
  * Get a store by ID (for validation in checkout)
+ *
+ * Excludes archived stores unless includeArchived is true.
+ * Use includeArchived=true only for internal redirect resolution.
  */
-export async function getStoreById(storeId: number): Promise<Store | null> {
-  const { data, error } = await supabaseAdmin
-    .from('stores')
-    .select('*')
-    .eq('id', storeId)
-    .single()
+export async function getStoreById(
+  storeId: number,
+  includeArchived = false
+): Promise<Store | null> {
+  let query = supabaseAdmin.from('stores').select('*').eq('id', storeId)
+
+  if (!includeArchived) {
+    query = query.or('is_archived.is.null,is_archived.eq.false')
+  }
+
+  const { data, error } = await query.single()
 
   if (error) {
     if (error.code === 'PGRST116') return null
@@ -1267,12 +1302,15 @@ export async function getStoreById(storeId: number): Promise<Store | null> {
 
 /**
  * Get user's stores (for dashboard)
+ *
+ * Excludes archived stores - user shouldn't see merged duplicates.
  */
 export async function getStoresByUserId(userId: string): Promise<Store[]> {
   const { data, error } = await supabaseAdmin
     .from('stores')
     .select('*')
     .eq('claimed_by', userId)
+    .or('is_archived.is.null,is_archived.eq.false')
     .order('name', { ascending: true })
 
   if (error) throw error

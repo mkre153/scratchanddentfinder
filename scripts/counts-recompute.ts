@@ -10,7 +10,8 @@
  *   npx tsx scripts/counts-recompute.ts --dry-run
  */
 
-import { supabaseAdmin } from '../lib/supabase/admin'
+import * as dotenv from 'dotenv'
+dotenv.config({ path: '.env.local' })
 
 const isDryRun = process.argv.includes('--dry-run')
 
@@ -20,6 +21,9 @@ async function recomputeCounts(): Promise<void> {
     console.log('(DRY RUN - no changes will be made)')
   }
   console.log()
+
+  // Dynamic import to ensure dotenv is loaded first
+  const { supabaseAdmin } = await import('../lib/supabase/admin')
 
   let cityUpdates = 0
   let stateStoreUpdates = 0

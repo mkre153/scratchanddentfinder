@@ -43,7 +43,7 @@ export default async function HomePage() {
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-xl text-gray-600">
             Find scratch and dent appliance stores near you. Real local stores,
-            real savings, no paid rankings.
+            real savings, verified listings.
           </p>
 
           {/* CTA Buttons - Primary: Browse States, Secondary: How It Works */}

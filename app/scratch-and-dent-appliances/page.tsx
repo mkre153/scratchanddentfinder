@@ -63,7 +63,7 @@ export default async function AllStatesPage() {
               <div className="text-sm text-gray-500">Stores</div>
             </div>
             <div>
-              <div className="text-3xl font-bold text-sage-700">{states.length}/50</div>
+              <div className="text-3xl font-bold text-sage-700">{states.length}</div>
               <div className="text-sm text-gray-500">States</div>
             </div>
             <div>

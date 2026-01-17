@@ -203,6 +203,8 @@ export interface Store {
   isVerified: boolean // True if entered through trusted ingestion boundary
   claimedBy: string | null
   claimedAt: string | null
+  // Runtime-only fields (not persisted)
+  _redirectedFrom?: string // Set when accessed via old slug redirect
 }
 
 // =============================================================================
