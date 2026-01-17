@@ -48,10 +48,10 @@ export default async function AllStatesPage() {
       <section className="bg-warm-50 py-16">
         <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
           <h1 className="text-4xl font-bold tracking-tight text-charcoal sm:text-5xl">
-            Scratch and Dent Appliances by State
+            Scratch & Dent Appliance Stores
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-xl text-gray-600">
-            Find scratch and dent appliance stores across the United States
+            Browse stores across all 50 states
           </p>
 
           {/* Stats */}
