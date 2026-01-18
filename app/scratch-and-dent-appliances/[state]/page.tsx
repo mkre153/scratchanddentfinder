@@ -30,6 +30,7 @@ import {
 } from '@/components/layout/Breadcrumbs'
 import { CityCard, StoreCard } from '@/components/directory'
 import { TrustStrip, SoftCTA } from '@/components/marketing'
+import { QuickAssessWidget } from '@/components/buyers-tool'
 import { JsonLd, generateStateBreadcrumbs } from '@/lib/schema'
 
 // ISR: Revalidate every 5 minutes (directory data changes infrequently)
@@ -179,6 +180,15 @@ export default async function StatePage({ params }: PageProps) {
             help you find the best deals. Many {state.name} dealers offer delivery
             and installation.
           </p>
+        </div>
+      </section>
+
+      {/* Section 6.5: Quick Deal Check Widget */}
+      <section className="bg-gray-50 py-10">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-md">
+            <QuickAssessWidget />
+          </div>
         </div>
       </section>
 
