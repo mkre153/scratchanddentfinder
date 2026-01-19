@@ -31,6 +31,7 @@ import {
 import { CityStoreSection, NearbyCities } from '@/components/directory'
 import { BuyerTips, SoftCTA } from '@/components/marketing'
 import { QuickAssessWidget } from '@/components/buyers-tool'
+import { ENABLE_QUICK_ASSESS_WIDGET } from '@/lib/config'
 import {
   JsonLd,
   JsonLdMultiple,
@@ -128,14 +129,16 @@ export default async function CityPage({ params }: PageProps) {
       {/* Section 3: Buyer Tips */}
       <BuyerTips />
 
-      {/* Section 3.5: Quick Deal Check Widget */}
-      <section className="py-8">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-md">
-            <QuickAssessWidget />
+      {/* Section 3.5: Quick Deal Check Widget (Feature Flagged) */}
+      {ENABLE_QUICK_ASSESS_WIDGET && (
+        <section className="py-8">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="mx-auto max-w-md">
+              <QuickAssessWidget />
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Section 4: Local Context */}
       <section className="py-8">

@@ -32,6 +32,7 @@ import { CityCard, StoreCard } from '@/components/directory'
 import { TrustStrip, SoftCTA } from '@/components/marketing'
 import { QuickAssessWidget } from '@/components/buyers-tool'
 import { JsonLd, generateStateBreadcrumbs } from '@/lib/schema'
+import { ENABLE_QUICK_ASSESS_WIDGET } from '@/lib/config'
 
 // ISR: Revalidate every 5 minutes (directory data changes infrequently)
 export const revalidate = 300
@@ -183,14 +184,16 @@ export default async function StatePage({ params }: PageProps) {
         </div>
       </section>
 
-      {/* Section 6.5: Quick Deal Check Widget */}
-      <section className="bg-gray-50 py-10">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-md">
-            <QuickAssessWidget />
+      {/* Section 6.5: Quick Deal Check Widget (Feature Flagged) */}
+      {ENABLE_QUICK_ASSESS_WIDGET && (
+        <section className="bg-gray-50 py-10">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="mx-auto max-w-md">
+              <QuickAssessWidget />
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Section 7: Soft CTA */}
       <SoftCTA variant="state" stateName={state.name} />
