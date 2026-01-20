@@ -6,8 +6,7 @@
  */
 
 import type { Store } from '@/lib/types'
-import { PhoneLink, DirectionsLink, WebsiteLink } from '@/components/cta'
-import { ClaimButton } from '@/components/claim'
+import { PhoneLink, DirectionsLink } from '@/components/cta'
 import { DistanceBadge } from './DistanceBadge'
 
 interface StoreCardProps {
@@ -15,23 +14,41 @@ interface StoreCardProps {
   index?: number // Optional - featured stores don't need numbering
 }
 
-function isStoreOpen(hours: Store['hours']): { isOpen: boolean; todayHours: string | null } {
-  if (!hours) return { isOpen: false, todayHours: null }
+function getStoreStatus(hours: Store['hours']): {
+  isOpen: boolean
+  statusText: string | null
+} {
+  if (!hours) return { isOpen: false, statusText: null }
 
   const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
-  const today = days[new Date().getDay()]
+  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+  const todayIndex = new Date().getDay()
+  const today = days[todayIndex]
   const todaySchedule = hours[today]
 
-  if (!todaySchedule || todaySchedule === 'closed') {
-    return { isOpen: false, todayHours: 'Closed today' }
+  // Store is open today
+  if (todaySchedule && todaySchedule !== 'closed') {
+    const { close } = todaySchedule
+    return { isOpen: true, statusText: `Open until ${close}` }
   }
 
-  const { open, close } = todaySchedule
-  return { isOpen: true, todayHours: `${open} - ${close}` }
+  // Store is closed today - find next open day
+  for (let i = 1; i <= 7; i++) {
+    const nextDayIndex = (todayIndex + i) % 7
+    const nextDay = days[nextDayIndex]
+    const nextSchedule = hours[nextDay]
+
+    if (nextSchedule && nextSchedule !== 'closed') {
+      const dayLabel = i === 1 ? 'tomorrow' : dayNames[nextDayIndex]
+      return { isOpen: false, statusText: `Closed · Opens ${dayLabel} at ${nextSchedule.open}` }
+    }
+  }
+
+  return { isOpen: false, statusText: 'Closed' }
 }
 
 export function StoreCard({ store, index }: StoreCardProps) {
-  const { isOpen, todayHours } = isStoreOpen(store.hours)
+  const { isOpen, statusText } = getStoreStatus(store.hours)
 
   return (
     <article
@@ -57,8 +74,8 @@ export function StoreCard({ store, index }: StoreCardProps) {
         )}
 
         <div className="flex-1">
-          {/* Store Name + Featured Badge */}
-          <div className="flex items-center gap-2">
+          {/* Store Name + Featured Badge + Open/Closed Status */}
+          <div className="flex flex-wrap items-center gap-2">
             <h3 className="text-lg font-semibold text-gray-900">{store.name}</h3>
             {store.isFeatured && (
               <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-800">
@@ -68,6 +85,27 @@ export function StoreCard({ store, index }: StoreCardProps) {
                 Featured
               </span>
             )}
+            {statusText && (
+              <span
+                className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${
+                  isOpen
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-red-100 text-red-800'
+                }`}
+              >
+                <span
+                  className={`h-1.5 w-1.5 rounded-full ${
+                    isOpen ? 'bg-green-500' : 'bg-red-500'
+                  }`}
+                />
+                {statusText}
+              </span>
+            )}
+            <DistanceBadge
+              storeLat={store.lat}
+              storeLng={store.lng}
+              className="text-xs text-gray-500"
+            />
           </div>
 
           {/* Address */}
@@ -92,11 +130,6 @@ export function StoreCard({ store, index }: StoreCardProps) {
               />
             </svg>
             {store.address}
-            <DistanceBadge
-              storeLat={store.lat}
-              storeLng={store.lng}
-              className="ml-2"
-            />
           </p>
 
           {/* Phone */}
@@ -118,30 +151,6 @@ export function StoreCard({ store, index }: StoreCardProps) {
               <PhoneLink
                 storeId={store.id}
                 phone={store.phone}
-                className="hover:text-blue-700 hover:underline"
-              />
-            </p>
-          )}
-
-          {/* Website */}
-          {store.website && (
-            <p className="mt-1 flex items-center gap-1 text-gray-600">
-              <svg
-                className="h-4 w-4 flex-shrink-0"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"
-                />
-              </svg>
-              <WebsiteLink
-                storeId={store.id}
-                url={store.website}
                 className="hover:text-blue-700 hover:underline"
               />
             </p>
@@ -169,153 +178,50 @@ export function StoreCard({ store, index }: StoreCardProps) {
             />
           </p>
 
-          {/* Hours Status */}
-          {todayHours && (
-            <p className="mt-2 text-sm">
-              <span
-                className={`inline-flex items-center gap-1 ${
-                  isOpen ? 'text-green-700' : 'text-red-700'
-                }`}
-              >
-                <span
-                  className={`h-2 w-2 rounded-full ${
-                    isOpen ? 'bg-green-500' : 'bg-red-500'
-                  }`}
-                />
-                {isOpen ? 'Open' : 'Closed'}
-              </span>
-              <span className="ml-2 text-gray-500">{todayHours}</span>
-            </p>
-          )}
+          {/* Appliances - Show only available, max 3 */}
+          {store.appliances && (() => {
+            const availableAppliances: string[] = []
+            if (store.appliances.refrigerators) availableAppliances.push('Refrigerators')
+            if (store.appliances.washersAndDryers) availableAppliances.push('Washers & Dryers')
+            if (store.appliances.stovesAndRanges) availableAppliances.push('Stoves & Ranges')
+            if (store.appliances.dishwashers) availableAppliances.push('Dishwashers')
 
-          {/* Appliances */}
-          {store.appliances && (
-            <div className="mt-4 border-t pt-4">
-              <p className="text-xs font-medium uppercase tracking-wide text-gray-500">
-                Appliance Types
-              </p>
-              <div className="mt-2 flex flex-wrap gap-2">
-                <ApplianceBadge
-                  label="Refrigerators"
-                  available={store.appliances.refrigerators}
-                />
-                <ApplianceBadge
-                  label="Washers & Dryers"
-                  available={store.appliances.washersAndDryers}
-                />
-                <ApplianceBadge
-                  label="Stoves & Ranges"
-                  available={store.appliances.stovesAndRanges}
-                />
-                <ApplianceBadge
-                  label="Dishwashers"
-                  available={store.appliances.dishwashers}
-                />
+            if (availableAppliances.length === 0) return null
+
+            return (
+              <div className="mt-3 flex flex-wrap gap-1.5">
+                {availableAppliances.slice(0, 3).map((label) => (
+                  <span
+                    key={label}
+                    className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 text-xs text-green-700"
+                  >
+                    <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    {label}
+                  </span>
+                ))}
               </div>
-            </div>
+            )
+          })()}
+
+          {/* Delivery Badge - Only show if available */}
+          {store.services?.delivery && (
+            <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-sage-50 px-2 py-0.5 text-xs text-sage-700">
+              <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+              </svg>
+              Delivers
+            </span>
           )}
 
-          {/* Services */}
-          {store.services && (
-            <div className="mt-4 border-t pt-4">
-              <p className="text-xs font-medium uppercase tracking-wide text-gray-500">
-                Services
-              </p>
-              <div className="mt-2 flex flex-wrap gap-2">
-                <ServiceBadge label="Delivery" available={store.services.delivery} />
-                <ServiceBadge
-                  label="Installation"
-                  available={store.services.installation}
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Claim Button - Only show if not already claimed */}
-          {!store.claimedBy && (
-            <div className="mt-4 border-t pt-4">
-              <ClaimButton
-                storeId={store.id}
-                storeName={store.name}
-              />
-            </div>
-          )}
         </div>
       </div>
     </article>
   )
 }
 
-function ApplianceBadge({
-  label,
-  available,
-}: {
-  label: string
-  available: boolean
-}) {
-  return (
-    <span
-      className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs ${
-        available
-          ? 'bg-green-50 text-green-700'
-          : 'bg-gray-100 text-gray-400 line-through'
-      }`}
-    >
-      {available ? (
-        <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-          <path
-            fillRule="evenodd"
-            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-            clipRule="evenodd"
-          />
-        </svg>
-      ) : (
-        <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-          <path
-            fillRule="evenodd"
-            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-            clipRule="evenodd"
-          />
-        </svg>
-      )}
-      {label}
-    </span>
-  )
-}
-
-function ServiceBadge({
-  label,
-  available,
-}: {
-  label: string
-  available: boolean
-}) {
-  return (
-    <span
-      className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs ${
-        available
-          ? 'bg-sage-50 text-sage-700'
-          : 'bg-gray-100 text-gray-400 line-through'
-      }`}
-    >
-      {available ? (
-        <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-          <path
-            fillRule="evenodd"
-            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-            clipRule="evenodd"
-          />
-        </svg>
-      ) : (
-        <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-          <path
-            fillRule="evenodd"
-            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-            clipRule="evenodd"
-          />
-        </svg>
-      )}
-      {label}
-    </span>
-  )
-}
