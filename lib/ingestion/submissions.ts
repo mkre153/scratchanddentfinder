@@ -43,6 +43,9 @@ function storeRowToModel(row: StoreRow): Store {
     featuredUntil: row.featured_until,
     lat: row.lat,
     lng: row.lng,
+    // Geolocation metadata (Phase 1: Data Integrity)
+    geoSource: row.geo_source,
+    geoPrecision: row.geo_precision,
     isApproved: row.is_approved,
     isVerified: row.is_verified,
     claimedBy: row.claimed_by,
@@ -182,8 +185,11 @@ export async function ingestStoreFromSubmission(
     is_featured: false,
     featured_tier: null,
     featured_until: null,
-    lat: null,
-    lng: null,
+    // Geolocation fields (Phase 1: Data Integrity)
+    lat: submission.lat ?? null,
+    lng: submission.lng ?? null,
+    geo_source: submission.geo_source ?? null,
+    geo_precision: submission.geo_precision ?? null,
     is_approved: true,
     claimed_by: null,
     claimed_at: null,

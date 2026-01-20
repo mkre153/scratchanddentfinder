@@ -6,7 +6,7 @@
  * Does NOT affect the directory.
  */
 
-import type { StoreSubmissionInsert } from '@/lib/types'
+import type { StoreSubmissionInsert, GeoSource, GeoPrecision } from '@/lib/types'
 
 export interface SubmissionFormData {
   businessName: string
@@ -18,6 +18,11 @@ export interface SubmissionFormData {
   email: string
   website?: string
   googlePlaceId?: string
+  // Geolocation fields (Phase 1: Data Integrity)
+  lat?: number | null
+  lng?: number | null
+  geoSource?: GeoSource
+  geoPrecision?: GeoPrecision
 }
 
 export interface ValidationResult {
@@ -163,6 +168,11 @@ export function validateSubmission(data: SubmissionFormData): ValidationResult {
     google_place_id: data.googlePlaceId?.trim() || null,
     verification_code_hash: null,
     verification_expires_at: null,
+    // Geolocation fields (Phase 1: Data Integrity)
+    lat: data.lat ?? null,
+    lng: data.lng ?? null,
+    geo_source: data.geoSource ?? null,
+    geo_precision: data.geoPrecision ?? null,
   }
 
   return { valid: true, errors: {}, data: submission }

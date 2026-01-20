@@ -9,11 +9,12 @@
  * STRICT SECTION ORDER:
  * 1. State Hero (headline, Browse Stores CTA, How It Works CTA)
  * 2. Trust Strip (4 bullets)
- * 3. Short Explainer (2-3 sentences)
- * 4. City Navigation (top cities)
- * 5. Store Listings (statewide)
- * 6. State Buying Guide (1 paragraph)
- * 7. Soft CTA (suggest store)
+ * 3. Quick Deal Check Widget (above fold, high visibility)
+ * 4. Short Explainer (2-3 sentences)
+ * 5. City Navigation (top cities)
+ * 6. Store Listings (statewide)
+ * 7. State Buying Guide (1 paragraph)
+ * 8. Soft CTA (suggest store)
  */
 
 import type { Metadata } from 'next'
@@ -28,7 +29,7 @@ import {
   Breadcrumbs,
   getStateBreadcrumbs,
 } from '@/components/layout/Breadcrumbs'
-import { CityCard, StoreCard } from '@/components/directory'
+import { CitySearchSection, StoreCard } from '@/components/directory'
 import { TrustStrip, SoftCTA } from '@/components/marketing'
 import dynamic from 'next/dynamic'
 import { JsonLd, generateStateBreadcrumbs } from '@/lib/schema'
@@ -96,6 +97,14 @@ export default async function StatePage({ params }: PageProps) {
             Find discounted appliances at {state.storeCount} local stores across{' '}
             {state.cityCount} cities.
           </p>
+          {ENABLE_QUICK_ASSESS_WIDGET && (
+            <p className="mt-3 text-sm text-gray-500">
+              Not sure if it's a good deal?{' '}
+              <a href="#quick-deal-check" className="text-rust hover:underline">
+                Quick check ↓
+              </a>
+            </p>
+          )}
 
           {/* CTAs */}
           <div className="mt-8 flex flex-col gap-4 sm:flex-row">
@@ -118,7 +127,21 @@ export default async function StatePage({ params }: PageProps) {
       {/* Section 2: Trust Strip */}
       <TrustStrip />
 
-      {/* Section 3: Short Explainer */}
+      {/* Section 3: Quick Deal Check Widget (Feature Flagged) */}
+      {ENABLE_QUICK_ASSESS_WIDGET && (
+        <section id="quick-deal-check" className="bg-gray-50 py-10">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <h2 className="mb-6 text-center text-xl font-bold text-gray-900">
+              Quick Deal Check
+            </h2>
+            <div className="mx-auto max-w-md">
+              <QuickAssessWidget />
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Section 4: Short Explainer */}
       <section className="py-10" id="how-it-works">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-3xl text-center">
@@ -133,28 +156,27 @@ export default async function StatePage({ params }: PageProps) {
         </div>
       </section>
 
-      {/* Section 4: City Navigation */}
+      {/* Section 5: City Navigation */}
       <section className="py-10">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="mb-6 text-xl font-bold text-gray-900">
-            Browse by City in {state.name}
+          <h2 className="mb-2 text-xl font-bold text-gray-900">
+            All {state.name} Cities with Scratch & Dent Stores
           </h2>
+          <p className="mb-6 text-gray-600">
+            Search and browse cities to find detailed store listings and contact information
+          </p>
 
           {cities.length === 0 ? (
             <p className="text-gray-600">
               No cities with stores found yet in {state.name}. Check back soon!
             </p>
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-              {cities.map((city) => (
-                <CityCard key={city.id} city={city} state={state} />
-              ))}
-            </div>
+            <CitySearchSection cities={cities} state={state} />
           )}
         </div>
       </section>
 
-      {/* Section 5: Store Listings (Statewide) */}
+      {/* Section 6: Store Listings (Statewide) */}
       <section className="bg-gray-50 py-10" id="stores">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <h2 className="mb-6 text-xl font-bold text-gray-900">
@@ -175,7 +197,7 @@ export default async function StatePage({ params }: PageProps) {
         </div>
       </section>
 
-      {/* Section 6: State Buying Guide */}
+      {/* Section 7: State Buying Guide */}
       <section className="py-10">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <h2 className="mb-4 text-lg font-semibold text-gray-900">
@@ -192,18 +214,7 @@ export default async function StatePage({ params }: PageProps) {
         </div>
       </section>
 
-      {/* Section 6.5: Quick Deal Check Widget (Feature Flagged) */}
-      {ENABLE_QUICK_ASSESS_WIDGET && (
-        <section className="bg-gray-50 py-10">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="mx-auto max-w-md">
-              <QuickAssessWidget />
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Section 7: Soft CTA */}
+      {/* Section 8: Soft CTA */}
       <SoftCTA variant="state" stateName={state.name} />
     </>
   )

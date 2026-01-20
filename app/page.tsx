@@ -21,7 +21,7 @@ import { getAllStatesUrl } from '@/lib/urls'
 import { generateHomepageMetadata } from '@/lib/seo'
 import { getAllStates } from '@/lib/queries'
 import { TrustStrip, HowItWorks, SoftCTA } from '@/components/marketing'
-import { StateGrid } from '@/components/directory'
+import { StateGrid, NearbyStores } from '@/components/directory'
 import { Search, Zap, Scale } from 'lucide-react'
 
 export const metadata: Metadata = generateHomepageMetadata()
@@ -66,6 +66,9 @@ export default async function HomePage() {
 
       {/* Section 2: Trust Strip */}
       <TrustStrip />
+
+      {/* Section 2.5: Find Stores Near You (Phase 2) */}
+      <NearbyStores variant="homepage" />
 
       {/* Section 3: How It Works */}
       <HowItWorks />

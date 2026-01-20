@@ -8,11 +8,12 @@
  *
  * STRICT SECTION ORDER:
  * 1. City Hero (smaller, city + category headline)
- * 2. Store Listings (above fold, tap-to-call)
+ * 2. Quick Deal Check Widget (above fold, high visibility)
  * 3. Buyer Tips (max 3 bullets)
  * 4. Local Context (optional, 2-3 sentences)
- * 5. Soft CTA (suggest store)
- * 6. Nearby Cities (de-emphasized, SEO-only)
+ * 5. Store Listings (tap-to-call)
+ * 6. Soft CTA (suggest store)
+ * 7. Nearby Cities (de-emphasized, SEO-only)
  */
 
 import type { Metadata } from 'next'
@@ -28,7 +29,7 @@ import {
   Breadcrumbs,
   getCityBreadcrumbs,
 } from '@/components/layout/Breadcrumbs'
-import { CityStoreSection, NearbyCities } from '@/components/directory'
+import { CityStoreSection, NearbyCities, ExploreStateLink } from '@/components/directory'
 import { BuyerTips, SoftCTA } from '@/components/marketing'
 import dynamic from 'next/dynamic'
 import { ENABLE_QUICK_ASSESS_WIDGET } from '@/lib/config'
@@ -120,33 +121,33 @@ export default async function CityPage({ params }: PageProps) {
               ? `${stores.length} local ${stores.length === 1 ? 'store' : 'stores'} with discounted appliances.`
               : 'Find discounted appliances with minor cosmetic damage.'}
           </p>
+          {ENABLE_QUICK_ASSESS_WIDGET && (
+            <p className="mt-3 text-sm text-gray-500">
+              Not sure if it's a good deal?{' '}
+              <a href="#quick-deal-check" className="text-rust hover:underline">
+                Quick check ↓
+              </a>
+            </p>
+          )}
         </div>
       </section>
 
-      {/* Section 2: Store Listings (above the fold) */}
-      <section className="py-10">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <CityStoreSection
-            stores={stores}
-            cityName={city.name}
-            cityCenter={{ lat: city.lat ?? 0, lng: city.lng ?? 0 }}
-          />
-        </div>
-      </section>
-
-      {/* Section 3: Buyer Tips */}
-      <BuyerTips />
-
-      {/* Section 3.5: Quick Deal Check Widget (Feature Flagged) */}
+      {/* Section 2: Quick Deal Check Widget (Feature Flagged) */}
       {ENABLE_QUICK_ASSESS_WIDGET && (
-        <section className="py-8">
+        <section id="quick-deal-check" className="bg-gray-50 py-10">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <h2 className="mb-6 text-center text-xl font-bold text-gray-900">
+              Quick Deal Check
+            </h2>
             <div className="mx-auto max-w-md">
               <QuickAssessWidget />
             </div>
           </div>
         </section>
       )}
+
+      {/* Section 3: Buyer Tips */}
+      <BuyerTips />
 
       {/* Section 4: Local Context */}
       <section className="py-8">
@@ -160,10 +161,24 @@ export default async function CityPage({ params }: PageProps) {
         </div>
       </section>
 
-      {/* Section 5: Soft CTA */}
+      {/* Section 5: Store Listings */}
+      <section className="py-10">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <CityStoreSection
+            stores={stores}
+            cityName={city.name}
+            cityCenter={{ lat: city.lat ?? 0, lng: city.lng ?? 0 }}
+          />
+        </div>
+      </section>
+
+      {/* Section 6: Soft CTA */}
       <SoftCTA variant="city" cityName={city.name} />
 
-      {/* Section 6: Nearby Cities (de-emphasized, SEO-only) */}
+      {/* Section 6.5: Explore State Link (SEO upward link) */}
+      <ExploreStateLink state={state} />
+
+      {/* Section 7: Nearby Cities (de-emphasized, SEO-only) */}
       <NearbyCities cities={nearbyCities} state={state} currentCity={city} />
     </>
   )

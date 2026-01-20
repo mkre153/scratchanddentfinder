@@ -8,6 +8,7 @@
 import type { Store } from '@/lib/types'
 import { PhoneLink, DirectionsLink, WebsiteLink } from '@/components/cta'
 import { ClaimButton } from '@/components/claim'
+import { DistanceBadge } from './DistanceBadge'
 
 interface StoreCardProps {
   store: Store
@@ -91,6 +92,11 @@ export function StoreCard({ store, index }: StoreCardProps) {
               />
             </svg>
             {store.address}
+            <DistanceBadge
+              storeLat={store.lat}
+              storeLng={store.lng}
+              className="ml-2"
+            />
           </p>
 
           {/* Phone */}

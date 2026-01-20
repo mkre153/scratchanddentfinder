@@ -157,6 +157,9 @@ export interface StoreRow {
   featured_until: string | null
   lat: number | null
   lng: number | null
+  // Geolocation metadata (Phase 1: Data Integrity)
+  geo_source: GeoSource
+  geo_precision: GeoPrecision
   is_approved: boolean
   is_verified: boolean // True if entered through trusted ingestion boundary
   claimed_by: string | null
@@ -199,6 +202,9 @@ export interface Store {
   featuredUntil: string | null
   lat: number | null
   lng: number | null
+  // Geolocation metadata (Phase 1: Data Integrity)
+  geoSource: GeoSource
+  geoPrecision: GeoPrecision
   isApproved: boolean
   isVerified: boolean // True if entered through trusted ingestion boundary
   claimedBy: string | null
@@ -281,6 +287,10 @@ export type ContactSubmissionUpdate = Partial<ContactSubmissionInsert>
 // Store Submission (Slice 4 - Untrusted, Isolated from Directory)
 // =============================================================================
 
+// Geolocation metadata types
+export type GeoSource = 'places' | 'zip' | 'browser' | 'import' | null
+export type GeoPrecision = 'rooftop' | 'centroid' | 'approximate' | null
+
 export interface StoreSubmissionRow {
   id: string
   business_name: string
@@ -296,6 +306,11 @@ export interface StoreSubmissionRow {
   verification_expires_at: string | null
   verification_attempts: number
   google_place_id: string | null
+  // Geolocation fields (Phase 1: Data Integrity)
+  lat: number | null
+  lng: number | null
+  geo_source: GeoSource
+  geo_precision: GeoPrecision
   status: 'pending' | 'approved' | 'rejected'
   submitted_at: string
   rejected_at: string | null
@@ -318,6 +333,11 @@ export interface StoreSubmission {
   email: string | null
   emailVerifiedAt: string | null
   googlePlaceId: string | null
+  // Geolocation fields (Phase 1: Data Integrity)
+  lat: number | null
+  lng: number | null
+  geoSource: GeoSource
+  geoPrecision: GeoPrecision
   status: 'pending' | 'approved' | 'rejected'
   submittedAt: string
   rejectedAt: string | null

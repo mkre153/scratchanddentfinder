@@ -78,6 +78,7 @@ export function StoreSubmissionForm() {
           'address_components',
           'formatted_phone_number',
           'website',
+          'geometry', // Phase 1: Extract coordinates
         ],
       }
     )
@@ -112,6 +113,17 @@ export function StoreSubmissionForm() {
         ? `${streetNumber} ${streetName}`
         : streetName
 
+      // Phase 1: Extract coordinates from geometry.location
+      const lat = place.geometry?.location?.lat() ?? null
+      const lng = place.geometry?.location?.lng() ?? null
+      // Set geo metadata for auditability
+      const geoSource = lat !== null ? 'places' as const : null
+      const geoPrecision = lat !== null ? 'rooftop' as const : null
+
+      if (lat === null && place.place_id) {
+        console.warn('[Form] Google Places returned no geometry for place_id:', place.place_id)
+      }
+
       // Update form with place data
       setFormData((prev) => ({
         ...prev,
@@ -123,6 +135,11 @@ export function StoreSubmissionForm() {
         phone: place.formatted_phone_number?.replace(/\D/g, '') || prev.phone,
         website: place.website || prev.website,
         googlePlaceId: place.place_id || '',
+        // Geolocation fields (Phase 1: Data Integrity)
+        lat,
+        lng,
+        geoSource,
+        geoPrecision,
       }))
 
       // Clear errors for auto-filled fields
