@@ -123,6 +123,11 @@ export default async function CityPage({ params }: PageProps) {
         </div>
       </section>
 
+      {/* DEBUG: Build stamp to verify env var */}
+      <div className="mx-auto max-w-7xl px-4 text-xs text-gray-400">
+        QA flag: {process.env.NEXT_PUBLIC_ENABLE_QUICK_ASSESS_WIDGET === 'true' ? 'ON' : 'OFF'}
+      </div>
+
       {/* Section 2: Store Listings (above the fold) */}
       <section className="py-10">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
