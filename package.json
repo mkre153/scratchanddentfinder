@@ -14,7 +14,7 @@
     "gates:8": "npx tsx scripts/gates-verify.ts --gate 8"
   },
   "dependencies": {
-    "@scratch-and-dent/buyers-tool": "file:../../engine/buyers-tool",
+    "@scratch-and-dent/buyers-tool": "file:./packages/buyers-tool",
     "@supabase/auth-ui-react": "^0.4.7",
     "@supabase/auth-ui-shared": "^0.1.8",
     "@supabase/ssr": "^0.8.0",
