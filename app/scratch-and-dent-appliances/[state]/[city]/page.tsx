@@ -123,12 +123,6 @@ export default async function CityPage({ params }: PageProps) {
         </div>
       </section>
 
-      {/* DEBUG: Build stamp to verify env var AND constant */}
-      <div className="mx-auto max-w-7xl px-4 text-xs text-gray-400">
-        ENV: {process.env.NEXT_PUBLIC_ENABLE_QUICK_ASSESS_WIDGET === 'true' ? 'ON' : 'OFF'} |
-        CONST: {ENABLE_QUICK_ASSESS_WIDGET ? 'ON' : 'OFF'}
-      </div>
-
       {/* Section 2: Store Listings (above the fold) */}
       <section className="py-10">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -145,9 +139,8 @@ export default async function CityPage({ params }: PageProps) {
 
       {/* Section 3.5: Quick Deal Check Widget (Feature Flagged) */}
       {ENABLE_QUICK_ASSESS_WIDGET && (
-        <section className="py-8 bg-yellow-100">
+        <section className="py-8">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <p className="text-red-500 font-bold">DEBUG: Section renders!</p>
             <div className="mx-auto max-w-md">
               <QuickAssessWidget />
             </div>
