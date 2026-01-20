@@ -123,9 +123,10 @@ export default async function CityPage({ params }: PageProps) {
         </div>
       </section>
 
-      {/* DEBUG: Build stamp to verify env var */}
+      {/* DEBUG: Build stamp to verify env var AND constant */}
       <div className="mx-auto max-w-7xl px-4 text-xs text-gray-400">
-        QA flag: {process.env.NEXT_PUBLIC_ENABLE_QUICK_ASSESS_WIDGET === 'true' ? 'ON' : 'OFF'}
+        ENV: {process.env.NEXT_PUBLIC_ENABLE_QUICK_ASSESS_WIDGET === 'true' ? 'ON' : 'OFF'} |
+        CONST: {ENABLE_QUICK_ASSESS_WIDGET ? 'ON' : 'OFF'}
       </div>
 
       {/* Section 2: Store Listings (above the fold) */}
