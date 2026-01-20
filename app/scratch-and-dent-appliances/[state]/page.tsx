@@ -30,9 +30,17 @@ import {
 } from '@/components/layout/Breadcrumbs'
 import { CityCard, StoreCard } from '@/components/directory'
 import { TrustStrip, SoftCTA } from '@/components/marketing'
-import { QuickAssessWidget } from '@/components/buyers-tool'
+import dynamic from 'next/dynamic'
 import { JsonLd, generateStateBreadcrumbs } from '@/lib/schema'
 import { ENABLE_QUICK_ASSESS_WIDGET } from '@/lib/config'
+
+// Dynamic import: only loads QuickAssessWidget (and buyers-tool) when feature flag is ON
+const QuickAssessWidget = ENABLE_QUICK_ASSESS_WIDGET
+  ? dynamic(() => import('@/components/buyers-tool').then((mod) => mod.QuickAssessWidget), {
+      ssr: false,
+      loading: () => <div className="h-64 animate-pulse rounded-xl bg-gray-100" />,
+    })
+  : () => null
 
 // ISR: Revalidate every 5 minutes (directory data changes infrequently)
 export const revalidate = 300

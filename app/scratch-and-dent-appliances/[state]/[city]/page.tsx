@@ -30,8 +30,16 @@ import {
 } from '@/components/layout/Breadcrumbs'
 import { CityStoreSection, NearbyCities } from '@/components/directory'
 import { BuyerTips, SoftCTA } from '@/components/marketing'
-import { QuickAssessWidget } from '@/components/buyers-tool'
+import dynamic from 'next/dynamic'
 import { ENABLE_QUICK_ASSESS_WIDGET } from '@/lib/config'
+
+// Dynamic import: only loads QuickAssessWidget (and buyers-tool) when feature flag is ON
+const QuickAssessWidget = ENABLE_QUICK_ASSESS_WIDGET
+  ? dynamic(() => import('@/components/buyers-tool').then((mod) => mod.QuickAssessWidget), {
+      ssr: false,
+      loading: () => <div className="h-64 animate-pulse rounded-xl bg-gray-100" />,
+    })
+  : () => null
 import {
   JsonLd,
   JsonLdMultiple,
