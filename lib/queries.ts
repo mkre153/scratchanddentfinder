@@ -8,6 +8,7 @@
  */
 
 import { supabaseAdmin } from '@/lib/supabase/admin'
+import { haversineDistance, getBoundingBox } from '@/lib/utils/distance'
 import type {
   State,
   StateRow,
@@ -80,6 +81,9 @@ function storeRowToModel(row: StoreRow): Store {
     featuredUntil: row.featured_until,
     lat: row.lat,
     lng: row.lng,
+    // Geolocation metadata (Phase 1: Data Integrity)
+    geoSource: row.geo_source,
+    geoPrecision: row.geo_precision,
     isApproved: row.is_approved,
     isVerified: row.is_verified,
     claimedBy: row.claimed_by,
@@ -218,12 +222,13 @@ export async function getNearbyCities(
     const cityLng = city.lng as number
 
     // Sort by distance ASC, store_count DESC, name ASC (Gate 10)
+    // Phase 4: Using Haversine for accurate great-circle distance
     return rows
       .map((c) => ({
         ...c,
         distance:
           c.lat != null && c.lng != null
-            ? Math.pow(cityLat - c.lat, 2) + Math.pow(cityLng - c.lng, 2)
+            ? haversineDistance(cityLat, cityLng, c.lat, c.lng)
             : Infinity,
       }))
       .sort((a, b) => {
@@ -383,6 +388,64 @@ export async function getStoreByPlaceId(placeId: string): Promise<Store | null> 
 
 // NOTE: upsertStore has been moved to lib/ingestion/ to enforce the ingestion boundary (Gate 16).
 // All store creation must go through the ingestion boundary.
+
+/**
+ * Store with distance information
+ */
+export interface StoreWithDistance extends Store {
+  distance: number // Distance in miles
+}
+
+/**
+ * Get stores near a location (Phase 2: Stores Near Me)
+ *
+ * Uses bounding box pre-filter for performance, then calculates exact
+ * Haversine distance for ranking. Only returns stores with coordinates.
+ *
+ * @param lat - User latitude
+ * @param lng - User longitude
+ * @param radiusMiles - Search radius in miles (default 50)
+ * @param limit - Maximum stores to return (default 20)
+ * @returns Stores sorted by distance, closest first
+ */
+export async function getNearbyStores(
+  lat: number,
+  lng: number,
+  radiusMiles: number = 50,
+  limit: number = 20
+): Promise<StoreWithDistance[]> {
+  // Get bounding box for efficient DB query
+  const box = getBoundingBox(lat, lng, radiusMiles)
+
+  // Query stores within bounding box that have coordinates
+  const { data, error } = await supabaseAdmin
+    .from('stores')
+    .select('*')
+    .eq('is_approved', true)
+    .or('is_archived.is.null,is_archived.eq.false')
+    .not('lat', 'is', null)
+    .not('lng', 'is', null)
+    .gte('lat', box.minLat)
+    .lte('lat', box.maxLat)
+    .gte('lng', box.minLng)
+    .lte('lng', box.maxLng)
+
+  if (error) throw error
+  if (!data || data.length === 0) return []
+
+  // Calculate exact distances and filter by radius
+  const storesWithDistance: StoreWithDistance[] = data
+    .map((row) => {
+      const store = storeRowToModel(row as StoreRow)
+      const distance = haversineDistance(lat, lng, store.lat!, store.lng!)
+      return { ...store, distance }
+    })
+    .filter((s) => s.distance <= radiusMiles)
+    .sort((a, b) => a.distance - b.distance)
+    .slice(0, limit)
+
+  return storesWithDistance
+}
 
 // =============================================================================
 // Lead Queries
@@ -614,6 +677,11 @@ function storeSubmissionRowToModel(row: StoreSubmissionRow): StoreSubmission {
     email: row.email,
     emailVerifiedAt: row.email_verified_at,
     googlePlaceId: row.google_place_id,
+    // Geolocation fields (Phase 1: Data Integrity)
+    lat: row.lat,
+    lng: row.lng,
+    geoSource: row.geo_source,
+    geoPrecision: row.geo_precision,
     status: row.status,
     submittedAt: row.submitted_at,
     rejectedAt: row.rejected_at,

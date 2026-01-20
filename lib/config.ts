@@ -32,3 +32,24 @@ export const SITE_NAME = 'Scratch & Dent Finder'
  */
 export const DEFAULT_DESCRIPTION =
   'Find scratch and dent appliance stores near you. Save 30-70% on quality appliances with minor cosmetic damage.'
+
+// =============================================================================
+// FEATURE FLAGS
+// =============================================================================
+
+/**
+ * ENABLE_QUICK_ASSESS_WIDGET: Show QuickAssessWidget on State/City directory pages
+ *
+ * Set via environment variable: NEXT_PUBLIC_ENABLE_QUICK_ASSESS_WIDGET=true
+ *
+ * Default: false (disabled)
+ * Scope: State and City pages only (/buyers-guide remains always-on)
+ *
+ * Rollout strategy:
+ * 1. Deploy with flag disabled
+ * 2. Enable in staging/preview
+ * 3. Enable in production after validation
+ * 4. Remove flag once stable
+ */
+export const ENABLE_QUICK_ASSESS_WIDGET =
+  process.env.NEXT_PUBLIC_ENABLE_QUICK_ASSESS_WIDGET === 'true'

@@ -68,6 +68,13 @@ export function getAdvertiseUrl(): string {
 }
 
 /**
+ * Get buyer's guide page URL
+ */
+export function getBuyersGuideUrl(): string {
+  return '/buyers-guide/'
+}
+
+/**
  * Get privacy policy page URL
  */
 export function getPrivacyUrl(): string {

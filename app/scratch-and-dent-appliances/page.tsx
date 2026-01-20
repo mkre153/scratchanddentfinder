@@ -8,7 +8,7 @@
 import type { Metadata } from 'next'
 import { generateAllStatesMetadata } from '@/lib/seo'
 import { getAllStates } from '@/lib/queries'
-import { StateCard } from '@/components/directory'
+import { StateSearchSection } from '@/components/directory'
 import { JsonLd, generateAllStatesBreadcrumbs } from '@/lib/schema'
 
 export const metadata: Metadata = generateAllStatesMetadata()
@@ -23,21 +23,6 @@ export default async function AllStatesPage() {
   // Calculate stats
   const totalStores = states.reduce((sum, s) => sum + s.storeCount, 0)
   const totalCities = states.reduce((sum, s) => sum + s.cityCount, 0)
-
-  // Group states by first letter for alphabetical sections
-  const statesByLetter = states.reduce(
-    (acc, state) => {
-      const letter = state.name[0].toUpperCase()
-      if (!acc[letter]) {
-        acc[letter] = []
-      }
-      acc[letter].push(state)
-      return acc
-    },
-    {} as Record<string, typeof states>
-  )
-
-  const letters = Object.keys(statesByLetter).sort()
 
   return (
     <>
@@ -79,33 +64,25 @@ export default async function AllStatesPage() {
       {/* State Directory */}
       <section className="py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <h2 className="mb-2 text-center text-2xl font-bold text-gray-900">
+            Discount Appliance Outlets by State A-Z
+          </h2>
+          <p className="mb-8 text-center text-gray-600">
+            Browse scratch and dent appliance stores, damaged appliance dealers, and factory seconds outlets in your state
+          </p>
+
           {states.length === 0 ? (
-            /* Empty State */
             <div className="text-center">
-              <h2 className="text-2xl font-bold text-gray-900">
+              <h3 className="text-xl font-bold text-gray-900">
                 Directory Coming Soon
-              </h2>
+              </h3>
               <p className="mt-4 text-gray-600">
                 We&apos;re building the most comprehensive directory of scratch
                 and dent appliance stores. Check back soon!
               </p>
             </div>
           ) : (
-            /* State Grid by Letter */
-            <div className="space-y-12">
-              {letters.map((letter) => (
-                <div key={letter}>
-                  <h2 className="mb-6 text-2xl font-bold text-gray-900">
-                    {letter}
-                  </h2>
-                  <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                    {statesByLetter[letter].map((state) => (
-                      <StateCard key={state.id} state={state} />
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
+            <StateSearchSection states={states} />
           )}
         </div>
       </section>

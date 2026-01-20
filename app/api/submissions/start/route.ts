@@ -40,6 +40,11 @@ export async function POST(request: NextRequest) {
       email: body.email || '',
       website: body.website || '',
       googlePlaceId: body.googlePlaceId || '',
+      // Geolocation fields (Phase 1: Data Integrity)
+      lat: body.lat ?? null,
+      lng: body.lng ?? null,
+      geoSource: body.geoSource ?? null,
+      geoPrecision: body.geoPrecision ?? null,
     }
 
     // Validate

@@ -7,11 +7,13 @@
  * Toggle state is local UI only — no URL params, no persistence.
  */
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { StoreCard } from './StoreCard'
 import { getStoreSubmitUrl } from '@/lib/urls'
+import { useUserLocation } from '@/lib/contexts/UserLocationContext'
+import { haversineDistance } from '@/lib/utils/distance'
 import type { Store } from '@/lib/types'
 
 // Dynamic import to avoid SSR issues with Leaflet
@@ -40,10 +42,37 @@ export function CityStoreSection({
 }: CityStoreSectionProps) {
   // Local UI state only — no URL params, no persistence
   const [view, setView] = useState<'list' | 'map'>('list')
+  // SEO: Sort defaults to 'default' (featured first, then alphabetical)
+  // Distance sort is OPT-IN only when user location is available
+  const [sortBy, setSortBy] = useState<'default' | 'distance'>('default')
+  const userLocation = useUserLocation()
+
+  // Calculate distances and sort when user has location and opts in
+  const sortedStores = useMemo(() => {
+    if (sortBy !== 'distance' || !userLocation?.coords) {
+      return stores // Return original order (server-provided)
+    }
+
+    // Sort by distance (featured stores still come first)
+    return [...stores].sort((a, b) => {
+      // Featured stores always first
+      if (a.isFeatured && !b.isFeatured) return -1
+      if (!a.isFeatured && b.isFeatured) return 1
+
+      // Then by distance
+      const distA = a.lat != null && a.lng != null
+        ? haversineDistance(userLocation.coords!.lat, userLocation.coords!.lng, a.lat, a.lng)
+        : Infinity
+      const distB = b.lat != null && b.lng != null
+        ? haversineDistance(userLocation.coords!.lat, userLocation.coords!.lng, b.lat, b.lng)
+        : Infinity
+      return distA - distB
+    })
+  }, [stores, sortBy, userLocation?.coords])
 
   // Split stores into featured and regular
-  const featuredStores = stores.filter((s) => s.isFeatured)
-  const regularStores = stores.filter((s) => !s.isFeatured)
+  const featuredStores = sortedStores.filter((s) => s.isFeatured)
+  const regularStores = sortedStores.filter((s) => !s.isFeatured)
 
   // Derive minimal map data from stores (locked contract)
   const mapStores = stores
@@ -58,37 +87,53 @@ export function CityStoreSection({
 
   return (
     <>
-      {/* Header with toggle */}
-      <div className="mb-8 flex items-center justify-between">
+      {/* Header with toggles */}
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
         <h2 className="text-2xl font-bold text-gray-900">
           Stores in {cityName}
         </h2>
 
-        {/* Toggle buttons — only show if map data available */}
-        {hasMapData && stores.length > 0 && (
-          <div className="flex rounded-lg border border-gray-300 bg-white">
+        <div className="flex items-center gap-3">
+          {/* Sort toggle — only show when user location is available */}
+          {userLocation?.coords && stores.length > 1 && (
             <button
-              onClick={() => setView('list')}
-              className={`px-4 py-2 text-sm font-medium transition-colors ${
-                view === 'list'
-                  ? 'bg-sage-500 text-white'
-                  : 'text-gray-700 hover:bg-gray-50'
-              } rounded-l-lg`}
+              onClick={() => setSortBy(sortBy === 'distance' ? 'default' : 'distance')}
+              className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                sortBy === 'distance'
+                  ? 'bg-sage-100 text-sage-700'
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
             >
-              List
+              {sortBy === 'distance' ? '✓ Sorted by distance' : 'Sort by distance'}
             </button>
-            <button
-              onClick={() => setView('map')}
-              className={`px-4 py-2 text-sm font-medium transition-colors ${
-                view === 'map'
-                  ? 'bg-sage-500 text-white'
-                  : 'text-gray-700 hover:bg-gray-50'
-              } rounded-r-lg`}
-            >
-              Map
-            </button>
-          </div>
-        )}
+          )}
+
+          {/* View toggle buttons — only show if map data available */}
+          {hasMapData && stores.length > 0 && (
+            <div className="flex rounded-lg border border-gray-300 bg-white">
+              <button
+                onClick={() => setView('list')}
+                className={`px-4 py-2 text-sm font-medium transition-colors ${
+                  view === 'list'
+                    ? 'bg-sage-500 text-white'
+                    : 'text-gray-700 hover:bg-gray-50'
+                } rounded-l-lg`}
+              >
+                List
+              </button>
+              <button
+                onClick={() => setView('map')}
+                className={`px-4 py-2 text-sm font-medium transition-colors ${
+                  view === 'map'
+                    ? 'bg-sage-500 text-white'
+                    : 'text-gray-700 hover:bg-gray-50'
+                } rounded-r-lg`}
+              >
+                Map
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       {stores.length === 0 ? (
