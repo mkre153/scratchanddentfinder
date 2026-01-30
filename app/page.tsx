@@ -20,11 +20,33 @@ import type { Metadata } from 'next'
 import { getAllStatesUrl } from '@/lib/urls'
 import { generateHomepageMetadata } from '@/lib/seo'
 import { getAllStates } from '@/lib/queries'
-import { TrustStrip, HowItWorks, SoftCTA } from '@/components/marketing'
+import { TrustStrip, HowItWorks, SoftCTA, AISummary } from '@/components/marketing'
 import { StateGrid, NearbyStores } from '@/components/directory'
 import { Search, Zap, Scale } from 'lucide-react'
+import {
+  generateOrganizationSchema,
+  generateWebSiteSchema,
+  generateHowToSchema,
+  JsonLdMultiple,
+} from '@/lib/schema'
 
 export const metadata: Metadata = generateHomepageMetadata()
+
+// HowTo schema data - explains what scratch & dent is
+const HOW_IT_WORKS_STEPS = [
+  {
+    name: 'Minor Cosmetic Damage',
+    text: 'Small dents, scratches, or packaging flaws from shipping and handling. The appliance looks slightly imperfect but functions perfectly.',
+  },
+  {
+    name: 'Big Discounts',
+    text: 'Save 20-60% off retail prices on brand-name appliances because of minor cosmetic imperfections that do not affect performance.',
+  },
+  {
+    name: 'Fully Functional',
+    text: 'Same performance and warranty coverage as new appliances. You get a brand-name appliance at a fraction of the retail price.',
+  },
+]
 
 // ISR: Revalidate every 5 minutes (directory data changes infrequently)
 export const revalidate = 300
@@ -35,6 +57,19 @@ export default async function HomePage() {
 
   return (
     <>
+      {/* Schema Markup */}
+      <JsonLdMultiple
+        schemas={[
+          generateOrganizationSchema(),
+          generateWebSiteSchema(),
+          generateHowToSchema(
+            'How Scratch & Dent Appliances Work',
+            'Understanding what scratch and dent appliances are and how you can save 20-60% on brand-name appliances with minor cosmetic damage.',
+            HOW_IT_WORKS_STEPS
+          ),
+        ]}
+      />
+
       {/* Section 1: Hero */}
       <section className="bg-warm-50 py-20">
         <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
@@ -129,7 +164,10 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Section 6: Soft CTA */}
+      {/* Section 6: AI Summary (AEO optimized) */}
+      <AISummary />
+
+      {/* Section 7: Soft CTA */}
       <SoftCTA variant="homepage" />
 
       {/* Empty State - Only show if no stores */}
