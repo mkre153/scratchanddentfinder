@@ -194,6 +194,69 @@ export function generateLocalBusinessSchema(
 }
 
 // =============================================================================
+// FAQPage Schema
+// =============================================================================
+
+interface FAQItem {
+  question: string
+  answer: string
+}
+
+/**
+ * Generate FAQPage schema for rich results
+ *
+ * Use on pages with FAQ content (e.g., /buyers-guide/)
+ * Each Q&A pair becomes a Question/Answer entity
+ */
+export function generateFAQPageSchema(faqs: FAQItem[]): object {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((faq) => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.answer,
+      },
+    })),
+  }
+}
+
+// =============================================================================
+// HowTo Schema
+// =============================================================================
+
+interface HowToStep {
+  name: string
+  text: string
+}
+
+/**
+ * Generate HowTo schema for rich results
+ *
+ * Use on pages with step-by-step processes (e.g., homepage "How It Works")
+ */
+export function generateHowToSchema(
+  name: string,
+  description: string,
+  steps: HowToStep[]
+): object {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name,
+    description,
+    step: steps.map((step, index) => ({
+      '@type': 'HowToStep',
+      position: index + 1,
+      name: step.name,
+      text: step.text,
+    })),
+  }
+}
+
+// =============================================================================
 // JsonLd Component
 // =============================================================================
 

@@ -17,6 +17,7 @@ import {
   getAboutUrl,
   getContactUrl,
   getAdvertiseUrl,
+  getBuyersGuideUrl,
 } from './urls'
 import type { State, City } from './types'
 
@@ -120,7 +121,7 @@ export function shouldIndexCity(city: { storeCount: number }): boolean {
  * Generate metadata for homepage
  */
 export function generateHomepageMetadata(): Metadata {
-  const title = `${SITE_NAME} | Find Scratch and Dent Appliance Stores`
+  const title = 'Find Scratch and Dent Appliance Stores Near You'
   const description = DEFAULT_DESCRIPTION
   const path = getHomepageUrl()
 
@@ -139,7 +140,7 @@ export function generateHomepageMetadata(): Metadata {
  * Generate metadata for all states page
  */
 export function generateAllStatesMetadata(): Metadata {
-  const title = `Scratch and Dent Appliances by State | ${SITE_NAME}`
+  const title = 'Scratch and Dent Appliances by State'
   const description =
     'Browse scratch and dent appliance stores in all 50 states. Find discount appliances near you and save 30-70%.'
   const path = getAllStatesUrl()
@@ -159,7 +160,7 @@ export function generateAllStatesMetadata(): Metadata {
  * Generate metadata for state page
  */
 export function generateStateMetadata(state: State): Metadata {
-  const title = `Scratch and Dent Appliances in ${state.name} | ${SITE_NAME}`
+  const title = `Scratch and Dent Appliances in ${state.name}`
   const description = `Find ${state.storeCount} scratch and dent appliance stores in ${state.name}. Browse ${state.cityCount} cities and save 30-70% on quality appliances.`
   const path = getStateUrl(state)
 
@@ -182,7 +183,7 @@ export function generateCityMetadata(
   city: City,
   state: State
 ): Metadata {
-  const title = `Scratch and Dent Appliances in ${city.name}, ${state.name} | ${SITE_NAME}`
+  const title = `Scratch and Dent Appliances in ${city.name}, ${state.name}`
   const description = `Find ${city.storeCount} scratch and dent appliance stores in ${city.name}, ${state.name}. Save 30-70% on refrigerators, washers, dryers, and more.`
   const path = getCityUrl(state, city)
 
@@ -206,7 +207,7 @@ export function generateCityMetadata(
  * Generate metadata for about page
  */
 export function generateAboutMetadata(): Metadata {
-  const title = `About Us | ${SITE_NAME}`
+  const title = 'About Us'
   const description =
     'Learn about Scratch & Dent Finder - helping families find affordable appliances with minor cosmetic damage at 30-70% off retail prices.'
   const path = getAboutUrl()
@@ -226,7 +227,7 @@ export function generateAboutMetadata(): Metadata {
  * Generate metadata for contact page
  */
 export function generateContactMetadata(): Metadata {
-  const title = `Contact Us | ${SITE_NAME}`
+  const title = 'Contact Us'
   const description =
     'Get in touch with Scratch & Dent Finder. Questions about our directory, store submissions, or business inquiries.'
   const path = getContactUrl()
@@ -246,10 +247,30 @@ export function generateContactMetadata(): Metadata {
  * Generate metadata for advertise page
  */
 export function generateAdvertiseMetadata(): Metadata {
-  const title = `Advertise With Us | ${SITE_NAME}`
+  const title = 'Advertise With Us'
   const description =
     'Promote your appliance store on Scratch & Dent Finder. Featured listings get top placement and increased visibility.'
   const path = getAdvertiseUrl()
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: getCanonicalUrl(path),
+    },
+    openGraph: generateOpenGraph({ title, description, path }),
+    twitter: generateTwitter({ title, description }),
+  }
+}
+
+/**
+ * Generate metadata for buyer's guide page
+ */
+export function generateBuyersGuideMetadata(): Metadata {
+  const title = "Buyer's Guide: Evaluate Scratch & Dent Deals"
+  const description =
+    'Free tool to evaluate scratch and dent appliance deals. Get personalized buy, negotiate, or walk away recommendations.'
+  const path = getBuyersGuideUrl()
 
   return {
     title,
@@ -270,15 +291,14 @@ export function generatePageMetadata(
   description: string,
   path: string
 ): Metadata {
-  const fullTitle = `${title} | ${SITE_NAME}`
-
+  // Note: Layout template already appends "| SITE_NAME" via Next.js title template
   return {
-    title: fullTitle,
+    title,
     description,
     alternates: {
       canonical: getCanonicalUrl(path),
     },
-    openGraph: generateOpenGraph({ title: fullTitle, description, path }),
-    twitter: generateTwitter({ title: fullTitle, description }),
+    openGraph: generateOpenGraph({ title, description, path }),
+    twitter: generateTwitter({ title, description }),
   }
 }

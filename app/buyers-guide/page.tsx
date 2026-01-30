@@ -5,21 +5,44 @@
  * with educational content about evaluating scratch & dent deals.
  */
 
-import type { Metadata } from 'next'
 import { BuyerToolWizard } from '@/components/buyers-tool'
 import { Eye, Shield, DollarSign, Truck, CheckCircle, AlertTriangle } from 'lucide-react'
+import { generateBuyersGuideMetadata } from '@/lib/seo'
+import {
+  generateFAQPageSchema,
+  JsonLd,
+} from '@/lib/schema'
 
-export const metadata: Metadata = {
-  title: "Buyer's Guide: Should You Buy This Scratch & Dent Appliance?",
-  description:
-    'Free tool to evaluate scratch and dent appliance deals. Get personalized recommendations on whether to proceed, negotiate, or walk away based on damage, warranty, pricing, and more.',
-  openGraph: {
-    title: "Buyer's Guide | Scratch and Dent Finder",
-    description:
-      'Evaluate scratch and dent appliance deals with our free decision tool. Get personalized buy/skip recommendations.',
-    type: 'website',
+export const metadata = generateBuyersGuideMetadata()
+
+// FAQ data for both display and schema markup
+const FAQ_ITEMS = [
+  {
+    question: 'What is scratch and dent?',
+    answer:
+      "Scratch and dent appliances have cosmetic damage (scratches, dents, scuffs) but are functionally perfect. They're typically floor models, returned items, or units damaged during shipping.",
   },
-}
+  {
+    question: 'How much should I expect to save?',
+    answer:
+      'Discounts typically range from 15-40% depending on damage visibility. Hidden damage (back, sides) often means 25-40% off, while visible front damage is usually 15-25% off.',
+  },
+  {
+    question: 'Is the warranty still valid?',
+    answer:
+      'It depends. Many scratch and dent units retain full manufacturer warranty. Always ask the retailer to confirm warranty status before purchasing.',
+  },
+  {
+    question: 'Can I negotiate the price?',
+    answer:
+      "Often yes, especially at independent dealers and outlet stores. Big box stores have less flexibility, but it's always worth asking, especially for units that have been on the floor for a while.",
+  },
+  {
+    question: 'What should I inspect before buying?',
+    answer:
+      'Check for rust, water stains, unusual odors, and damaged power cords. If possible, plug it in to verify it powers on and runs quietly. These issues indicate potential functional problems beyond cosmetic damage.',
+  },
+]
 
 // Educational content sections
 const WHAT_WE_ANALYZE = [
@@ -66,6 +89,9 @@ const RED_FLAGS = [
 export default function BuyersGuidePage() {
   return (
     <>
+      {/* Schema Markup - FAQPage only (Organization/WebSite are in root layout) */}
+      <JsonLd data={generateFAQPageSchema(FAQ_ITEMS)} />
+
       {/* Hero Section */}
       <section className="bg-warm-50 py-12 sm:py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -172,63 +198,12 @@ export default function BuyersGuidePage() {
           </h2>
 
           <div className="mt-8 space-y-6">
-            <div>
-              <h3 className="font-semibold text-gray-900">
-                What is scratch and dent?
-              </h3>
-              <p className="mt-2 text-sm text-gray-600">
-                Scratch and dent appliances have cosmetic damage (scratches,
-                dents, scuffs) but are functionally perfect. They&apos;re
-                typically floor models, returned items, or units damaged during
-                shipping.
-              </p>
-            </div>
-
-            <div>
-              <h3 className="font-semibold text-gray-900">
-                How much should I expect to save?
-              </h3>
-              <p className="mt-2 text-sm text-gray-600">
-                Discounts typically range from 15-40% depending on damage
-                visibility. Hidden damage (back, sides) often means 25-40% off,
-                while visible front damage is usually 15-25% off.
-              </p>
-            </div>
-
-            <div>
-              <h3 className="font-semibold text-gray-900">
-                Is the warranty still valid?
-              </h3>
-              <p className="mt-2 text-sm text-gray-600">
-                It depends. Many scratch and dent units retain full manufacturer
-                warranty. Always ask the retailer to confirm warranty status
-                before purchasing.
-              </p>
-            </div>
-
-            <div>
-              <h3 className="font-semibold text-gray-900">
-                Can I negotiate the price?
-              </h3>
-              <p className="mt-2 text-sm text-gray-600">
-                Often yes, especially at independent dealers and outlet stores.
-                Big box stores have less flexibility, but it&apos;s always worth
-                asking, especially for units that have been on the floor for a
-                while.
-              </p>
-            </div>
-
-            <div>
-              <h3 className="font-semibold text-gray-900">
-                What should I inspect before buying?
-              </h3>
-              <p className="mt-2 text-sm text-gray-600">
-                Check for rust, water stains, unusual odors, and damaged power
-                cords. If possible, plug it in to verify it powers on and runs
-                quietly. These issues indicate potential functional problems
-                beyond cosmetic damage.
-              </p>
-            </div>
+            {FAQ_ITEMS.map((faq) => (
+              <div key={faq.question}>
+                <h3 className="font-semibold text-gray-900">{faq.question}</h3>
+                <p className="mt-2 text-sm text-gray-600">{faq.answer}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
