@@ -1,6 +1,6 @@
 # SEO & AEO Audit Report
 
-**Generated:** 2026-01-27T01:26:16.438Z
+**Generated:** 2026-01-30T04:49:51.866Z
 **Base URL:** http://localhost:3000
 
 ## Executive Summary
@@ -8,11 +8,11 @@
 | Metric | Count |
 |--------|-------|
 | Total Checks | 146 |
-| Passed | 101 |
-| Failed | 7 |
-| Warnings | 17 |
+| Passed | 116 |
+| Failed | 6 |
+| Warnings | 3 |
 
-**Pass Rate:** 69.2%
+**Pass Rate:** 79.5%
 
 ---
 
@@ -22,12 +22,9 @@
 
 -  **Sitemap Accessibility**: sitemap.xml accessible
 -  **Sitemap URL Count**: 634 URLs in sitemap
--  **Sitemap URL Format**: 634 URLs have format issues
-  - http://localhost:3000/
-  - http://localhost:3000/scratch-and-dent-appliances/
-  - http://localhost:3000/about/
-  - http://localhost:3000/contact/
-  - http://localhost:3000/advertise-with-us/
+-  **Sitemap URL Format**: DEV MODE: 634 URLs use localhost (expected - production will use SITE_URL fallback)
+  - Sitemap URLs read from SITE_URL in lib/config.ts
+  - Production deployment without NEXT_PUBLIC_SITE_URL falls back to https://scratchanddentfinder.com
 
 ### Robots.txt
 
@@ -42,7 +39,7 @@
 ### /
 
 #### Metadata
--  **Title Tag**: Valid title (62 chars)
+-  **Title Tag**: Valid title (47 chars)
 -  **Meta Description**: Valid description (110 chars)
 -  **Canonical URL**: Canonical must be absolute HTTPS
   - http://localhost:3000/
@@ -52,9 +49,7 @@
 #### Schema Markup
 -  **Schema: Organization**: Organization schema present
 -  **Schema: WebSite**: WebSite schema present
--  **Schema Summary**: Found 5 schema(s)
-  - Organization
-  - WebSite
+-  **Schema Summary**: Found 3 schema(s)
   - Organization
   - WebSite
   - HowTo
@@ -64,16 +59,14 @@
 -  **H1 Keywords**: H1 contains primary keywords
 -  **Heading Hierarchy**: Proper H1→H2→H3 nesting
 -  **Orphan H2s**: No orphan H2s before H1
--  **Heading Summary**: Found 1 H1, 4 H2, 10 H3
+-  **Heading Summary**: Found 1 H1, 5 H2, 10 H3
 
 #### AI Readability
--  **AI Summary Block**: MISSING: No structured AI-friendly summary block found
-  - Consider adding "About [Site Name]" section with clear factual statements
--  **Entity Associations**: MISSING: No clear entity association patterns found
-  - Add statements like "X is a [category] that [function]"
+-  **AI Summary Block**: Potential AI-friendly summary content detected
+-  **Entity Associations**: Entity relationship patterns detected
 -  **Factual Statements**: 3 clear factual statement patterns detected
 -  **Semantic HTML**: Good semantic HTML structure
--  **Ordered Lists**: Consider using <ol> for numbered steps
+-  **Ordered Lists**: Ordered list(s) for process steps
 
 #### Technical SEO
 -  **Robots Meta**: No noindex directive
@@ -87,8 +80,7 @@
 ### /scratch-and-dent-appliances/
 
 #### Metadata
--  **Title Tag**: Title too long (84 chars)
-  - Scratch and Dent Appliances by State | Scratch & Dent Finder | Scratch & Dent Finder
+-  **Title Tag**: Valid title (60 chars)
 -  **Meta Description**: Valid description (109 chars)
 -  **Canonical URL**: Canonical must be absolute HTTPS
   - http://localhost:3000/scratch-and-dent-appliances/
@@ -109,14 +101,12 @@
 -  **H1 Keywords**: H1 contains primary keywords
 -  **Heading Hierarchy**: Proper H1→H2→H3 nesting
 -  **Orphan H2s**: No orphan H2s before H1
--  **Heading Summary**: Found 1 H1, 20 H2, 53 H3
+-  **Heading Summary**: Found 1 H1, 21 H2, 53 H3
 
 #### AI Readability
--  **AI Summary Block**: MISSING: No structured AI-friendly summary block found
-  - Consider adding "About [Site Name]" section with clear factual statements
--  **Entity Associations**: MISSING: No clear entity association patterns found
-  - Add statements like "X is a [category] that [function]"
--  **Factual Statements**: 2 clear factual statement patterns detected
+-  **AI Summary Block**: Potential AI-friendly summary content detected
+-  **Entity Associations**: Entity relationship patterns detected
+-  **Factual Statements**: 4 clear factual statement patterns detected
 -  **Semantic HTML**: Good semantic HTML structure
 
 #### Technical SEO
@@ -131,8 +121,7 @@
 ### /scratch-and-dent-appliances/california/
 
 #### Metadata
--  **Title Tag**: Title too long (89 chars)
-  - Scratch and Dent Appliances in California | Scratch & Dent Finder | Scratch & Dent Finder
+-  **Title Tag**: Valid title (65 chars)
 -  **Meta Description**: Valid description (114 chars)
 -  **Canonical URL**: Canonical must be absolute HTTPS
   - http://localhost:3000/scratch-and-dent-appliances/california/
@@ -153,14 +142,12 @@
 -  **H1 Keywords**: H1 contains primary keywords
 -  **Heading Hierarchy**: Proper H1→H2→H3 nesting
 -  **Orphan H2s**: No orphan H2s before H1
--  **Heading Summary**: Found 1 H1, 3 H2, 825 H3
+-  **Heading Summary**: Found 1 H1, 4 H2, 825 H3
 
 #### AI Readability
--  **AI Summary Block**: MISSING: No structured AI-friendly summary block found
-  - Consider adding "About [Site Name]" section with clear factual statements
--  **Entity Associations**: MISSING: No clear entity association patterns found
-  - Add statements like "X is a [category] that [function]"
--  **Factual Statements**: 2 clear factual statement patterns detected
+-  **AI Summary Block**: Potential AI-friendly summary content detected
+-  **Entity Associations**: Entity relationship patterns detected
+-  **Factual Statements**: 4 clear factual statement patterns detected
 -  **Semantic HTML**: Good semantic HTML structure
 
 #### Technical SEO
@@ -175,8 +162,8 @@
 ### /scratch-and-dent-appliances/california/los-angeles/
 
 #### Metadata
--  **Title Tag**: Title too long (102 chars)
-  - Scratch and Dent Appliances in Los Angeles, California | Scratch & Dent Finder | Scratch & Dent Finder
+-  **Title Tag**: Title too long (78 chars)
+  - Scratch and Dent Appliances in Los Angeles, California | Scratch & Dent Finder
 -  **Meta Description**: Valid description (126 chars)
 -  **Canonical URL**: Canonical must be absolute HTTPS
   - http://localhost:3000/scratch-and-dent-appliances/california/los-angeles/
@@ -214,14 +201,12 @@
 -  **H1 Keywords**: H1 contains primary keywords
 -  **Heading Hierarchy**: Proper H1→H2→H3 nesting
 -  **Orphan H2s**: No orphan H2s before H1
--  **Heading Summary**: Found 1 H1, 3 H2, 37 H3
+-  **Heading Summary**: Found 1 H1, 4 H2, 37 H3
 
 #### AI Readability
--  **AI Summary Block**: MISSING: No structured AI-friendly summary block found
-  - Consider adding "About [Site Name]" section with clear factual statements
--  **Entity Associations**: MISSING: No clear entity association patterns found
-  - Add statements like "X is a [category] that [function]"
--  **Factual Statements**: Limited factual statements for AI extraction
+-  **AI Summary Block**: Potential AI-friendly summary content detected
+-  **Entity Associations**: Entity relationship patterns detected
+-  **Factual Statements**: 3 clear factual statement patterns detected
 -  **Semantic HTML**: Good semantic HTML structure
 
 #### Technical SEO
@@ -236,7 +221,7 @@
 ### /about/
 
 #### Metadata
--  **Title Tag**: Valid title (56 chars)
+-  **Title Tag**: Valid title (32 chars)
 -  **Meta Description**: Valid description (135 chars)
 -  **Canonical URL**: Canonical must be absolute HTTPS
   - http://localhost:3000/about/
@@ -255,14 +240,12 @@
 -  **H1 Keywords**: H1 contains primary keywords
 -  **Heading Hierarchy**: Proper H1→H2→H3 nesting
 -  **Orphan H2s**: No orphan H2s before H1
--  **Heading Summary**: Found 1 H1, 5 H2, 6 H3
+-  **Heading Summary**: Found 1 H1, 6 H2, 6 H3
 
 #### AI Readability
--  **AI Summary Block**: MISSING: No structured AI-friendly summary block found
-  - Consider adding "About [Site Name]" section with clear factual statements
--  **Entity Associations**: MISSING: No clear entity association patterns found
-  - Add statements like "X is a [category] that [function]"
--  **Factual Statements**: 2 clear factual statement patterns detected
+-  **AI Summary Block**: Potential AI-friendly summary content detected
+-  **Entity Associations**: Entity relationship patterns detected
+-  **Factual Statements**: 3 clear factual statement patterns detected
 -  **Semantic HTML**: Good semantic HTML structure
 
 #### Technical SEO
@@ -277,8 +260,7 @@
 ### /buyers-guide/
 
 #### Metadata
--  **Title Tag**: Title too long (92 chars)
-  - Buyer's Guide: Evaluate Scratch & Dent Deals | Scratch & Dent Finder | Scratch & Dent Finder
+-  **Title Tag**: Valid title (68 chars)
 -  **Meta Description**: Valid description (118 chars)
 -  **Canonical URL**: Canonical must be absolute HTTPS
   - http://localhost:3000/buyers-guide/
@@ -289,9 +271,7 @@
 -  **Schema: Organization**: Organization schema present
 -  **Schema: WebSite**: WebSite schema present
 -  **Schema: FAQPage**: FAQPage schema present
--  **Schema Summary**: Found 5 schema(s)
-  - Organization
-  - WebSite
+-  **Schema Summary**: Found 3 schema(s)
   - Organization
   - WebSite
   - FAQPage

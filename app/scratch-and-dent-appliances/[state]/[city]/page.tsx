@@ -30,7 +30,7 @@ import {
   getCityBreadcrumbs,
 } from '@/components/layout/Breadcrumbs'
 import { CityStoreSection, NearbyCities, ExploreStateLink } from '@/components/directory'
-import { BuyerTips, SoftCTA } from '@/components/marketing'
+import { BuyerTips, SoftCTA, AISummary } from '@/components/marketing'
 import dynamic from 'next/dynamic'
 import { ENABLE_QUICK_ASSESS_WIDGET } from '@/lib/config'
 
@@ -177,6 +177,9 @@ export default async function CityPage({ params }: PageProps) {
 
       {/* Section 6.5: Explore State Link (SEO upward link) */}
       <ExploreStateLink state={state} />
+
+      {/* AI Summary (AEO optimized) */}
+      <AISummary />
 
       {/* Section 7: Nearby Cities (de-emphasized, SEO-only) */}
       <NearbyCities cities={nearbyCities} state={state} currentCity={city} />

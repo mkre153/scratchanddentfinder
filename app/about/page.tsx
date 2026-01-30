@@ -11,6 +11,7 @@ import Link from 'next/link'
 import { generateAboutMetadata } from '@/lib/seo'
 import { getAllStates } from '@/lib/queries'
 import { getAllStatesUrl, getContactUrl, getStoreSubmitUrl } from '@/lib/urls'
+import { AISummary } from '@/components/marketing'
 
 export const metadata: Metadata = generateAboutMetadata()
 
@@ -184,6 +185,9 @@ export default async function AboutPage() {
           </Link>
         </div>
       </section>
+
+      {/* AI Summary (AEO optimized) */}
+      <AISummary />
     </>
   )
 }

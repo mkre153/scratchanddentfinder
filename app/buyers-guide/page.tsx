@@ -9,10 +9,8 @@ import { BuyerToolWizard } from '@/components/buyers-tool'
 import { Eye, Shield, DollarSign, Truck, CheckCircle, AlertTriangle } from 'lucide-react'
 import { generateBuyersGuideMetadata } from '@/lib/seo'
 import {
-  generateOrganizationSchema,
-  generateWebSiteSchema,
   generateFAQPageSchema,
-  JsonLdMultiple,
+  JsonLd,
 } from '@/lib/schema'
 
 export const metadata = generateBuyersGuideMetadata()
@@ -91,14 +89,8 @@ const RED_FLAGS = [
 export default function BuyersGuidePage() {
   return (
     <>
-      {/* Schema Markup */}
-      <JsonLdMultiple
-        schemas={[
-          generateOrganizationSchema(),
-          generateWebSiteSchema(),
-          generateFAQPageSchema(FAQ_ITEMS),
-        ]}
-      />
+      {/* Schema Markup - FAQPage only (Organization/WebSite are in root layout) */}
+      <JsonLd data={generateFAQPageSchema(FAQ_ITEMS)} />
 
       {/* Hero Section */}
       <section className="bg-warm-50 py-12 sm:py-16">

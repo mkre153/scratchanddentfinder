@@ -30,7 +30,7 @@ import {
   getStateBreadcrumbs,
 } from '@/components/layout/Breadcrumbs'
 import { CitySearchSection, StoreCard } from '@/components/directory'
-import { TrustStrip, SoftCTA } from '@/components/marketing'
+import { TrustStrip, SoftCTA, AISummary } from '@/components/marketing'
 import dynamic from 'next/dynamic'
 import { JsonLd, generateStateBreadcrumbs } from '@/lib/schema'
 import { ENABLE_QUICK_ASSESS_WIDGET } from '@/lib/config'
@@ -213,6 +213,9 @@ export default async function StatePage({ params }: PageProps) {
           </p>
         </div>
       </section>
+
+      {/* AI Summary (AEO optimized) */}
+      <AISummary />
 
       {/* Section 8: Soft CTA */}
       <SoftCTA variant="state" stateName={state.name} />

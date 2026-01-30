@@ -9,6 +9,7 @@ import type { Metadata } from 'next'
 import { generateAllStatesMetadata } from '@/lib/seo'
 import { getAllStates } from '@/lib/queries'
 import { StateSearchSection } from '@/components/directory'
+import { AISummary } from '@/components/marketing'
 import { JsonLd, generateAllStatesBreadcrumbs } from '@/lib/schema'
 
 export const metadata: Metadata = generateAllStatesMetadata()
@@ -86,6 +87,9 @@ export default async function AllStatesPage() {
           )}
         </div>
       </section>
+
+      {/* AI Summary (AEO optimized) */}
+      <AISummary />
     </>
   )
 }

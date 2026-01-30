@@ -24,10 +24,8 @@ import { TrustStrip, HowItWorks, SoftCTA, AISummary } from '@/components/marketi
 import { StateGrid, NearbyStores } from '@/components/directory'
 import { Search, Zap, Scale } from 'lucide-react'
 import {
-  generateOrganizationSchema,
-  generateWebSiteSchema,
   generateHowToSchema,
-  JsonLdMultiple,
+  JsonLd,
 } from '@/lib/schema'
 
 export const metadata: Metadata = generateHomepageMetadata()
@@ -57,17 +55,13 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* Schema Markup */}
-      <JsonLdMultiple
-        schemas={[
-          generateOrganizationSchema(),
-          generateWebSiteSchema(),
-          generateHowToSchema(
-            'How Scratch & Dent Appliances Work',
-            'Understanding what scratch and dent appliances are and how you can save 20-60% on brand-name appliances with minor cosmetic damage.',
-            HOW_IT_WORKS_STEPS
-          ),
-        ]}
+      {/* Schema Markup - HowTo only (Organization/WebSite are in root layout) */}
+      <JsonLd
+        data={generateHowToSchema(
+          'How Scratch & Dent Appliances Work',
+          'Understanding what scratch and dent appliances are and how you can save 20-60% on brand-name appliances with minor cosmetic damage.',
+          HOW_IT_WORKS_STEPS
+        )}
       />
 
       {/* Section 1: Hero */}
