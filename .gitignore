@@ -26,6 +26,9 @@ Thumbs.db
 dist/
 build/
 
+# Exception: include buyers-tool dist (local package)
+!packages/buyers-tool/dist/
+
 # Debug
 npm-debug.log*
 yarn-debug.log*
@@ -41,4 +44,8 @@ supabase/config.toml
 
 # Data exports (sensitive)
 data/*.json
+
+# Exception: include zip-centroids (needed for ZIP geocoding)
+!data/zip-centroids.json
 .vercel
+.env*.local
