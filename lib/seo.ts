@@ -18,6 +18,8 @@ import {
   getContactUrl,
   getAdvertiseUrl,
   getBuyersGuideUrl,
+  getFaqUrl,
+  getWhatIsScratchAndDentUrl,
 } from './urls'
 import type { State, City } from './types'
 
@@ -292,6 +294,46 @@ export function generatePageMetadata(
   path: string
 ): Metadata {
   // Note: Layout template already appends "| SITE_NAME" via Next.js title template
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: getCanonicalUrl(path),
+    },
+    openGraph: generateOpenGraph({ title, description, path }),
+    twitter: generateTwitter({ title, description }),
+  }
+}
+
+/**
+ * Generate metadata for FAQ page
+ */
+export function generateFaqMetadata(): Metadata {
+  const title = 'Frequently Asked Questions About Scratch and Dent Appliances'
+  const description =
+    'Get answers to common questions about scratch and dent appliances: safety, warranties, savings, and what to inspect before buying.'
+  const path = getFaqUrl()
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: getCanonicalUrl(path),
+    },
+    openGraph: generateOpenGraph({ title, description, path }),
+    twitter: generateTwitter({ title, description }),
+  }
+}
+
+/**
+ * Generate metadata for "What is Scratch and Dent?" definition page
+ */
+export function generateWhatIsScratchAndDentMetadata(): Metadata {
+  const title = 'What Is Scratch and Dent? Definition, Savings & Buying Guide'
+  const description =
+    'Scratch and dent appliances are brand-new units with minor cosmetic damage sold at 20-60% off retail. Learn what it means, how much you can save, and whether it\'s worth it.'
+  const path = getWhatIsScratchAndDentUrl()
+
   return {
     title,
     description,

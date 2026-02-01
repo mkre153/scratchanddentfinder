@@ -75,6 +75,20 @@ export function getBuyersGuideUrl(): string {
 }
 
 /**
+ * Get FAQ page URL
+ */
+export function getFaqUrl(): string {
+  return '/faq/'
+}
+
+/**
+ * Get "What is Scratch and Dent?" definition page URL
+ */
+export function getWhatIsScratchAndDentUrl(): string {
+  return '/what-is-scratch-and-dent/'
+}
+
+/**
  * Get privacy policy page URL
  */
 export function getPrivacyUrl(): string {
