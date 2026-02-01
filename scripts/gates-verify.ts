@@ -72,6 +72,7 @@ async function gate1_noStoreRoutes(): Promise<GateResult> {
     'stores.ts', // Types file
     'stores:', // DB reference
     '/admin/stores/', // Admin store management (Slice 10)
+    '/api/stores/', // API routes for store data (not public pages)
   ]
 
   const files = await glob('app/**/*.{ts,tsx}')
@@ -973,6 +974,7 @@ async function gate16_ingestionBoundary(): Promise<GateResult> {
     'lib/ingestion/submissions.ts',
     'lib/ingestion/index.ts',
     'scripts/gates-verify.ts', // Gate code itself contains pattern strings
+    'scripts/import-canonical.ts', // Trusted admin import script for bulk data
   ]
 
   // Check all files in app/, components/, lib/, and scripts/
