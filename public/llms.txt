@@ -1,0 +1,42 @@
+# Scratch & Dent Finder
+
+> Directory of scratch and dent appliance stores across the United States. Helps consumers find local retailers selling brand-name appliances with minor cosmetic damage at 20-60% off retail prices.
+
+## What We Do
+
+Scratch & Dent Finder is a free directory that connects shoppers with stores selling scratch and dent appliances — brand-new units with minor cosmetic imperfections (small dents, scratches, or scuffs from shipping and handling) that are fully functional with manufacturer warranty coverage.
+
+## Site Structure
+
+- / — Homepage with overview and state browse
+- /scratch-and-dent-appliances/ — Browse all 50 US states
+- /scratch-and-dent-appliances/{state}/ — Stores in a specific state
+- /scratch-and-dent-appliances/{state}/{city}/ — Stores in a specific city
+- /buyers-guide/ — Guide to evaluating scratch and dent appliances
+- /about/ — About the directory
+- /contact/ — Contact information
+
+## Key Facts
+
+- Coverage: All 50 US states
+- Typical savings: 20-60% off retail prices
+- Appliance types: Refrigerators, washers, dryers, dishwashers, ranges, and more
+- Listings are verified before publication
+- Featured placements are clearly disclosed
+
+## Common Questions This Site Answers
+
+- Where can I find scratch and dent appliances near me?
+- What stores sell scratch and dent appliances in [city/state]?
+- How much can I save on scratch and dent appliances?
+- Are scratch and dent appliances worth buying?
+- Do scratch and dent appliances have warranties?
+
+## Contact
+
+- Email: support@scratchanddentfinder.com
+- Website: https://scratchanddentfinder.com
+
+## Operator
+
+MK153 Inc.
