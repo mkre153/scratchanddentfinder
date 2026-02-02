@@ -1,60 +1,33 @@
 # Return Point: Scratch and Dent Finder
 
-**Updated:** 2026-02-01
-**Branch:** main
-**Status:** ✅ LIVE WITH DATA
+**Updated:** 2026-02-01  
+**Branch:** main  
+**Status:** ✅ PRODUCTION LIVE
 
 ---
 
-## Current State: PRODUCTION LIVE
+## Current State (2026-02-01)
 
-The application is **live and populated** at [scratchanddentfinder.com](https://scratchanddentfinder.com).
+### Production Data
 
-### Live Stats (as of 2026-02-01)
+- **50 states** covered
+- **578 cities** with listings
+- **3,659 stores** in database
 
-| Metric | Count |
-|--------|-------|
-| States | 50 |
-| Cities | 578 |
-| Stores | 3,659 |
+### Completed
 
-California alone: 678 stores across 119 cities.
+- All 17 gates passing
+- Auth, billing, directory structure
+- FAQ page + schema (`/faq/`)
+- "What is Scratch and Dent" definition page (`/what-is-scratch-and-dent/`)
+- llms.txt for AI crawlers
+- Vercel env vars fixed
 
-### What's Complete
+### Remaining Growth Tasks
 
-| Phase | Status |
-|-------|--------|
-| Core Directory (Slices 1-9) | ✅ Complete |
-| Operator Control (Slice 10) | ✅ Complete |
-| Hardening Guardrails (Slice 11) | ✅ Complete |
-| Auth + User Accounts | ✅ Complete |
-| Stripe Billing Integration | ✅ Complete |
-| Pre-Deploy Efficiency Audit | ✅ Complete |
-| Store Data Import | ✅ Complete |
-| Production Deploy | ✅ Live |
-| FAQ Page (`/faq/`) | ✅ Complete |
-| Definition Page (`/what-is-scratch-and-dent/`) | ✅ Complete |
-
----
-
-## Recent Additions (2026-02-01)
-
-### A) FAQ Page
-- Route: `/faq/`
-- 15 FAQs organized in 5 categories
-- FAQPage schema for rich snippets
-- Files: `app/faq/page.tsx`
-
-### B) Definition Page  
-- Route: `/what-is-scratch-and-dent/`
-- AI-quotable definition content (AEO optimized)
-- Comparison table: scratch & dent vs refurbished vs used vs open box
-- FAQPage schema for key definition questions
-- Files: `app/what-is-scratch-and-dent/page.tsx`
-
-### Supporting Changes
-- `lib/urls.ts` — added `getFaqUrl()`, `getWhatIsScratchAndDentUrl()`
-- `lib/seo.ts` — added metadata generators for both pages
+- Fill 7 empty states (DE, ME, MT, NH, VT, WV, WY)
+- Expand to 138 additional cities per `DATA_MINER_DIRECTIVE.md`
+- These are **growth tasks, not blockers** — the site is live and populated
 
 ---
 
@@ -81,7 +54,27 @@ lib/supabase/admin.ts     ← Server-side Supabase client
 
 ---
 
-## Stripe Integration (Working)
+## Recent Additions (2026-02-01)
+
+### FAQ Page
+- Route: `/faq/`
+- 15 FAQs in 5 categories
+- FAQPage schema for rich snippets
+- File: `app/faq/page.tsx`
+
+### Definition Page
+- Route: `/what-is-scratch-and-dent/`
+- AI-quotable content (AEO optimized)
+- Comparison table: scratch & dent vs refurbished vs used vs open box
+- File: `app/what-is-scratch-and-dent/page.tsx`
+
+### Supporting Files
+- `lib/urls.ts` — added `getFaqUrl()`, `getWhatIsScratchAndDentUrl()`
+- `lib/seo.ts` — metadata generators for both pages
+
+---
+
+## Stripe Integration
 
 - **Checkout:** `/api/checkout` → Stripe hosted checkout
 - **Webhooks:** `/api/webhooks/stripe` → Handles all lifecycle events
@@ -92,14 +85,14 @@ lib/supabase/admin.ts     ← Server-side Supabase client
 
 ## Schema Markup
 
-Site-wide:
+**Site-wide:**
 - Organization schema
 - WebSite schema
 
-Page-specific:
+**Page-specific:**
 - BreadcrumbList (state/city pages)
 - LocalBusiness (per store on city pages)
-- FAQPage (FAQ page, definition page, buyer's guide)
+- FAQPage (FAQ, definition page, buyer's guide)
 
 ---
 
@@ -118,7 +111,7 @@ git push origin main
 
 ---
 
-## Files to Know
+## Key Files
 
 | File | Purpose |
 |------|---------|
@@ -127,17 +120,17 @@ git push origin main
 | `lib/urls.ts` | URL generation (single source of truth) |
 | `lib/seo.ts` | Metadata generators |
 | `docs/SEO-AEO-STRUCTURE.md` | SEO/AEO guidelines |
-| `scripts/gates-verify.ts` | Quality gate enforcement |
+| `DATA_MINER_DIRECTIVE.md` | Data expansion directive |
 
 ---
 
-## Next Opportunities
+## Future Growth Opportunities
 
-- [ ] Add HowTo schema to homepage "How It Works" section
-- [ ] Blog/content expansion
-- [ ] Featured store promotions
-- [ ] Agent submissions growth
+- Add HowTo schema to homepage "How It Works" section
+- Blog/content expansion
+- Featured store promotions
+- Agent submissions growth
 
 ---
 
-*Updated 2026-02-01 — Site is live with 3,659 stores*
+*Updated 2026-02-01 — Site is live with 3,659 stores across 578 cities*
