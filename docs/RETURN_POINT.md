@@ -1,14 +1,24 @@
 # Return Point: Scratch and Dent Finder
 
-**Updated:** 2026-01-14
+**Updated:** 2026-02-01
 **Branch:** main
-**Last Commit:** c29a1f9 - chore: remove Apify ingestion adapter (ADR-00X)
+**Status:** ✅ LIVE WITH DATA
 
 ---
 
-## Current State: READY FOR DATA
+## Current State: PRODUCTION LIVE
 
-The application is **production-ready** and waiting for store data from external data miner.
+The application is **live and populated** at [scratchanddentfinder.com](https://scratchanddentfinder.com).
+
+### Live Stats (as of 2026-02-01)
+
+| Metric | Count |
+|--------|-------|
+| States | 50 |
+| Cities | 578 |
+| Stores | 3,659 |
+
+California alone: 678 stores across 119 cities.
 
 ### What's Complete
 
@@ -20,61 +30,31 @@ The application is **production-ready** and waiting for store data from external
 | Auth + User Accounts | ✅ Complete |
 | Stripe Billing Integration | ✅ Complete |
 | Pre-Deploy Efficiency Audit | ✅ Complete |
-| Apify Removal (ADR-00X) | ✅ Complete |
-
-### What's Waiting
-
-| Item | Blocker |
-|------|---------|
-| Store data population | External data miner |
-| Production deploy | Store data |
+| Store Data Import | ✅ Complete |
+| Production Deploy | ✅ Live |
+| FAQ Page (`/faq/`) | ✅ Complete |
+| Definition Page (`/what-is-scratch-and-dent/`) | ✅ Complete |
 
 ---
 
-## When You Return With Data
+## Recent Additions (2026-02-01)
 
-### Expected CSV Format
+### A) FAQ Page
+- Route: `/faq/`
+- 15 FAQs organized in 5 categories
+- FAQPage schema for rich snippets
+- Files: `app/faq/page.tsx`
 
-Your external data miner should produce a CSV with these columns:
+### B) Definition Page  
+- Route: `/what-is-scratch-and-dent/`
+- AI-quotable definition content (AEO optimized)
+- Comparison table: scratch & dent vs refurbished vs used vs open box
+- FAQPage schema for key definition questions
+- Files: `app/what-is-scratch-and-dent/page.tsx`
 
-```csv
-name,address,city,state_code,zip,phone,website,lat,lng
-"Bob's Appliances","123 Main St","Austin","TX","78701","512-555-1234","https://example.com",30.2672,-97.7431
-```
-
-**Required fields:** name, city, state_code
-**Optional fields:** address, zip, phone, website, lat, lng
-
-### Ingestion Path
-
-1. Place CSV in `data/` directory
-2. Create ingestion script that uses `lib/ingestion/index.ts`:
-   - `ensureCity()` — Creates city if not exists
-   - `logIngestion()` — Audit trail
-3. Insert stores via Supabase admin client with `is_verified: true`
-
-### Key Constraint (ADR-00X)
-
-> **NO scraping code in this repo.** All data must be pre-normalized externally.
-> Gate 12 enforces this at build time.
-
----
-
-## Verification Before Deploy
-
-```bash
-npm run build                           # Must pass
-npm run gates                           # Target: 17/17 (currently 15/17)
-```
-
-### Known Gate Failures (Pre-existing)
-
-| Gate | Issue | Priority |
-|------|-------|----------|
-| Gate 7 | Auth components import createClient directly | Low (auth works) |
-| Gate 11 | Query ordering verification regex | Low (ordering is correct) |
-
-These are verification strictness issues, not functional bugs.
+### Supporting Changes
+- `lib/urls.ts` — added `getFaqUrl()`, `getWhatIsScratchAndDentUrl()`
+- `lib/seo.ts` — added metadata generators for both pages
 
 ---
 
@@ -84,27 +64,42 @@ These are verification strictness issues, not functional bugs.
 lib/ingestion/index.ts    ← ALL data enters here (Gate 16)
 lib/queries.ts            ← ALL reads go here (Gate 7)
 lib/urls.ts               ← ALL URLs generated here (Gate 5)
+lib/schema.tsx            ← JSON-LD schema generators
+lib/seo.ts                ← Metadata generators
 lib/supabase/admin.ts     ← Server-side Supabase client
 ```
 
 ### Database Tables
 
-| Table | Purpose |
-|-------|---------|
-| `states` | 50 US states (pre-seeded) |
-| `cities` | Created on-demand via `ensureCity()` |
-| `stores` | Directory listings |
-| `subscriptions` | Stripe subscription state |
-| `stripe_webhook_events` | Idempotency tracking |
+| Table | Purpose | Records |
+|-------|---------|---------|
+| `states` | 50 US states | 50 |
+| `cities` | City entries | 578 |
+| `stores` | Directory listings | 3,659 |
+| `subscriptions` | Stripe subscription state | — |
+| `stripe_webhook_events` | Idempotency tracking | — |
 
 ---
 
-## Stripe Integration (Already Working)
+## Stripe Integration (Working)
 
 - **Checkout:** `/api/checkout` → Stripe hosted checkout
 - **Webhooks:** `/api/webhooks/stripe` → Handles all lifecycle events
 - **Billing Portal:** `/api/billing-portal` → Customer self-service
 - **Featured Status:** `is_featured` + `featured_until` (deterministic)
+
+---
+
+## Schema Markup
+
+Site-wide:
+- Organization schema
+- WebSite schema
+
+Page-specific:
+- BreadcrumbList (state/city pages)
+- LocalBusiness (per store on city pages)
+- FAQPage (FAQ page, definition page, buyer's guide)
 
 ---
 
@@ -123,29 +118,26 @@ git push origin main
 
 ---
 
-## Resume Checklist
-
-When you return with data:
-
-- [ ] CSV formatted correctly
-- [ ] Create `scripts/import-csv.ts` using ingestion boundary
-- [ ] Run import against staging first
-- [ ] Verify city pages populate
-- [ ] Run full build + gates
-- [ ] Deploy to production
-
----
-
 ## Files to Know
 
 | File | Purpose |
 |------|---------|
-| `lib/ingestion/index.ts` | Ingestion boundary — start here for imports |
-| `lib/ingestion/submissions.ts` | User submission approval flow |
-| `docs/OPERATOR_RUNBOOK.md` | Operational procedures |
+| `lib/ingestion/index.ts` | Ingestion boundary |
+| `lib/schema.tsx` | JSON-LD schema generators |
+| `lib/urls.ts` | URL generation (single source of truth) |
+| `lib/seo.ts` | Metadata generators |
+| `docs/SEO-AEO-STRUCTURE.md` | SEO/AEO guidelines |
 | `scripts/gates-verify.ts` | Quality gate enforcement |
-| `supabase/migrations/` | Database schema |
 
 ---
 
-*Last updated by Claude before data miner setup*
+## Next Opportunities
+
+- [ ] Add HowTo schema to homepage "How It Works" section
+- [ ] Blog/content expansion
+- [ ] Featured store promotions
+- [ ] Agent submissions growth
+
+---
+
+*Updated 2026-02-01 — Site is live with 3,659 stores*
