@@ -18,7 +18,7 @@ export function MobileMenuButton() {
     <>
       <button
         type="button"
-        className="md:hidden p-2 text-gray-600 hover:text-sage-700"
+        className="md:hidden min-h-[44px] min-w-[44px] inline-flex items-center justify-center text-gray-600 hover:text-sage-700"
         onClick={() => setIsOpen(!isOpen)}
         aria-label={isOpen ? 'Close menu' : 'Open menu'}
         aria-expanded={isOpen}

@@ -35,11 +35,11 @@ export function MobileMenu({ onClose }: MobileMenuProps) {
       {/* Menu Panel */}
       <nav className="absolute right-0 top-0 h-full w-64 bg-white shadow-xl">
         <div className="flex flex-col p-6">
-          {/* Close Button */}
+          {/* Close Button - 44px touch target */}
           <button
             type="button"
             onClick={onClose}
-            className="mb-6 self-end p-2 text-gray-500 hover:text-gray-700"
+            className="mb-6 self-end min-h-[44px] min-w-[44px] inline-flex items-center justify-center text-gray-500 hover:text-gray-700"
             aria-label="Close menu"
           >
             <svg
@@ -57,40 +57,40 @@ export function MobileMenu({ onClose }: MobileMenuProps) {
             </svg>
           </button>
 
-          {/* Navigation Links */}
-          <div className="flex flex-col space-y-4">
+          {/* Navigation Links - 44px touch targets */}
+          <div className="flex flex-col space-y-1">
             <Link
               href={getHomepageUrl()}
               onClick={onClose}
-              className="text-lg text-gray-700 hover:text-sage-700"
+              className="min-h-[44px] inline-flex items-center text-lg text-gray-700 hover:text-sage-700"
             >
               Home
             </Link>
             <Link
               href={getAllStatesUrl()}
               onClick={onClose}
-              className="text-lg text-gray-700 hover:text-sage-700"
+              className="min-h-[44px] inline-flex items-center text-lg text-gray-700 hover:text-sage-700"
             >
               Browse States
             </Link>
             <Link
               href={getAdvertiseUrl()}
               onClick={onClose}
-              className="text-lg text-gray-700 hover:text-sage-700"
+              className="min-h-[44px] inline-flex items-center text-lg text-gray-700 hover:text-sage-700"
             >
               Advertise With Us
             </Link>
             <Link
               href={getAboutUrl()}
               onClick={onClose}
-              className="text-lg text-gray-700 hover:text-sage-700"
+              className="min-h-[44px] inline-flex items-center text-lg text-gray-700 hover:text-sage-700"
             >
               About Us
             </Link>
             <Link
               href={getContactUrl()}
               onClick={onClose}
-              className="text-lg text-gray-700 hover:text-sage-700"
+              className="min-h-[44px] inline-flex items-center text-lg text-gray-700 hover:text-sage-700"
             >
               Contact
             </Link>
@@ -98,11 +98,11 @@ export function MobileMenu({ onClose }: MobileMenuProps) {
 
           <hr className="my-6 border-gray-200" />
 
-          {/* CTA Button */}
+          {/* CTA Button - 44px touch target */}
           <Link
             href={getStoreSubmitUrl()}
             onClick={onClose}
-            className="rounded-md bg-yellow-400 px-4 py-3 text-center font-semibold text-gray-900 hover:bg-yellow-500"
+            className="min-h-[44px] inline-flex items-center justify-center rounded-md bg-yellow-400 px-4 font-semibold text-gray-900 hover:bg-yellow-500"
           >
             + Add Your Store
           </Link>

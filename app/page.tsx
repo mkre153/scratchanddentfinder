@@ -16,17 +16,24 @@
  */
 
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
 import type { Metadata } from 'next'
 import { getAllStatesUrl } from '@/lib/urls'
 import { generateHomepageMetadata } from '@/lib/seo'
 import { getAllStates } from '@/lib/queries'
 import { TrustStrip, HowItWorks, SoftCTA, AISummary } from '@/components/marketing'
-import { StateGrid, NearbyStores } from '@/components/directory'
+import { StateGrid } from '@/components/directory'
 import { Search, Zap, Scale } from 'lucide-react'
 import {
   generateHowToSchema,
   JsonLd,
 } from '@/lib/schema'
+
+// Lazy load NearbyStores - below-fold, client-only (uses geolocation)
+const NearbyStores = dynamic(
+  () => import('@/components/directory/NearbyStores').then(mod => mod.NearbyStores),
+  { ssr: false, loading: () => null }
+)
 
 export const metadata: Metadata = generateHomepageMetadata()
 

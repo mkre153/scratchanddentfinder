@@ -23,14 +23,14 @@ export function Footer() {
     <footer className="bg-gray-900 text-gray-300">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-          {/* Quick Links */}
+          {/* Quick Links - 44px touch targets */}
           <div>
             <h3 className="text-lg font-semibold text-white">Quick Links</h3>
-            <ul className="mt-4 space-y-2">
+            <ul className="mt-4 space-y-1">
               <li>
                 <Link
                   href={getHomepageUrl()}
-                  className="hover:text-white"
+                  className="min-h-[44px] inline-flex items-center hover:text-white"
                 >
                   Home
                 </Link>
@@ -38,7 +38,7 @@ export function Footer() {
               <li>
                 <Link
                   href={getAllStatesUrl()}
-                  className="hover:text-white"
+                  className="min-h-[44px] inline-flex items-center hover:text-white"
                 >
                   Browse All States
                 </Link>
@@ -46,7 +46,7 @@ export function Footer() {
               <li>
                 <Link
                   href={getAdvertiseUrl()}
-                  className="hover:text-white"
+                  className="min-h-[44px] inline-flex items-center hover:text-white"
                 >
                   Advertise
                 </Link>
@@ -54,7 +54,7 @@ export function Footer() {
               <li>
                 <Link
                   href={getAboutUrl()}
-                  className="hover:text-white"
+                  className="min-h-[44px] inline-flex items-center hover:text-white"
                 >
                   About
                 </Link>
@@ -62,7 +62,7 @@ export function Footer() {
               <li>
                 <Link
                   href={getContactUrl()}
-                  className="hover:text-white"
+                  className="min-h-[44px] inline-flex items-center hover:text-white"
                 >
                   Contact
                 </Link>
@@ -70,16 +70,16 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Business Section */}
+          {/* Business Section - 44px touch targets */}
           <div>
             <h3 className="text-lg font-semibold text-white">
               For Store Owners
             </h3>
-            <ul className="mt-4 space-y-2">
+            <ul className="mt-4 space-y-1">
               <li>
                 <Link
                   href={getStoreSubmitUrl()}
-                  className="hover:text-white"
+                  className="min-h-[44px] inline-flex items-center hover:text-white"
                 >
                   Add Your Store
                 </Link>
@@ -87,7 +87,7 @@ export function Footer() {
               <li>
                 <Link
                   href={getAdvertiseUrl()}
-                  className="hover:text-white"
+                  className="min-h-[44px] inline-flex items-center hover:text-white"
                 >
                   Get Featured
                 </Link>
@@ -107,16 +107,16 @@ export function Footer() {
         {/* Copyright */}
         <div className="mt-8 border-t border-gray-700 pt-8 text-center text-sm">
           <p>&copy; 2026 Scratch & Dent Finder. Operated by MK153 Inc.</p>
-          <div className="mt-2 flex justify-center gap-4">
-            <Link href={getPrivacyUrl()} className="hover:text-white">
+          <div className="mt-2 flex flex-wrap justify-center gap-x-4 gap-y-1">
+            <Link href={getPrivacyUrl()} className="min-h-[44px] inline-flex items-center hover:text-white">
               Privacy Policy
             </Link>
-            <span className="text-gray-600">|</span>
-            <Link href={getTermsUrl()} className="hover:text-white">
+            <span className="hidden sm:inline-flex items-center text-gray-600">|</span>
+            <Link href={getTermsUrl()} className="min-h-[44px] inline-flex items-center hover:text-white">
               Terms of Service
             </Link>
-            <span className="text-gray-600">|</span>
-            <Link href={getCancellationUrl()} className="hover:text-white">
+            <span className="hidden sm:inline-flex items-center text-gray-600">|</span>
+            <Link href={getCancellationUrl()} className="min-h-[44px] inline-flex items-center hover:text-white">
               Cancellation Policy
             </Link>
           </div>

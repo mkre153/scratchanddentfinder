@@ -22,42 +22,42 @@ export function Header() {
     <header className="bg-white shadow-sm">
       <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
-          {/* Logo */}
-          <Link href={getHomepageUrl()} className="flex items-center gap-2">
+          {/* Logo - 44px touch target */}
+          <Link href={getHomepageUrl()} className="inline-flex min-h-[44px] items-center gap-2">
             <span className="text-xl font-bold text-sage-700">
               Scratch & Dent Finder
             </span>
           </Link>
 
-          {/* Desktop Navigation Links */}
-          <div className="hidden md:flex md:items-center md:gap-6">
+          {/* Desktop Navigation Links - min 44px touch targets */}
+          <div className="hidden md:flex md:items-center md:gap-4">
             <Link
               href={getHomepageUrl()}
-              className="text-gray-600 hover:text-sage-700"
+              className="inline-flex min-h-[44px] items-center px-2 text-gray-600 hover:text-sage-700"
             >
               Home
             </Link>
             <Link
               href={getAllStatesUrl()}
-              className="text-gray-600 hover:text-sage-700"
+              className="inline-flex min-h-[44px] items-center px-2 text-gray-600 hover:text-sage-700"
             >
               Browse States
             </Link>
             <Link
               href={getAdvertiseUrl()}
-              className="text-gray-600 hover:text-sage-700"
+              className="inline-flex min-h-[44px] items-center px-2 text-gray-600 hover:text-sage-700"
             >
               Advertise With Us
             </Link>
             <Link
               href={getAboutUrl()}
-              className="text-gray-600 hover:text-sage-700"
+              className="inline-flex min-h-[44px] items-center px-2 text-gray-600 hover:text-sage-700"
             >
               About Us
             </Link>
             <Link
               href={getContactUrl()}
-              className="text-gray-600 hover:text-sage-700"
+              className="inline-flex min-h-[44px] items-center px-2 text-gray-600 hover:text-sage-700"
             >
               Contact
             </Link>
@@ -65,10 +65,10 @@ export function Header() {
 
           {/* CTA + Mobile Menu */}
           <div className="flex items-center gap-2">
-            {/* CTA Button - hidden on small mobile */}
+            {/* CTA Button - hidden on small mobile, 44px touch target */}
             <Link
               href={getStoreSubmitUrl()}
-              className="hidden sm:block rounded-md bg-yellow-400 px-4 py-2 text-sm font-semibold text-gray-900 hover:bg-yellow-500"
+              className="hidden sm:inline-flex min-h-[44px] items-center rounded-md bg-yellow-400 px-4 text-sm font-semibold text-gray-900 hover:bg-yellow-500"
             >
               + Add Your Store
             </Link>
