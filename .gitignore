@@ -25,6 +25,7 @@ Thumbs.db
 # Build
 dist/
 build/
+.velite/
 
 # Exception: include buyers-tool dist (local package)
 !packages/buyers-tool/dist/

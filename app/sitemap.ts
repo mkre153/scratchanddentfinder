@@ -19,12 +19,31 @@ import {
   getBuyersGuideUrl,
   getFaqUrl,
   getWhatIsScratchAndDentUrl,
+  getBlogUrl,
+  getBlogPostUrl,
 } from '@/lib/urls'
 import { shouldIndexState, shouldIndexCity } from '@/lib/seo'
 import { getAllStates, getCitiesByStateId } from '@/lib/queries'
 
+// Types for velite content
+interface Post {
+  slug: string
+  draft: boolean
+  updated: string
+}
+
+async function getBlogPosts(): Promise<Post[]> {
+  try {
+    const { posts } = await import('../.velite/index.js')
+    return posts as Post[]
+  } catch {
+    return []
+  }
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const states = await getAllStates()
+  const blogPosts = await getBlogPosts()
 
   const staticContentDate = new Date('2026-02-01')
 
@@ -84,7 +103,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'monthly',
       priority: 0.7,
     },
+    {
+      url: `${SITE_URL}${getBlogUrl()}`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
   ]
+
+  // Blog post pages
+  const publishedPosts = blogPosts.filter((post) => !post.draft)
+  const blogPages: MetadataRoute.Sitemap = publishedPosts.map((post) => ({
+    url: `${SITE_URL}${getBlogPostUrl(post.slug)}`,
+    lastModified: new Date(post.updated),
+    changeFrequency: 'monthly' as const,
+    priority: 0.7,
+  }))
 
   // State pages (only states with stores)
   const indexableStates = states.filter(shouldIndexState)
@@ -109,5 +143,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   }
 
-  return [...staticPages, ...statePages, ...cityPages]
+  return [...staticPages, ...blogPages, ...statePages, ...cityPages]
 }

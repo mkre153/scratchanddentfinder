@@ -179,6 +179,31 @@ export function getClaimsApiUrl(): string {
 }
 
 // =============================================================================
+// Blog Routes
+// =============================================================================
+
+/**
+ * Get blog index page URL
+ */
+export function getBlogUrl(): string {
+  return '/blog/'
+}
+
+/**
+ * Get blog post URL
+ */
+export function getBlogPostUrl(slug: string): string {
+  return `/blog/${slug}/`
+}
+
+/**
+ * Get blog RSS feed URL
+ */
+export function getBlogFeedUrl(): string {
+  return '/blog/feed.xml/'
+}
+
+// =============================================================================
 // Auth Routes
 // =============================================================================
 

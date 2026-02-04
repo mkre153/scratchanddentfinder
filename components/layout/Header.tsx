@@ -14,6 +14,7 @@ import {
   getAboutUrl,
   getContactUrl,
   getStoreSubmitUrl,
+  getBlogUrl,
 } from '@/lib/urls'
 import { MobileMenuButton } from './MobileMenuButton'
 
@@ -42,6 +43,12 @@ export function Header() {
               className="inline-flex min-h-[44px] items-center px-2 text-gray-600 hover:text-sage-700"
             >
               Browse States
+            </Link>
+            <Link
+              href={getBlogUrl()}
+              className="inline-flex min-h-[44px] items-center px-2 text-gray-600 hover:text-sage-700"
+            >
+              Blog
             </Link>
             <Link
               href={getAdvertiseUrl()}

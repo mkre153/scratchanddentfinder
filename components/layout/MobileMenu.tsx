@@ -16,6 +16,7 @@ import {
   getAboutUrl,
   getContactUrl,
   getStoreSubmitUrl,
+  getBlogUrl,
 } from '@/lib/urls'
 
 interface MobileMenuProps {
@@ -72,6 +73,13 @@ export function MobileMenu({ onClose }: MobileMenuProps) {
               className="min-h-[44px] inline-flex items-center text-lg text-gray-700 hover:text-sage-700"
             >
               Browse States
+            </Link>
+            <Link
+              href={getBlogUrl()}
+              onClick={onClose}
+              className="min-h-[44px] inline-flex items-center text-lg text-gray-700 hover:text-sage-700"
+            >
+              Blog
             </Link>
             <Link
               href={getAdvertiseUrl()}
