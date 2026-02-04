@@ -60,6 +60,9 @@ export default async function HomePage() {
   // Fetch states - handles empty database gracefully
   const states = await getAllStates()
 
+  // Calculate total store count for hero stat
+  const totalStores = states.reduce((sum, state) => sum + state.storeCount, 0)
+
   return (
     <>
       {/* Schema Markup - HowTo only (Organization/WebSite are in root layout) */}
@@ -81,6 +84,12 @@ export default async function HomePage() {
             Find scratch and dent appliance stores near you. Real local stores,
             real savings, verified listings.
           </p>
+
+          {totalStores > 0 && (
+            <p className="text-2xl font-semibold text-orange-600 mt-4">
+              {totalStores.toLocaleString()}+ stores nationwide
+            </p>
+          )}
 
           {/* CTA Buttons - Primary: Browse States, Secondary: How It Works */}
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
