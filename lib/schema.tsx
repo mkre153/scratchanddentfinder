@@ -190,7 +190,58 @@ export function generateLocalBusinessSchema(
     }
   }
 
+  if (store.hours) {
+    const dayMap: Record<string, string> = {
+      monday: 'Monday',
+      tuesday: 'Tuesday',
+      wednesday: 'Wednesday',
+      thursday: 'Thursday',
+      friday: 'Friday',
+      saturday: 'Saturday',
+      sunday: 'Sunday',
+    }
+    const specs = Object.entries(store.hours)
+      .filter(([key, v]) => key in dayMap && v !== 'closed' && v !== null)
+      .map(([day, schedule]) => ({
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: dayMap[day],
+        opens: (schedule as { open: string; close: string }).open,
+        closes: (schedule as { open: string; close: string }).close,
+      }))
+    if (specs.length > 0) {
+      schema.openingHoursSpecification = specs
+    }
+  }
+
   return schema
+}
+
+// =============================================================================
+// ItemList Schema (City Page — wraps LocalBusiness entries)
+// =============================================================================
+
+/**
+ * Generate ItemList schema wrapping LocalBusiness entries for a city page
+ */
+export function generateItemListSchema(
+  stores: Store[],
+  state: State,
+  city: City
+): object {
+  const items = stores
+    .filter(isStoreSchemaEligible)
+    .map((store, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      item: generateLocalBusinessSchema(store, state, city),
+    }))
+    .filter((item) => item.item !== null)
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    itemListElement: items,
+  }
 }
 
 // =============================================================================

@@ -10,7 +10,13 @@
 
 import { Info } from 'lucide-react'
 
-export function AISummary() {
+interface AISummaryProps {
+  cityName?: string
+  stateName?: string
+  storeCount?: number
+}
+
+export function AISummary({ cityName, stateName, storeCount }: AISummaryProps = {}) {
   return (
     <section className="bg-warm-50 py-12" aria-label="About Scratch and Dent Finder">
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
@@ -26,8 +32,10 @@ export function AISummary() {
 
           <div className="space-y-4 text-gray-700">
             <p>
-              <strong>What:</strong> Scratch & Dent Finder is a directory of scratch
-              and dent appliance stores across the United States.
+              <strong>What:</strong>{' '}
+              {cityName && stateName && storeCount !== undefined
+                ? `Scratch & Dent Finder lists ${storeCount} scratch and dent appliance ${storeCount === 1 ? 'store' : 'stores'} in ${cityName}, ${stateName}.`
+                : 'Scratch & Dent Finder is a directory of scratch and dent appliance stores across the United States.'}
             </p>
 
             <p>

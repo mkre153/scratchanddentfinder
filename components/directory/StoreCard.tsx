@@ -6,7 +6,7 @@
  */
 
 import type { Store } from '@/lib/types'
-import { PhoneLink, DirectionsLink } from '@/components/cta'
+import { PhoneLink, DirectionsLink, WebsiteLink } from '@/components/cta'
 import { DistanceBadge } from './DistanceBadge'
 
 interface StoreCardProps {
@@ -101,12 +101,39 @@ export function StoreCard({ store, index }: StoreCardProps) {
                 {statusText}
               </span>
             )}
+            {store.rating && store.reviewCount && (
+              <span className="inline-flex items-center gap-1 text-sm text-gray-600">
+                <svg className="h-4 w-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+                {store.rating} ({store.reviewCount})
+              </span>
+            )}
             <DistanceBadge
               storeLat={store.lat}
               storeLng={store.lng}
               className="text-xs text-gray-500"
             />
           </div>
+
+          {/* Full Weekly Hours */}
+          {store.hours && (
+            <details className="mt-2 text-sm text-gray-600">
+              <summary className="cursor-pointer hover:text-gray-900">View hours</summary>
+              <div className="mt-1 space-y-0.5 pl-2">
+                {(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as const).map((day) => {
+                  const schedule = store.hours![day]
+                  if (!schedule) return null
+                  return (
+                    <div key={day} className="flex justify-between max-w-xs">
+                      <span className="capitalize">{day}</span>
+                      <span>{schedule === 'closed' ? 'Closed' : `${schedule.open} – ${schedule.close}`}</span>
+                    </div>
+                  )
+                })}
+              </div>
+            </details>
+          )}
 
           {/* Address */}
           <p className="mt-1 flex items-center gap-1 text-gray-600">
@@ -190,7 +217,7 @@ export function StoreCard({ store, index }: StoreCardProps) {
 
             return (
               <div className="mt-3 flex flex-wrap gap-1.5">
-                {availableAppliances.slice(0, 3).map((label) => (
+                {availableAppliances.map((label) => (
                   <span
                     key={label}
                     className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 text-xs text-green-700"
@@ -209,14 +236,49 @@ export function StoreCard({ store, index }: StoreCardProps) {
             )
           })()}
 
-          {/* Delivery Badge - Only show if available */}
-          {store.services?.delivery && (
-            <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-sage-50 px-2 py-0.5 text-xs text-sage-700">
-              <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+          {/* Service Badges */}
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {store.services?.delivery && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-sage-50 px-2 py-0.5 text-xs text-sage-700">
+                <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                </svg>
+                Delivers
+              </span>
+            )}
+            {store.services?.installation && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-sage-50 px-2 py-0.5 text-xs text-sage-700">
+                <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                Installs
+              </span>
+            )}
+          </div>
+
+          {/* Website */}
+          {store.website && (
+            <p className="mt-1 flex items-center gap-1 text-gray-600">
+              <svg
+                className="h-4 w-4 flex-shrink-0"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"
+                />
               </svg>
-              Delivers
-            </span>
+              <WebsiteLink
+                storeId={store.id}
+                url={store.website}
+                className="hover:text-blue-700 hover:underline"
+              />
+            </p>
           )}
 
         </div>

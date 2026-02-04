@@ -53,3 +53,14 @@ export const DEFAULT_DESCRIPTION =
  */
 export const ENABLE_QUICK_ASSESS_WIDGET =
   process.env.NEXT_PUBLIC_ENABLE_QUICK_ASSESS_WIDGET === 'true'
+
+/**
+ * ENABLE_CITY_ENRICHMENT: Show CityFAQ and CityBuyingGuide on city pages
+ *
+ * Set via environment variable: NEXT_PUBLIC_ENABLE_CITY_ENRICHMENT=true
+ *
+ * Default: false (disabled)
+ * Scope: City pages only
+ */
+export const ENABLE_CITY_ENRICHMENT =
+  process.env.NEXT_PUBLIC_ENABLE_CITY_ENRICHMENT === 'true'

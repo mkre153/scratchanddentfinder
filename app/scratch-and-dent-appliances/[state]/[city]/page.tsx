@@ -29,10 +29,10 @@ import {
   Breadcrumbs,
   getCityBreadcrumbs,
 } from '@/components/layout/Breadcrumbs'
-import { CityStoreSection, NearbyCities, ExploreStateLink } from '@/components/directory'
+import { CityStoreSection, NearbyCities, ExploreStateLink, CityFAQ, CityBuyingGuide } from '@/components/directory'
 import { BuyerTips, SoftCTA, AISummary } from '@/components/marketing'
 import dynamic from 'next/dynamic'
-import { ENABLE_QUICK_ASSESS_WIDGET } from '@/lib/config'
+import { ENABLE_QUICK_ASSESS_WIDGET, ENABLE_CITY_ENRICHMENT } from '@/lib/config'
 
 // Dynamic import: only loads QuickAssessWidget (and buyers-tool) when feature flag is ON
 const QuickAssessWidget = ENABLE_QUICK_ASSESS_WIDGET
@@ -43,9 +43,8 @@ const QuickAssessWidget = ENABLE_QUICK_ASSESS_WIDGET
   : () => null
 import {
   JsonLd,
-  JsonLdMultiple,
   generateCityBreadcrumbs,
-  generateLocalBusinessSchema,
+  generateItemListSchema,
 } from '@/lib/schema'
 
 // ISR: Revalidate every 5 minutes (directory data changes infrequently)
@@ -94,16 +93,11 @@ export default async function CityPage({ params }: PageProps) {
   // Fetch nearby cities - up to 12 (Gate 4)
   const nearbyCities = await getNearbyCities(city, 12)
 
-  // Generate LocalBusiness schemas for eligible stores (Guardrail 2)
-  const storeSchemas = stores.map((store) =>
-    generateLocalBusinessSchema(store, state, city)
-  )
-
   return (
     <>
-      {/* JSON-LD: BreadcrumbList → LocalBusiness (deterministic order) */}
+      {/* JSON-LD: BreadcrumbList → ItemList (deterministic order) */}
       <JsonLd data={generateCityBreadcrumbs(state, city)} />
-      <JsonLdMultiple schemas={storeSchemas} />
+      <JsonLd data={generateItemListSchema(stores, state, city)} />
 
       {/* Section 1: City Hero (smaller than state hero) */}
       <section className="bg-warm-50 py-12">
@@ -172,6 +166,14 @@ export default async function CityPage({ params }: PageProps) {
         </div>
       </section>
 
+      {/* City Enrichment (Feature Flagged) */}
+      {ENABLE_CITY_ENRICHMENT && (
+        <>
+          <CityFAQ stores={stores} cityName={city.name} stateName={state.name} />
+          <CityBuyingGuide stores={stores} cityName={city.name} stateName={state.name} />
+        </>
+      )}
+
       {/* Section 6: Soft CTA */}
       <SoftCTA variant="city" cityName={city.name} />
 
@@ -179,7 +181,7 @@ export default async function CityPage({ params }: PageProps) {
       <ExploreStateLink state={state} />
 
       {/* AI Summary (AEO optimized) */}
-      <AISummary />
+      <AISummary cityName={city.name} stateName={state.name} storeCount={stores.length} />
 
       {/* Section 7: Nearby Cities (de-emphasized, SEO-only) */}
       <NearbyCities cities={nearbyCities} state={state} currentCity={city} />

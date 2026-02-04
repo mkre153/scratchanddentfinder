@@ -16,12 +16,17 @@ import {
   getContactUrl,
   getAdvertiseUrl,
   getStoreSubmitUrl,
+  getBuyersGuideUrl,
+  getFaqUrl,
+  getWhatIsScratchAndDentUrl,
 } from '@/lib/urls'
 import { shouldIndexState, shouldIndexCity } from '@/lib/seo'
 import { getAllStates, getCitiesByStateId } from '@/lib/queries'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const states = await getAllStates()
+
+  const staticContentDate = new Date('2026-02-01')
 
   // Static pages
   const staticPages: MetadataRoute.Sitemap = [
@@ -39,27 +44,45 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     {
       url: `${SITE_URL}${getAboutUrl()}`,
-      lastModified: new Date(),
+      lastModified: staticContentDate,
       changeFrequency: 'monthly',
       priority: 0.5,
     },
     {
       url: `${SITE_URL}${getContactUrl()}`,
-      lastModified: new Date(),
+      lastModified: staticContentDate,
       changeFrequency: 'monthly',
       priority: 0.5,
     },
     {
       url: `${SITE_URL}${getAdvertiseUrl()}`,
-      lastModified: new Date(),
+      lastModified: staticContentDate,
       changeFrequency: 'monthly',
       priority: 0.6,
     },
     {
       url: `${SITE_URL}${getStoreSubmitUrl()}`,
-      lastModified: new Date(),
+      lastModified: staticContentDate,
       changeFrequency: 'monthly',
       priority: 0.6,
+    },
+    {
+      url: `${SITE_URL}${getFaqUrl()}`,
+      lastModified: staticContentDate,
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    },
+    {
+      url: `${SITE_URL}${getWhatIsScratchAndDentUrl()}`,
+      lastModified: staticContentDate,
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
+      url: `${SITE_URL}${getBuyersGuideUrl()}`,
+      lastModified: staticContentDate,
+      changeFrequency: 'monthly',
+      priority: 0.7,
     },
   ]
 
@@ -67,7 +90,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const indexableStates = states.filter(shouldIndexState)
   const statePages: MetadataRoute.Sitemap = indexableStates.map((state) => ({
     url: `${SITE_URL}${getStateUrl(state)}`,
-    lastModified: new Date(),
     changeFrequency: 'daily' as const,
     priority: 0.8,
   }))
@@ -81,7 +103,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     for (const city of cities.filter(shouldIndexCity)) {
       cityPages.push({
         url: `${SITE_URL}${getCityUrl(state, city)}`,
-        lastModified: new Date(),
         changeFrequency: 'daily',
         priority: 0.7,
       })

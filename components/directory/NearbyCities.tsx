@@ -47,7 +47,7 @@ export function NearbyCities({ cities, state, currentCity }: NearbyCitiesProps) 
               className="text-sm text-gray-600 hover:text-sage-700 hover:underline"
               data-testid="nearby-city-link"
             >
-              {city.name}
+              {city.name} ({city.storeCount})
             </Link>
           ))}
         </div>
