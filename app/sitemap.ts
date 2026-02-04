@@ -17,6 +17,7 @@ import {
   getAdvertiseUrl,
   getStoreSubmitUrl,
 } from '@/lib/urls'
+import { shouldIndexState, shouldIndexCity } from '@/lib/seo'
 import { getAllStates, getCitiesByStateId } from '@/lib/queries'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -62,21 +63,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ]
 
-  // State pages
-  const statePages: MetadataRoute.Sitemap = states.map((state) => ({
+  // State pages (only states with stores)
+  const indexableStates = states.filter(shouldIndexState)
+  const statePages: MetadataRoute.Sitemap = indexableStates.map((state) => ({
     url: `${SITE_URL}${getStateUrl(state)}`,
     lastModified: new Date(),
     changeFrequency: 'daily' as const,
     priority: 0.8,
   }))
 
-  // City pages - fetch all cities for each state
+  // City pages - only cities with stores (matches noindex logic in lib/seo.ts)
   const cityPages: MetadataRoute.Sitemap = []
 
-  for (const state of states) {
+  for (const state of indexableStates) {
     const cities = await getCitiesByStateId(state.id)
 
-    for (const city of cities) {
+    for (const city of cities.filter(shouldIndexCity)) {
       cityPages.push({
         url: `${SITE_URL}${getCityUrl(state, city)}`,
         lastModified: new Date(),
