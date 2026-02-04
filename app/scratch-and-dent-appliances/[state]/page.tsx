@@ -14,16 +14,20 @@
  * 5. City Navigation (top cities)
  * 6. Store Listings (statewide)
  * 7. State Buying Guide (1 paragraph)
- * 8. Soft CTA (suggest store)
+ * 8. Related Resources (internal links to marketing content)
+ * 9. Browse Other States (cross-linking to other state pages)
+ * 10. Soft CTA (suggest store)
  */
 
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import Link from 'next/link'
 import { generateStateMetadata } from '@/lib/seo'
 import {
   getStateBySlug,
   getCitiesByStateId,
   getStoresByStateId,
+  getAllStates,
 } from '@/lib/queries'
 import {
   Breadcrumbs,
@@ -34,6 +38,13 @@ import { TrustStrip, SoftCTA, AISummary } from '@/components/marketing'
 import dynamic from 'next/dynamic'
 import { JsonLd, generateStateBreadcrumbs } from '@/lib/schema'
 import { ENABLE_QUICK_ASSESS_WIDGET } from '@/lib/config'
+import {
+  getAllStatesUrl,
+  getStateUrl,
+  getWhatIsScratchAndDentUrl,
+  getBuyersGuideUrl,
+  getFaqUrl,
+} from '@/lib/urls'
 
 // Dynamic import: only loads QuickAssessWidget (and buyers-tool) when feature flag is ON
 const QuickAssessWidget = ENABLE_QUICK_ASSESS_WIDGET
@@ -71,11 +82,19 @@ export default async function StatePage({ params }: PageProps) {
     notFound()
   }
 
-  // Fetch cities and stores in parallel
-  const [cities, stores] = await Promise.all([
+  // Fetch cities, stores, and all states in parallel
+  const [cities, stores, allStates] = await Promise.all([
     getCitiesByStateId(state.id),
     getStoresByStateId(state.id),
+    getAllStates(),
   ])
+
+  // Pick 6 other states for cross-linking (first 3 + last 3 alphabetically, excluding current)
+  const otherStates = allStates.filter((s) => s.id !== state.id)
+  const browseStates = [
+    ...otherStates.slice(0, 3),
+    ...otherStates.slice(-3),
+  ]
 
   return (
     <>
@@ -211,6 +230,45 @@ export default async function StatePage({ params }: PageProps) {
             help you find the best deals. Many {state.name} dealers offer delivery
             and installation.
           </p>
+        </div>
+      </section>
+
+      {/* Related Resources */}
+      <section className="bg-warm-50 py-8">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <h2 className="mb-3 text-lg font-semibold text-gray-900">
+            Related Resources
+          </h2>
+          <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+            <Link href={getWhatIsScratchAndDentUrl()} className="text-rust hover:underline">
+              What is scratch and dent?
+            </Link>
+            <Link href={getBuyersGuideUrl()} className="text-rust hover:underline">
+              Evaluate a deal
+            </Link>
+            <Link href={getFaqUrl()} className="text-rust hover:underline">
+              Common questions
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Browse Other States */}
+      <section className="py-8">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <h2 className="mb-3 text-lg font-semibold text-gray-900">
+            Browse Other States
+          </h2>
+          <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+            {browseStates.map((s) => (
+              <Link key={s.id} href={getStateUrl(s)} className="text-rust hover:underline">
+                {s.name}
+              </Link>
+            ))}
+            <Link href={getAllStatesUrl()} className="font-medium text-rust hover:underline">
+              View All States →
+            </Link>
+          </div>
         </div>
       </section>
 
