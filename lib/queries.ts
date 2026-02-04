@@ -41,6 +41,7 @@ function stateRowToModel(row: StateRow): State {
     gradientColor: row.gradient_color,
     storeCount: row.store_count,
     cityCount: row.city_count,
+    metaDescription: row.meta_description,
   }
 }
 

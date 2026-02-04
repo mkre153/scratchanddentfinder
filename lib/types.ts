@@ -68,6 +68,7 @@ export interface StateRow {
   gradient_color: string
   store_count: number
   city_count: number
+  meta_description: string | null
   created_at: string
 }
 
@@ -82,6 +83,7 @@ export interface State {
   gradientColor: string
   storeCount: number
   cityCount: number
+  metaDescription: string | null
 }
 
 // =============================================================================

@@ -11,7 +11,8 @@
     "gates:0": "npx tsx scripts/gates-verify.ts --gate 0",
     "gates:1": "npx tsx scripts/gates-verify.ts --gate 1",
     "gates:7": "npx tsx scripts/gates-verify.ts --gate 7",
-    "gates:8": "npx tsx scripts/gates-verify.ts --gate 8"
+    "gates:8": "npx tsx scripts/gates-verify.ts --gate 8",
+    "populate-meta": "npx tsx scripts/populate-state-meta-descriptions.ts"
   },
   "dependencies": {
     "@scratch-and-dent/buyers-tool": "file:./packages/buyers-tool",

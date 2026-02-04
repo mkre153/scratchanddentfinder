@@ -163,7 +163,7 @@ export function generateAllStatesMetadata(): Metadata {
  */
 export function generateStateMetadata(state: State): Metadata {
   const title = `Scratch and Dent Appliances in ${state.name}`
-  const description = `Find ${state.storeCount} scratch and dent appliance stores in ${state.name}. Browse ${state.cityCount} cities and save 30-70% on quality appliances.`
+  const description = state.metaDescription || `Find ${state.storeCount} scratch and dent appliance stores in ${state.name}. Browse ${state.cityCount} cities and save 30-70% on quality appliances.`
   const path = getStateUrl(state)
 
   return {
