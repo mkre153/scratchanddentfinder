@@ -1,0 +1,123 @@
+
+BUYER'S GUIDE CTA BUTTON - TEST REPORT
+======================================
+
+Test Run: 2026-02-05T00:33:22.696Z
+Duration: 2ms
+
+OVERALL RESULTS
+---------------
+Total Tests: 20
+Passed:      20
+Failed:      0
+Pass Rate:   100.0%
+
+RESULTS BY CATEGORY
+-------------------
+URL Generation: 2/2 (100%)
+Header Component: 6/6 (100%)
+MobileMenu Component: 6/6 (100%)
+Visual Hierarchy: 4/4 (100%)
+Color Contrast: 1/1 (100%)
+Mobile Spacing: 1/1 (100%)
+
+DETAILED RESULTS
+----------------
+
+[PASS] Test 1: getBuyersGuideUrl() function exists
+Category: URL Generation
+PASS: getBuyersGuideUrl() function is exported from lib/urls.ts
+
+[PASS] Test 2: getBuyersGuideUrl() returns /buyers-guide/
+Category: URL Generation
+PASS: getBuyersGuideUrl() returns '/buyers-guide/'
+
+[PASS] Test 3: Header.tsx imports getBuyersGuideUrl
+Category: Header Component
+PASS: Header.tsx imports getBuyersGuideUrl from lib/urls
+
+[PASS] Test 4: Header.tsx contains Buyer's Guide CTA
+Category: Header Component
+PASS: Header.tsx contains Buyer's Guide CTA button
+
+[PASS] Test 5: Header Buyer's Guide links to getBuyersGuideUrl()
+Category: Header Component
+PASS: Header Buyer's Guide CTA uses getBuyersGuideUrl()
+  - <Link
+              href={getBuyersGuideUrl()}
+              className="hidden sm:inline-flex min-h-[44px] items-center rounded-md bg-sage-600 px-4 text-sm font-semibold text-white hover:bg-sage-700"
+...
+
+[PASS] Test 6: Header Buyer's Guide uses sage color
+Category: Header Component
+PASS: Header Buyer's Guide uses bg-sage-600, hover:bg-sage-700, text-white
+  - bg-sage-600: YES
+  - hover:bg-sage-700: YES
+  - text-white: YES
+
+[PASS] Test 7: Header Buyer's Guide has 44px touch target
+Category: Header Component
+PASS: Header Buyer's Guide has min-h-[44px] for accessibility
+
+[PASS] Test 8: Header Buyer's Guide hidden on small screens
+Category: Header Component
+PASS: Header Buyer's Guide is hidden on small mobile screens
+
+[PASS] Test 9: MobileMenu.tsx imports getBuyersGuideUrl
+Category: MobileMenu Component
+PASS: MobileMenu.tsx imports getBuyersGuideUrl from lib/urls
+
+[PASS] Test 10: MobileMenu.tsx contains Buyer's Guide CTA
+Category: MobileMenu Component
+PASS: MobileMenu.tsx contains Buyer's Guide CTA button
+
+[PASS] Test 11: MobileMenu Buyer's Guide links to getBuyersGuideUrl()
+Category: MobileMenu Component
+PASS: MobileMenu Buyer's Guide CTA uses getBuyersGuideUrl()
+
+[PASS] Test 12: MobileMenu Buyer's Guide uses sage color
+Category: MobileMenu Component
+PASS: MobileMenu Buyer's Guide uses bg-sage-600, hover:bg-sage-700, text-white
+  - bg-sage-600: YES
+  - hover:bg-sage-700: YES
+  - text-white: YES
+
+[PASS] Test 13: MobileMenu Buyer's Guide has 44px touch target
+Category: MobileMenu Component
+PASS: MobileMenu Buyer's Guide has min-h-[44px] for accessibility
+
+[PASS] Test 14: MobileMenu Buyer's Guide calls onClose
+Category: MobileMenu Component
+PASS: MobileMenu Buyer's Guide calls onClose to dismiss menu
+
+[PASS] Test 15: Buyer's Guide appears before Add Your Store (Header)
+Category: Visual Hierarchy
+PASS: Buyer's Guide appears before Add Your Store in Header
+  - Buyer's Guide position: 2463
+  - Add Your Store position: 3134
+
+[PASS] Test 16: Buyer's Guide appears before Add Your Store (MobileMenu)
+Category: Visual Hierarchy
+PASS: Buyer's Guide appears before Add Your Store in MobileMenu
+  - Buyer's Guide position: 3535
+  - Add Your Store position: 3836
+
+[PASS] Test 17: Add Your Store retains yellow color (Header)
+Category: Visual Hierarchy
+PASS: Add Your Store retains bg-yellow-400 as primary CTA
+
+[PASS] Test 18: Add Your Store retains yellow color (MobileMenu)
+Category: Visual Hierarchy
+PASS: Add Your Store retains bg-yellow-400 as primary CTA
+
+[PASS] Test 19: Buyer's Guide and Add Your Store have different colors
+Category: Color Contrast
+PASS: CTAs have distinct colors (sage vs yellow) for visual differentiation
+  - Buyer's Guide: bg-sage-600
+  - Add Your Store: bg-yellow-400
+
+[PASS] Test 20: MobileMenu CTA buttons have proper spacing
+Category: Mobile Spacing
+PASS: MobileMenu CTA buttons have margin spacing between them
+
+=== END OF REPORT ===
