@@ -124,9 +124,6 @@ export function NearbyStores({ variant }: NearbyStoresProps) {
               <Navigation className="h-5 w-5" />
               Find Stores Near Me
             </button>
-            <p className="mt-2 text-xs text-gray-500">
-              Your location is never stored
-            </p>
           </div>
         </div>
       </section>
