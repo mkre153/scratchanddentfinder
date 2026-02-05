@@ -10,6 +10,7 @@ import {
   generateOrganizationSchema,
   generateWebSiteSchema,
 } from '@/lib/schema'
+import { ChatWidget } from '@/components/chat/ChatWidget'
 
 // Optimized font loading: preload, swap display, subset
 const inter = Inter({
@@ -49,6 +50,7 @@ export default function RootLayout({
           <Header />
           <main className="flex-1">{children}</main>
           <Footer />
+          <ChatWidget />
         </Providers>
       </body>
     </html>
