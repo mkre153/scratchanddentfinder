@@ -119,7 +119,7 @@ export function NearbyStores({ variant }: NearbyStoresProps) {
             </p>
             <button
               onClick={handleFindStores}
-              className="mt-4 inline-flex items-center gap-2 rounded-lg bg-sage-600 px-6 py-3 font-semibold text-white hover:bg-sage-700"
+              className="mt-4 inline-flex items-center gap-2 rounded-lg bg-yellow-400 px-6 py-3 font-semibold text-gray-900 hover:bg-yellow-500"
             >
               <Navigation className="h-5 w-5" />
               Find Stores Near Me
