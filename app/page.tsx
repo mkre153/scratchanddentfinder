@@ -81,9 +81,7 @@ export default async function HomePage() {
             Save 30-70% on Quality Appliances
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-xl text-gray-600">
-            Find scratch and dent appliance stores near you.
-            <br className="hidden sm:inline" />
-            Real local stores, real savings, verified listings.
+            Find scratch and dent appliance stores near you. Verified local stores.
           </p>
 
           {totalStores > 0 && (
