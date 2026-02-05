@@ -15,6 +15,7 @@ import {
   getContactUrl,
   getStoreSubmitUrl,
   getBlogUrl,
+  getBuyersGuideUrl,
 } from '@/lib/urls'
 import { MobileMenuButton } from './MobileMenuButton'
 
@@ -72,7 +73,15 @@ export function Header() {
 
           {/* CTA + Mobile Menu */}
           <div className="flex items-center gap-2">
-            {/* CTA Button - hidden on small mobile, 44px touch target */}
+            {/* Buyer's Guide CTA - hidden on small mobile, 44px touch target */}
+            <Link
+              href={getBuyersGuideUrl()}
+              className="hidden sm:inline-flex min-h-[44px] items-center rounded-md bg-sage-600 px-4 text-sm font-semibold text-white hover:bg-sage-700"
+            >
+              Buyer's Guide
+            </Link>
+
+            {/* Add Your Store CTA - hidden on small mobile, 44px touch target */}
             <Link
               href={getStoreSubmitUrl()}
               className="hidden sm:inline-flex min-h-[44px] items-center rounded-md bg-yellow-400 px-4 text-sm font-semibold text-gray-900 hover:bg-yellow-500"
