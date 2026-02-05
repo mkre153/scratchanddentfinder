@@ -76,7 +76,7 @@ export function Header() {
             {/* Buyer's Guide CTA - hidden on small mobile, 44px touch target */}
             <Link
               href={getBuyersGuideUrl()}
-              className="hidden sm:inline-flex min-h-[44px] items-center rounded-md bg-sage-600 px-4 text-sm font-semibold text-white hover:bg-sage-700"
+              className="hidden sm:inline-flex min-h-[44px] items-center rounded-md bg-sage-500 px-4 text-sm font-semibold text-white hover:bg-sage-700"
             >
               Buyer's Guide
             </Link>

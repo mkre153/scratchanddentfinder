@@ -111,7 +111,7 @@ export function MobileMenu({ onClose }: MobileMenuProps) {
           <Link
             href={getBuyersGuideUrl()}
             onClick={onClose}
-            className="min-h-[44px] inline-flex items-center justify-center rounded-md bg-sage-600 px-4 font-semibold text-white hover:bg-sage-700"
+            className="min-h-[44px] inline-flex items-center justify-center rounded-md bg-sage-500 px-4 font-semibold text-white hover:bg-sage-700"
           >
             Buyer's Guide
           </Link>
