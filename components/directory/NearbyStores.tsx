@@ -111,7 +111,7 @@ export function NearbyStores({ variant }: NearbyStoresProps) {
       <section className="bg-sage-50 py-10">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <p className="mt-2 text-gray-600">
+            <p className="text-xl font-semibold text-gray-900">
               Discover scratch and dent appliance stores in your area
             </p>
             <button
