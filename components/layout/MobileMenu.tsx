@@ -17,6 +17,7 @@ import {
   getContactUrl,
   getStoreSubmitUrl,
   getBlogUrl,
+  getBuyersGuideUrl,
 } from '@/lib/urls'
 
 interface MobileMenuProps {
@@ -106,11 +107,18 @@ export function MobileMenu({ onClose }: MobileMenuProps) {
 
           <hr className="my-6 border-gray-200" />
 
-          {/* CTA Button - 44px touch target */}
+          {/* CTA Buttons - 44px touch targets */}
+          <Link
+            href={getBuyersGuideUrl()}
+            onClick={onClose}
+            className="min-h-[44px] inline-flex items-center justify-center rounded-md bg-sage-600 px-4 font-semibold text-white hover:bg-sage-700"
+          >
+            Buyer's Guide
+          </Link>
           <Link
             href={getStoreSubmitUrl()}
             onClick={onClose}
-            className="min-h-[44px] inline-flex items-center justify-center rounded-md bg-yellow-400 px-4 font-semibold text-gray-900 hover:bg-yellow-500"
+            className="mt-3 min-h-[44px] inline-flex items-center justify-center rounded-md bg-yellow-400 px-4 font-semibold text-gray-900 hover:bg-yellow-500"
           >
             + Add Your Store
           </Link>
