@@ -120,7 +120,7 @@ export function MobileMenu({ onClose }: MobileMenuProps) {
             onClick={onClose}
             className="mt-3 min-h-[44px] inline-flex items-center justify-center rounded-md bg-yellow-400 px-4 font-semibold text-gray-900 hover:bg-yellow-500"
           >
-            + Add Your Store
+            Add Your Store
           </Link>
         </div>
       </nav>

@@ -86,7 +86,7 @@ export function Header() {
               href={getStoreSubmitUrl()}
               className="hidden sm:inline-flex min-h-[44px] items-center rounded-md bg-yellow-400 px-4 text-sm font-semibold text-gray-900 hover:bg-yellow-500"
             >
-              + Add Your Store
+              Add Your Store
             </Link>
 
             {/* Mobile Menu Button */}
