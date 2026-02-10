@@ -152,16 +152,24 @@ export function BuyerToolWizard() {
         </div>
       )}
 
-      {/* Results Step - Start Over Button */}
+      {/* Results Step - Back & Start Over Buttons */}
       {isResultsStep && (
-        <div className="mt-6 text-center">
+        <div className="mt-6 flex items-center justify-between">
+          <button
+            type="button"
+            onClick={() => wizard.goToStep(7)}
+            className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-100"
+          >
+            <ChevronLeft className="h-4 w-4" />
+            Back to Edit
+          </button>
           <button
             type="button"
             onClick={wizard.reset}
             className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-100"
           >
             <RotateCcw className="h-4 w-4" />
-            Analyze Another Deal
+            Start Over
           </button>
         </div>
       )}
