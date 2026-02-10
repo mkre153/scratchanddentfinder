@@ -480,6 +480,16 @@ test('Zero-Falsy', '35. Warranty validation passes with manufacturerCovered=fals
   assert(errors.length === 0, 'manufacturerCovered=false with retailerWarrantyMonths=0 must pass validation')
 })
 
+test('Zero-Falsy', '35b. WarrantyStep: "No" onChange auto-sets retailerWarrantyMonths: 0', () => {
+  // When user clicks "No" for manufacturer warranty, retailerWarrantyMonths should
+  // auto-default to 0 so the user doesn't have to manually enter it
+  assertMatch(
+    warrantySrc,
+    /onChange\(\s*\{[^}]*manufacturerCovered:\s*false[^}]*retailerWarrantyMonths:\s*0[^}]*\}/,
+    'WarrantyStep "No" onChange must auto-set retailerWarrantyMonths: 0'
+  )
+})
+
 // =============================================================================
 // Category 6: Compiler Edge Cases (6 tests)
 // =============================================================================

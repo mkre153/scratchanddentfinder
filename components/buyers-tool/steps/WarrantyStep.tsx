@@ -32,32 +32,38 @@ export function WarrantyStep({ data, onChange }: WarrantyStepProps) {
           Is the manufacturer warranty included? <span className="text-red-500">*</span>
         </label>
         <div className="flex flex-wrap gap-3">
-          {[
-            { value: true, label: 'Yes' },
-            { value: false, label: 'No' },
-          ].map(({ value, label }) => (
-            <label
-              key={String(value)}
-              className={`inline-flex cursor-pointer items-center gap-2 rounded-lg border px-4 py-2 transition ${
-                data.manufacturerCovered === value
-                  ? 'border-sage-500 bg-sage-50 text-sage-700'
-                  : 'border-gray-200 text-gray-600 hover:border-gray-300'
-              }`}
-            >
-              <input
-                type="radio"
-                name="manufacturerCovered"
-                checked={data.manufacturerCovered === value}
-                onChange={() =>
-                  onChange({
-                    manufacturerCovered: value,
-                  })
-                }
-                className="sr-only"
-              />
-              {label}
-            </label>
-          ))}
+          <label
+            className={`inline-flex cursor-pointer items-center gap-2 rounded-lg border px-4 py-2 transition ${
+              data.manufacturerCovered === true
+                ? 'border-sage-500 bg-sage-50 text-sage-700'
+                : 'border-gray-200 text-gray-600 hover:border-gray-300'
+            }`}
+          >
+            <input
+              type="radio"
+              name="manufacturerCovered"
+              checked={data.manufacturerCovered === true}
+              onChange={() => onChange({ manufacturerCovered: true })}
+              className="sr-only"
+            />
+            Yes
+          </label>
+          <label
+            className={`inline-flex cursor-pointer items-center gap-2 rounded-lg border px-4 py-2 transition ${
+              data.manufacturerCovered === false
+                ? 'border-sage-500 bg-sage-50 text-sage-700'
+                : 'border-gray-200 text-gray-600 hover:border-gray-300'
+            }`}
+          >
+            <input
+              type="radio"
+              name="manufacturerCovered"
+              checked={data.manufacturerCovered === false}
+              onChange={() => onChange({ manufacturerCovered: false, retailerWarrantyMonths: 0 })}
+              className="sr-only"
+            />
+            No
+          </label>
         </div>
         <p className="mt-2 text-xs text-gray-500">
           Manufacturer warranties typically cover functional defects but may be
