@@ -214,8 +214,8 @@ export default async function StatePage({ params }: PageProps) {
             </p>
           ) : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {stores.map((store) => (
-                <StoreCard key={store.id} store={store} />
+              {stores.map((store, index) => (
+                <StoreCard key={store.id} store={store} index={index} />
               ))}
             </div>
           )}
