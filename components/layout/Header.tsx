@@ -47,16 +47,18 @@ export function Header() {
             >
               Blog
             </Link>
-            <Link
-              href={getBuyersGuideUrl()}
-              className="inline-flex min-h-[44px] items-center px-2 text-gray-600 hover:text-sage-700"
-            >
-              Buyer&#39;s Guide
-            </Link>
           </div>
 
           {/* CTA + Mobile Menu */}
           <div className="flex items-center gap-2">
+            {/* Buyer's Guide CTA - hidden on small mobile, 44px touch target */}
+            <Link
+              href={getBuyersGuideUrl()}
+              className="hidden sm:inline-flex min-h-[44px] items-center rounded-md bg-sage-500 px-4 text-sm font-semibold text-white hover:bg-sage-600"
+            >
+              Buyer&#39;s Guide
+            </Link>
+
             {/* Add Your Store CTA - hidden on small mobile, 44px touch target */}
             <Link
               href={getStoreSubmitUrl()}
