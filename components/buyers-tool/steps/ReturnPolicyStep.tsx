@@ -43,7 +43,7 @@ export function ReturnPolicyStep({ data, onChange }: ReturnPolicyStepProps) {
               type="radio"
               name="finalSale"
               checked={data.finalSale === true}
-              onChange={() => onChange({ finalSale: true })}
+              onChange={() => onChange({ finalSale: true, windowDays: 0, restockingFeePercent: 0 })}
               className="sr-only"
             />
             Yes, final sale
@@ -94,11 +94,6 @@ export function ReturnPolicyStep({ data, onChange }: ReturnPolicyStepProps) {
             How many days do you have to return it?
           </p>
         </div>
-      )}
-
-      {/* For final sale, set windowDays to 0 */}
-      {data.finalSale === true && data.windowDays !== 0 && (
-        <input type="hidden" value={0} onChange={() => onChange({ windowDays: 0 })} />
       )}
 
       {/* Restocking Fee */}
