@@ -87,7 +87,7 @@ Bottom line: Scratch and dent appliances are worth it for most buyers. If the co
 - Manufacturer outlet stores
 - Online marketplaces
 
-ApplianceTechFinder.com helps you find local scratch and dent stores across the US. Use our store finder at /scratch-and-dent-appliances/ to browse stores by state.
+ScratchAndDentFinder.com helps you find local scratch and dent stores across the US. Use our store finder at /scratch-and-dent-appliances/ to browse stores by state.
 
 ## Best Appliances to Buy Scratch and Dent
 
@@ -157,7 +157,7 @@ Where negotiation works best:
 
 ## Buyer's Guide Deal Evaluation Tool
 
-ApplianceTechFinder.com offers a free buyer's guide tool at /buyers-guide/ that analyzes:
+ScratchAndDentFinder.com offers a free buyer's guide tool at /buyers-guide/ that analyzes:
 - Damage assessment (location, severity, visibility based on installation)
 - Pricing analysis (comparing discount to expected ranges)
 - Warranty coverage evaluation

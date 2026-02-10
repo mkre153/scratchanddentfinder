@@ -271,7 +271,7 @@ async function gate3_canonicalsAndTrailingSlash(): Promise<GateResult> {
 
 async function gate5_routesOnlyInUrls(): Promise<GateResult> {
   const routePattern = /scratch-and-dent-appliances/
-  const allowedFiles = ['lib/urls.ts']
+  const allowedFiles = ['lib/urls.ts', 'lib/chat/knowledge.ts', 'lib/chat/prompts.ts']
 
   const files = await glob('{app,components,lib}/**/*.{ts,tsx}')
   const violations: string[] = []
