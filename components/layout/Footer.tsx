@@ -49,7 +49,7 @@ export function Footer() {
                   href={getBlogUrl()}
                   className="min-h-[44px] inline-flex items-center hover:text-white"
                 >
-                  Blog
+                  Savings Tips
                 </Link>
               </li>
             </ul>

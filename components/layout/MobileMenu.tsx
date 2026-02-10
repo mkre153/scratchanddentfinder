@@ -78,7 +78,7 @@ export function MobileMenu({ onClose }: MobileMenuProps) {
               onClick={onClose}
               className="min-h-[44px] inline-flex items-center text-lg text-gray-700 hover:text-sage-700"
             >
-              Blog
+              Savings Tips
             </Link>
             <Link
               href={getAboutUrl()}

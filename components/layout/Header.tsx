@@ -45,7 +45,7 @@ export function Header() {
               href={getBlogUrl()}
               className="inline-flex min-h-[44px] items-center px-2 text-gray-600 hover:text-sage-700"
             >
-              Blog
+              Savings Tips
             </Link>
           </div>
 
