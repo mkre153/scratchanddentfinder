@@ -17,6 +17,13 @@ const APPLIANCE_TYPES: { value: ApplianceType; label: string }[] = [
   { value: 'microwave', label: 'Microwave' },
 ]
 
+const APPLIANCE_BRANDS = [
+  'Amana', 'Beko', 'Bosch', 'Café', 'Electrolux', 'Fisher & Paykel',
+  'Frigidaire', 'GE', 'GE Profile', 'Haier', 'Hisense', 'KitchenAid',
+  'LG', 'Maytag', 'Miele', 'Samsung', 'Speed Queen', 'Sub-Zero',
+  'Thermador', 'Viking', 'Whirlpool', 'Wolf',
+]
+
 interface ApplianceStepProps {
   data: Partial<ApplianceInfo>
   onChange: (data: Partial<ApplianceInfo>) => void
@@ -70,11 +77,18 @@ export function ApplianceStep({ data, onChange }: ApplianceStepProps) {
         <input
           type="text"
           id="brand"
+          list="brand-options"
+          autoComplete="off"
           value={data.brand ?? ''}
           onChange={(e) => onChange({ brand: e.target.value || undefined })}
-          placeholder="e.g., Samsung, LG, Whirlpool"
+          placeholder="Start typing a brand..."
           className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 shadow-sm focus:border-sage-500 focus:outline-none focus:ring-2 focus:ring-sage-500"
         />
+        <datalist id="brand-options">
+          {APPLIANCE_BRANDS.map((brand) => (
+            <option key={brand} value={brand} />
+          ))}
+        </datalist>
       </div>
 
       {/* Pricing Row */}
