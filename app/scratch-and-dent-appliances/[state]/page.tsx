@@ -35,6 +35,7 @@ import {
 } from '@/components/layout/Breadcrumbs'
 import { CitySearchSection, StoreCard } from '@/components/directory'
 import { TrustStrip, SoftCTA, AISummary } from '@/components/marketing'
+import { AdUnit } from '@/components/ads/AdUnit'
 import dynamic from 'next/dynamic'
 import { JsonLd, generateStateBreadcrumbs } from '@/lib/schema'
 import { ENABLE_QUICK_ASSESS_WIDGET } from '@/lib/config'
@@ -195,6 +196,11 @@ export default async function StatePage({ params }: PageProps) {
         </div>
       </section>
 
+      {/* Ad: After city navigation */}
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4">
+        <AdUnit slot="state-mid" format="horizontal" />
+      </div>
+
       {/* Section 6: Store Listings (Statewide) */}
       <section className="bg-gray-50 py-10" id="stores">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -215,6 +221,11 @@ export default async function StatePage({ params }: PageProps) {
           )}
         </div>
       </section>
+
+      {/* Ad: After store listings */}
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4">
+        <AdUnit slot="state-bottom" format="horizontal" />
+      </div>
 
       {/* Section 7: State Buying Guide */}
       <section className="py-10">

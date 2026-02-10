@@ -32,6 +32,7 @@ import {
 } from '@/components/layout/Breadcrumbs'
 import { CityStoreSection, NearbyCities, ExploreStateLink, CityFAQ, CityBuyingGuide } from '@/components/directory'
 import { BuyerTips, SoftCTA, AISummary } from '@/components/marketing'
+import { AdUnit } from '@/components/ads/AdUnit'
 import dynamic from 'next/dynamic'
 import { ENABLE_QUICK_ASSESS_WIDGET, ENABLE_CITY_ENRICHMENT } from '@/lib/config'
 
@@ -156,6 +157,11 @@ export default async function CityPage({ params }: PageProps) {
         </div>
       </section>
 
+      {/* Ad: Below buyer tips */}
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4">
+        <AdUnit slot="city-top" format="horizontal" />
+      </div>
+
       {/* Section 5: Store Listings */}
       <section className="py-10">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -174,6 +180,11 @@ export default async function CityPage({ params }: PageProps) {
           <CityBuyingGuide stores={stores} cityName={city.name} stateName={state.name} />
         </>
       )}
+
+      {/* Ad: After store listings */}
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4">
+        <AdUnit slot="city-bottom" format="horizontal" />
+      </div>
 
       {/* Section 6: Soft CTA */}
       <SoftCTA variant="city" cityName={city.name} />
