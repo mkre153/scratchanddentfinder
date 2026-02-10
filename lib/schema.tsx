@@ -191,23 +191,28 @@ export function generateLocalBusinessSchema(
   }
 
   if (store.hours) {
-    const dayMap: Record<string, string> = {
-      monday: 'Monday',
-      tuesday: 'Tuesday',
-      wednesday: 'Wednesday',
-      thursday: 'Thursday',
-      friday: 'Friday',
-      saturday: 'Saturday',
-      sunday: 'Sunday',
+    const dayKeys: [string, string, string][] = [
+      ['monday', 'mon', 'Monday'],
+      ['tuesday', 'tue', 'Tuesday'],
+      ['wednesday', 'wed', 'Wednesday'],
+      ['thursday', 'thu', 'Thursday'],
+      ['friday', 'fri', 'Friday'],
+      ['saturday', 'sat', 'Saturday'],
+      ['sunday', 'sun', 'Sunday'],
+    ]
+    const specs: { '@type': string; dayOfWeek: string; opens: string; closes: string }[] = []
+    for (const [full, abbr, label] of dayKeys) {
+      const val = store.hours[full] ?? store.hours[abbr]
+      if (!val || val === 'closed') continue
+      if (typeof val === 'object') {
+        specs.push({ '@type': 'OpeningHoursSpecification', dayOfWeek: label, opens: val.open, closes: val.close })
+      } else if (typeof val === 'string') {
+        const parts = val.split('-')
+        if (parts.length === 2) {
+          specs.push({ '@type': 'OpeningHoursSpecification', dayOfWeek: label, opens: parts[0].trim(), closes: parts[1].trim() })
+        }
+      }
     }
-    const specs = Object.entries(store.hours)
-      .filter(([key, v]) => key in dayMap && v !== 'closed' && v !== null)
-      .map(([day, schedule]) => ({
-        '@type': 'OpeningHoursSpecification',
-        dayOfWeek: dayMap[day],
-        opens: (schedule as { open: string; close: string }).open,
-        closes: (schedule as { open: string; close: string }).close,
-      }))
     if (specs.length > 0) {
       schema.openingHoursSpecification = specs
     }

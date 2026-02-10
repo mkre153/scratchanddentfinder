@@ -116,7 +116,7 @@ export interface City {
 // =============================================================================
 
 export interface StoreHours {
-  [day: string]: { open: string; close: string } | 'closed'
+  [day: string]: { open: string; close: string } | string
 }
 
 export interface StoreAppliances {

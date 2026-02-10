@@ -14,32 +14,57 @@ interface StoreCardProps {
   index?: number // Optional - featured stores don't need numbering
 }
 
+// Normalize hours: DB stores both abbreviated keys with string values ("mon": "9AM-6PM")
+// and full keys with object values ("monday": { open: "9AM", close: "6PM" })
+function getSchedule(hours: Store['hours'], dayFull: string, dayAbbr: string): { open: string; close: string } | 'closed' | null {
+  if (!hours) return null
+  const val = hours[dayFull] ?? hours[dayAbbr]
+  if (!val) return null
+  if (val === 'closed') return 'closed'
+  // Object format: { open, close }
+  if (typeof val === 'object') return val
+  // String format: "9AM-6PM"
+  if (typeof val === 'string') {
+    const parts = val.split('-')
+    if (parts.length === 2) return { open: parts[0].trim(), close: parts[1].trim() }
+  }
+  return null
+}
+
+const DAY_KEYS: [string, string][] = [
+  ['sunday', 'sun'],
+  ['monday', 'mon'],
+  ['tuesday', 'tue'],
+  ['wednesday', 'wed'],
+  ['thursday', 'thu'],
+  ['friday', 'fri'],
+  ['saturday', 'sat'],
+]
+const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+
 function getStoreStatus(hours: Store['hours']): {
   isOpen: boolean
   statusText: string | null
 } {
   if (!hours) return { isOpen: false, statusText: null }
 
-  const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
-  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
   const todayIndex = new Date().getDay()
-  const today = days[todayIndex]
-  const todaySchedule = hours[today]
+  const [todayFull, todayAbbr] = DAY_KEYS[todayIndex]
+  const todaySchedule = getSchedule(hours, todayFull, todayAbbr)
 
   // Store is open today
   if (todaySchedule && todaySchedule !== 'closed') {
-    const { close } = todaySchedule
-    return { isOpen: true, statusText: `Open until ${close}` }
+    return { isOpen: true, statusText: `Open until ${todaySchedule.close}` }
   }
 
   // Store is closed today - find next open day
   for (let i = 1; i <= 7; i++) {
     const nextDayIndex = (todayIndex + i) % 7
-    const nextDay = days[nextDayIndex]
-    const nextSchedule = hours[nextDay]
+    const [nextFull, nextAbbr] = DAY_KEYS[nextDayIndex]
+    const nextSchedule = getSchedule(hours, nextFull, nextAbbr)
 
     if (nextSchedule && nextSchedule !== 'closed') {
-      const dayLabel = i === 1 ? 'tomorrow' : dayNames[nextDayIndex]
+      const dayLabel = i === 1 ? 'tomorrow' : DAY_LABELS[nextDayIndex]
       return { isOpen: false, statusText: `Closed · Opens ${dayLabel} at ${nextSchedule.open}` }
     }
   }
@@ -101,12 +126,12 @@ export function StoreCard({ store, index }: StoreCardProps) {
             <details className="mt-2 text-sm text-gray-600">
               <summary className="cursor-pointer hover:text-gray-900">View hours</summary>
               <div className="mt-1 space-y-0.5 pl-2">
-                {(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as const).map((day) => {
-                  const schedule = store.hours![day]
+                {DAY_KEYS.map(([dayFull, dayAbbr]) => {
+                  const schedule = getSchedule(store.hours!, dayFull, dayAbbr)
                   if (!schedule) return null
                   return (
-                    <div key={day} className="flex justify-between max-w-xs">
-                      <span className="capitalize">{day}</span>
+                    <div key={dayFull} className="flex justify-between max-w-xs">
+                      <span className="capitalize">{dayFull}</span>
                       <span>{schedule === 'closed' ? 'Closed' : `${schedule.open} – ${schedule.close}`}</span>
                     </div>
                   )
