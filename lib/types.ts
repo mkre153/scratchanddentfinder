@@ -1,5 +1,5 @@
 /**
- * Type definitions for Scratch and Dent Finder
+ * Type definitions for Scratch & Dent Finder
  *
  * These types match the Supabase database schema.
  * Run `npx supabase gen types typescript` to regenerate from DB.
@@ -31,11 +31,6 @@ export type Database = {
         Row: ProfileRow
         Insert: ProfileInsert
         Update: ProfileUpdate
-      }
-      subscriptions: {
-        Row: SubscriptionRow
-        Insert: SubscriptionInsert
-        Update: SubscriptionUpdate
       }
       leads: {
         Row: LeadRow
@@ -154,9 +149,6 @@ export interface StoreRow {
   services: StoreServices | null
   rating: number | null
   review_count: number | null
-  is_featured: boolean
-  featured_tier: 'monthly' | 'annual' | null
-  featured_until: string | null
   lat: number | null
   lng: number | null
   // Geolocation metadata (Phase 1: Data Integrity)
@@ -199,9 +191,6 @@ export interface Store {
   services: StoreServices | null
   rating: number | null
   reviewCount: number | null
-  isFeatured: boolean
-  featuredTier: 'monthly' | 'annual' | null
-  featuredUntil: string | null
   lat: number | null
   lng: number | null
   // Geolocation metadata (Phase 1: Data Integrity)
@@ -229,25 +218,6 @@ export interface ProfileRow {
 
 export type ProfileInsert = Omit<ProfileRow, 'created_at'>
 export type ProfileUpdate = Partial<ProfileInsert>
-
-// =============================================================================
-// Subscription
-// =============================================================================
-
-export interface SubscriptionRow {
-  id: number
-  user_id: string
-  store_id: number
-  stripe_customer_id: string
-  stripe_subscription_id: string | null
-  tier: 'monthly' | 'annual'
-  status: 'active' | 'canceled' | 'past_due' | 'incomplete'
-  current_period_end: string | null
-  created_at: string
-}
-
-export type SubscriptionInsert = Omit<SubscriptionRow, 'id' | 'created_at'>
-export type SubscriptionUpdate = Partial<SubscriptionInsert>
 
 // =============================================================================
 // Lead

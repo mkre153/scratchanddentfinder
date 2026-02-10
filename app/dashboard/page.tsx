@@ -1,15 +1,12 @@
 /**
  * Dashboard Overview Page
  *
- * Shows user's stores and basic management options.
- * Slice 13: Stripe Integration
+ * Shows user's stores and pending claims.
  */
 
 import { createAuthClient } from '@/lib/supabase/admin'
 import { cookies } from 'next/headers'
-import Link from 'next/link'
 import { getStoresByUserId, getClaimsByUserId } from '@/lib/queries'
-import { getDashboardBillingUrl, getAdvertiseUrl } from '@/lib/urls'
 
 export default async function DashboardPage() {
   const cookieStore = await cookies()
@@ -66,15 +63,9 @@ export default async function DashboardPage() {
         <div className="mt-8 rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
           <h3 className="text-lg font-medium text-gray-900">No stores yet</h3>
           <p className="mt-2 text-gray-600">
-            You haven&apos;t claimed any stores yet. Claim a store to manage its
-            listing and upgrade to featured.
+            You haven&apos;t claimed any stores yet. Search for your store in the
+            directory and submit a claim to manage its listing.
           </p>
-          <Link
-            href={getAdvertiseUrl()}
-            className="mt-6 inline-block rounded-md bg-blue-700 px-6 py-3 text-sm font-semibold text-white hover:bg-blue-800"
-          >
-            Learn About Featured Listings
-          </Link>
         </div>
       ) : (
         <div className="mt-6 space-y-4">
@@ -90,44 +81,9 @@ export default async function DashboardPage() {
                   </h3>
                   <p className="mt-1 text-sm text-gray-600">{store.address}</p>
                 </div>
-                <div className="text-right">
-                  {store.featuredTier ? (
-                    <div>
-                      <span className="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-800">
-                        {store.featuredTier === 'annual'
-                          ? 'Annual Plan'
-                          : 'Monthly Plan'}
-                      </span>
-                      {store.featuredUntil && (
-                        <p className="mt-1 text-xs text-gray-500">
-                          Until{' '}
-                          {new Date(store.featuredUntil).toLocaleDateString()}
-                        </p>
-                      )}
-                    </div>
-                  ) : (
-                    <span className="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-600">
-                      Free Listing
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              <div className="mt-4 flex gap-3">
-                {!store.featuredTier && (
-                  <Link
-                    href={getAdvertiseUrl()}
-                    className="rounded-md bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800"
-                  >
-                    Upgrade to Featured
-                  </Link>
-                )}
-                <Link
-                  href={getDashboardBillingUrl()}
-                  className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
-                >
-                  Manage Billing
-                </Link>
+                <span className="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-800">
+                  Listed
+                </span>
               </div>
             </div>
           ))}

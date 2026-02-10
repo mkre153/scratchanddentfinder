@@ -38,9 +38,6 @@ function storeRowToModel(row: StoreRow): Store {
     services: row.services,
     rating: row.rating,
     reviewCount: row.review_count,
-    isFeatured: row.is_featured,
-    featuredTier: row.featured_tier,
-    featuredUntil: row.featured_until,
     lat: row.lat,
     lng: row.lng,
     // Geolocation metadata (Phase 1: Data Integrity)
@@ -182,9 +179,6 @@ export async function ingestStoreFromSubmission(
     services: null,
     rating: null,
     review_count: null,
-    is_featured: false,
-    featured_tier: null,
-    featured_until: null,
     // Geolocation fields (Phase 1: Data Integrity)
     lat: submission.lat ?? null,
     lng: submission.lng ?? null,

@@ -65,75 +65,56 @@ export default function TermsOfServicePage() {
 
             <hr className="my-8" />
 
-            <h2>5. Featured Listings and Paid Services</h2>
-
-            <h3>5.1 Paid Upgrades</h3>
-            <p>
-              Claiming a listing is free. Optional paid services may include featured placement, enhanced visibility, or promotional tools.
-            </p>
-
-            <h3>5.2 Payments</h3>
-            <p>
-              All payments, subscriptions, and charges made through the Service are processed by <strong>MK153 Inc</strong>. Pricing and billing terms are disclosed at the time of purchase.
-            </p>
-
-            <h3>5.3 No Guarantee of Results</h3>
-            <p>
-              Paid services do not guarantee increased traffic, leads, or sales.
-            </p>
-
-            <hr className="my-8" />
-
-            <h2>6. User Conduct</h2>
+            <h2>5. User Conduct</h2>
             <p>
               You agree not to submit false or misleading information, impersonate others, misuse the Service, or interfere with its operation.
             </p>
 
             <hr className="my-8" />
 
-            <h2>7. Intellectual Property</h2>
+            <h2>6. Intellectual Property</h2>
             <p>
               All content, software, trademarks, logos, and technology used in the Service are owned by or licensed to MK153 Inc.
             </p>
 
             <hr className="my-8" />
 
-            <h2>8. Disclaimers</h2>
+            <h2>7. Disclaimers</h2>
             <p>
               The Service is provided &quot;as is&quot; and &quot;as available&quot; without warranties of any kind.
             </p>
 
             <hr className="my-8" />
 
-            <h2>9. Limitation of Liability</h2>
+            <h2>8. Limitation of Liability</h2>
             <p>
               To the maximum extent permitted by law, MK153 Inc shall not be liable for indirect, incidental, consequential, or punitive damages arising from use of the Service.
             </p>
 
             <hr className="my-8" />
 
-            <h2>10. Indemnification</h2>
+            <h2>9. Indemnification</h2>
             <p>
               You agree to indemnify and hold harmless MK153 Inc from claims arising from your use of the Service or violation of these Terms.
             </p>
 
             <hr className="my-8" />
 
-            <h2>11. Modifications</h2>
+            <h2>10. Modifications</h2>
             <p>
               We may update the Service or these Terms at any time. Continued use constitutes acceptance of the updated Terms.
             </p>
 
             <hr className="my-8" />
 
-            <h2>12. Governing Law</h2>
+            <h2>11. Governing Law</h2>
             <p>
               These Terms are governed by the laws of the <strong>State of California</strong>, without regard to conflict-of-law principles.
             </p>
 
             <hr className="my-8" />
 
-            <h2>13. Contact Information</h2>
+            <h2>12. Contact Information</h2>
             <p>
               If you have questions about these Terms, please contact:
             </p>

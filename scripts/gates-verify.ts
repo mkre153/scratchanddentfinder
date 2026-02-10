@@ -660,15 +660,11 @@ async function gate11_deterministicOrdering(): Promise<GateResult> {
     }
   }
 
-  // Check getStoresByCityId has ORDER BY is_featured DESC, name ASC
-  // Note: This function uses .sort() instead of .order() because it needs
-  // runtime date comparison (featuredUntil > now) for effective featured status
+  // Check getStoresByCityId has ORDER BY name ASC
   if (content.includes('getStoresByCityId')) {
-    // Look for either .order() pattern OR .sort() with featured/name ordering
-    const orderPattern = content.match(/getStoresByCityId[\s\S]*?\.order\(['"`]is_featured['"`][\s\S]*?\.order\(['"`]name['"`]/m)
-    const sortPattern = content.match(/getStoresByCityId[\s\S]*?\.sort\([\s\S]*?Featured[\s\S]*?localeCompare/m)
-    if (!orderPattern && !sortPattern) {
-      violations.push('getStoresByCityId: must order by is_featured DESC, then name ASC')
+    const orderPattern = content.match(/getStoresByCityId[\s\S]*?\.order\(['"`]name['"`]/m)
+    if (!orderPattern) {
+      violations.push('getStoresByCityId: must order by name ASC')
     }
   }
 
@@ -902,7 +898,6 @@ async function gate15_marketingSurfaceIsolation(): Promise<GateResult> {
   const marketingPages = [
     'app/about/page.tsx',
     'app/contact/page.tsx',
-    'app/advertise-with-us/page.tsx',
   ]
 
   for (const page of marketingPages) {
@@ -939,7 +934,7 @@ async function gate15_marketingSurfaceIsolation(): Promise<GateResult> {
   const sitemapPath = 'app/sitemap.ts'
   if (fs.existsSync(sitemapPath)) {
     const sitemap = fs.readFileSync(sitemapPath, 'utf8')
-    const marketingRoutes = ['/about', '/contact', '/advertise']
+    const marketingRoutes = ['/about', '/contact']
     for (const route of marketingRoutes) {
       if (sitemap.includes(`'${route}`) || sitemap.includes(`"${route}`)) {
         violations.push(`sitemap.ts: must not include ${route}`)

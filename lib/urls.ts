@@ -61,13 +61,6 @@ export function getContactUrl(): string {
 }
 
 /**
- * Get advertise page URL
- */
-export function getAdvertiseUrl(): string {
-  return '/advertise-with-us/'
-}
-
-/**
  * Get buyer's guide page URL
  */
 export function getBuyersGuideUrl(): string {
@@ -102,13 +95,6 @@ export function getTermsUrl(): string {
   return '/terms/'
 }
 
-/**
- * Get cancellation policy page URL
- */
-export function getCancellationUrl(): string {
-  return '/cancellation/'
-}
-
 // =============================================================================
 // Store Routes
 // =============================================================================
@@ -132,13 +118,6 @@ export function getDashboardUrl(): string {
   return '/dashboard/'
 }
 
-/**
- * Get dashboard billing URL
- */
-export function getDashboardBillingUrl(): string {
-  return '/dashboard/billing/'
-}
-
 // =============================================================================
 // API Routes
 // =============================================================================
@@ -148,27 +127,6 @@ export function getDashboardBillingUrl(): string {
  */
 export function getLeadsApiUrl(): string {
   return '/api/leads/'
-}
-
-/**
- * Get Stripe webhook URL
- */
-export function getStripeWebhookUrl(): string {
-  return '/api/webhooks/stripe/'
-}
-
-/**
- * Get checkout API URL (Slice 13)
- */
-export function getCheckoutApiUrl(): string {
-  return '/api/checkout/'
-}
-
-/**
- * Get billing portal API URL (Slice 13)
- */
-export function getBillingPortalApiUrl(): string {
-  return '/api/billing-portal/'
 }
 
 /**
@@ -194,6 +152,13 @@ export function getBlogUrl(): string {
  */
 export function getBlogPostUrl(slug: string): string {
   return `/blog/${slug}/`
+}
+
+/**
+ * Get blog category archive URL
+ */
+export function getBlogCategoryUrl(category: string): string {
+  return `/blog/category/${category}/`
 }
 
 /**

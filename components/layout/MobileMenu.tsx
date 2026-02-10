@@ -5,18 +5,16 @@
  *
  * Full-screen overlay menu for mobile navigation.
  * Uses lib/urls.ts for all routes (Gate 5).
- * Slice 12: Presentation Parity
  */
 
 import Link from 'next/link'
 import {
   getHomepageUrl,
   getAllStatesUrl,
-  getAdvertiseUrl,
+  getBlogUrl,
   getAboutUrl,
   getContactUrl,
   getStoreSubmitUrl,
-  getBlogUrl,
   getBuyersGuideUrl,
 } from '@/lib/urls'
 
@@ -73,21 +71,14 @@ export function MobileMenu({ onClose }: MobileMenuProps) {
               onClick={onClose}
               className="min-h-[44px] inline-flex items-center text-lg text-gray-700 hover:text-sage-700"
             >
-              Browse States
+              Browse Stores
             </Link>
             <Link
               href={getBlogUrl()}
               onClick={onClose}
               className="min-h-[44px] inline-flex items-center text-lg text-gray-700 hover:text-sage-700"
             >
-              Buying Tips
-            </Link>
-            <Link
-              href={getAdvertiseUrl()}
-              onClick={onClose}
-              className="min-h-[44px] inline-flex items-center text-lg text-gray-700 hover:text-sage-700"
-            >
-              Advertise With Us
+              Blog
             </Link>
             <Link
               href={getAboutUrl()}
@@ -113,7 +104,7 @@ export function MobileMenu({ onClose }: MobileMenuProps) {
             onClick={onClose}
             className="min-h-[44px] inline-flex items-center justify-center rounded-md bg-sage-500 px-4 font-semibold text-white hover:bg-sage-700"
           >
-            Buyer's Guide
+            Buyer&#39;s Guide
           </Link>
           <Link
             href={getStoreSubmitUrl()}

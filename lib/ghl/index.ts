@@ -10,7 +10,6 @@ export {
   updateSubmissionVerified,
   syncStoreSubmission, // @deprecated - use syncNewSubmission + updateSubmissionVerified
   syncOwnershipClaim,
-  syncStripePurchase,
 } from './contacts'
 
 export { isGHLConfigured, ghlFetch, ghlFetchWithRetry } from './client'

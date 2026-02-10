@@ -1,7 +1,6 @@
 /**
  * Footer Component
  *
- * Minimal footer for Slice 1.
  * Uses lib/urls.ts for all route generation (Gate 5).
  */
 
@@ -9,13 +8,12 @@ import Link from 'next/link'
 import {
   getHomepageUrl,
   getAllStatesUrl,
-  getAdvertiseUrl,
+  getBlogUrl,
   getAboutUrl,
   getContactUrl,
   getStoreSubmitUrl,
   getPrivacyUrl,
   getTermsUrl,
-  getCancellationUrl,
   getFaqUrl,
   getWhatIsScratchAndDentUrl,
   getBuyersGuideUrl,
@@ -43,31 +41,15 @@ export function Footer() {
                   href={getAllStatesUrl()}
                   className="min-h-[44px] inline-flex items-center hover:text-white"
                 >
-                  Browse All States
+                  Browse All Stores
                 </Link>
               </li>
               <li>
                 <Link
-                  href={getAdvertiseUrl()}
+                  href={getBlogUrl()}
                   className="min-h-[44px] inline-flex items-center hover:text-white"
                 >
-                  Advertise
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href={getAboutUrl()}
-                  className="min-h-[44px] inline-flex items-center hover:text-white"
-                >
-                  About
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href={getContactUrl()}
-                  className="min-h-[44px] inline-flex items-center hover:text-white"
-                >
-                  Contact
+                  Blog
                 </Link>
               </li>
             </ul>
@@ -98,7 +80,7 @@ export function Footer() {
                   href={getBuyersGuideUrl()}
                   className="min-h-[44px] inline-flex items-center hover:text-white"
                 >
-                  Buyer's Guide
+                  Buyer&#39;s Guide
                 </Link>
               </li>
             </ul>
@@ -120,10 +102,18 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href={getAdvertiseUrl()}
+                  href={getAboutUrl()}
                   className="min-h-[44px] inline-flex items-center hover:text-white"
                 >
-                  Get Featured
+                  About
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href={getContactUrl()}
+                  className="min-h-[44px] inline-flex items-center hover:text-white"
+                >
+                  Contact
                 </Link>
               </li>
             </ul>
@@ -149,15 +139,7 @@ export function Footer() {
             <Link href={getTermsUrl()} className="min-h-[44px] inline-flex items-center hover:text-white">
               Terms of Service
             </Link>
-            <span className="hidden sm:inline-flex items-center text-gray-600">|</span>
-            <Link href={getCancellationUrl()} className="min-h-[44px] inline-flex items-center hover:text-white">
-              Cancellation Policy
-            </Link>
           </div>
-          <p className="mt-4 text-xs text-gray-500">
-            Some listings may be featured. Featured placements are clearly
-            labeled and do not affect the inclusion of other listings.
-          </p>
         </div>
       </div>
     </footer>

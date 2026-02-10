@@ -30,7 +30,9 @@ const PUBLIC_ROUTE_PATTERNS: RegExp[] = [
   /^\/scratch-and-dent-appliances\/[a-z-]+\/[a-z-]+\/$/, // City pages (dynamic)
   /^\/about\/$/,                                       // About
   /^\/contact\/$/,                                     // Contact
-  /^\/advertise-with-us\/$/,                          // Advertise
+  /^\/blog\/$/,                                       // Blog index
+  /^\/blog\/[a-z0-9-]+\/$/,                          // Blog posts
+  /^\/blog\/category\/[a-z-]+\/$/,                   // Blog categories
   /^\/stores\/new\/$/,                                // Store submission form
 ]
 

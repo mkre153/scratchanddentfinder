@@ -2,7 +2,7 @@ import { build } from 'velite'
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // PARITY: All URLs end with trailing slash (matches scratchanddentfinder.com)
+  // All URLs end with trailing slash
   trailingSlash: true,
 
   // Enable velite in webpack

@@ -7,6 +7,8 @@ import { Callout } from './Callout'
 import { Figure } from './Figure'
 import { PriceComparison } from './PriceComparison'
 import { BuyerChecklist } from './BuyerChecklist'
+import { ComparisonTable } from './ComparisonTable'
+import { FAQSection } from './FAQSection'
 
 // Whitelisted MDX components for blog posts
 export const mdxComponents = {
@@ -14,6 +16,8 @@ export const mdxComponents = {
   Figure,
   PriceComparison,
   BuyerChecklist,
+  ComparisonTable,
+  FAQSection,
 }
 
-export { Callout, Figure, PriceComparison, BuyerChecklist }
+export { Callout, Figure, PriceComparison, BuyerChecklist, ComparisonTable, FAQSection }

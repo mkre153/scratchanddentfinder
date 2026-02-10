@@ -30,7 +30,7 @@ export default function Icon() {
           fontWeight: 'bold',
         }}
       >
-        S
+        A
       </div>
     ),
     {

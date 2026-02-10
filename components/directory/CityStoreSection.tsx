@@ -42,7 +42,6 @@ export function CityStoreSection({
 }: CityStoreSectionProps) {
   // Local UI state only — no URL params, no persistence
   const [view, setView] = useState<'list' | 'map'>('list')
-  // SEO: Sort defaults to 'default' (featured first, then alphabetical)
   // Distance sort is OPT-IN only when user location is available
   const [sortBy, setSortBy] = useState<'default' | 'distance'>('default')
   const userLocation = useUserLocation()
@@ -50,16 +49,10 @@ export function CityStoreSection({
   // Calculate distances and sort when user has location and opts in
   const sortedStores = useMemo(() => {
     if (sortBy !== 'distance' || !userLocation?.coords) {
-      return stores // Return original order (server-provided)
+      return stores // Return original order (server-provided: alphabetical)
     }
 
-    // Sort by distance (featured stores still come first)
     return [...stores].sort((a, b) => {
-      // Featured stores always first
-      if (a.isFeatured && !b.isFeatured) return -1
-      if (!a.isFeatured && b.isFeatured) return 1
-
-      // Then by distance
       const distA = a.lat != null && a.lng != null
         ? haversineDistance(userLocation.coords!.lat, userLocation.coords!.lng, a.lat, a.lng)
         : Infinity
@@ -69,10 +62,6 @@ export function CityStoreSection({
       return distA - distB
     })
   }, [stores, sortBy, userLocation?.coords])
-
-  // Split stores into featured and regular
-  const featuredStores = sortedStores.filter((s) => s.isFeatured)
-  const regularStores = sortedStores.filter((s) => !s.isFeatured)
 
   // Derive minimal map data from stores (locked contract)
   const mapStores = stores
@@ -154,83 +143,25 @@ export function CityStoreSection({
           </Link>
         </div>
       ) : view === 'list' ? (
-        /* Store List with Featured Section */
-        <>
-          {/* Featured Stores Section */}
-          {featuredStores.length > 0 && (
-            <div className="mb-8">
-              <div className="mb-4 flex items-center gap-2">
-                <svg className="h-5 w-5 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                </svg>
-                <h3 className="text-lg font-semibold text-gray-900">Featured Stores</h3>
-              </div>
-              <div className="space-y-4">
-                {featuredStores.map((store) => (
-                  <div key={store.id} id={`store-${store.id}`}>
-                    <StoreCard store={store} />
-                  </div>
-                ))}
-              </div>
+        /* Store List */
+        <div className="space-y-4">
+          {sortedStores.map((store, index) => (
+            <div key={store.id} id={`store-${store.id}`}>
+              <StoreCard store={store} index={index} />
             </div>
-          )}
-
-          {/* Regular Stores Section */}
-          {regularStores.length > 0 && (
-            <div>
-              <h3 className="mb-4 text-lg font-semibold text-gray-900">
-                All Stores ({regularStores.length})
-              </h3>
-              <div className="space-y-4">
-                {regularStores.map((store, index) => (
-                  <div key={store.id} id={`store-${store.id}`}>
-                    <StoreCard store={store} index={index} />
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </>
+          ))}
+        </div>
       ) : (
         /* Map View */
         <>
           <StoreMap stores={mapStores} center={cityCenter} />
           {/* Store list below map for scroll-to behavior */}
-          <div className="mt-8">
-            {/* Featured Stores Section */}
-            {featuredStores.length > 0 && (
-              <div className="mb-8">
-                <div className="mb-4 flex items-center gap-2">
-                  <svg className="h-5 w-5 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                  </svg>
-                  <h3 className="text-lg font-semibold text-gray-900">Featured Stores</h3>
-                </div>
-                <div className="space-y-4">
-                  {featuredStores.map((store) => (
-                    <div key={store.id} id={`store-${store.id}`}>
-                      <StoreCard store={store} />
-                    </div>
-                  ))}
-                </div>
+          <div className="mt-8 space-y-4">
+            {sortedStores.map((store, index) => (
+              <div key={store.id} id={`store-${store.id}`}>
+                <StoreCard store={store} index={index} />
               </div>
-            )}
-
-            {/* Regular Stores Section */}
-            {regularStores.length > 0 && (
-              <div>
-                <h3 className="mb-4 text-lg font-semibold text-gray-900">
-                  All Stores ({regularStores.length})
-                </h3>
-                <div className="space-y-4">
-                  {regularStores.map((store, index) => (
-                    <div key={store.id} id={`store-${store.id}`}>
-                      <StoreCard store={store} index={index} />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+            ))}
           </div>
         </>
       )}

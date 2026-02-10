@@ -77,9 +77,6 @@ function storeRowToModel(row: StoreRow): Store {
     services: row.services,
     rating: row.rating,
     reviewCount: row.review_count,
-    isFeatured: row.is_featured,
-    featuredTier: row.featured_tier,
-    featuredUntil: row.featured_until,
     lat: row.lat,
     lng: row.lng,
     // Geolocation metadata (Phase 1: Data Integrity)
@@ -256,15 +253,7 @@ export async function getNearbyCities(
 // =============================================================================
 
 /**
- * Get stores for a city, ordered by effective featured status DESC, name ASC (Gate 10)
- *
- * FEATURED STATUS LOGIC:
- * A store is "effectively featured" when BOTH conditions are met:
- * 1. is_featured = true (admin quality gate)
- * 2. featured_until > NOW() (has active paid tier)
- *
- * This prevents expired tiers from showing as featured, and ensures
- * paying customers without admin approval don't auto-get top placement.
+ * Get stores for a city, ordered by name ASC (Gate 10)
  */
 export async function getStoresByCityId(cityId: number): Promise<Store[]> {
   const { data, error } = await supabaseAdmin
@@ -273,31 +262,14 @@ export async function getStoresByCityId(cityId: number): Promise<Store[]> {
     .eq('city_id', cityId)
     .eq('is_approved', true)
     .or('is_archived.is.null,is_archived.eq.false')
+    .order('name', { ascending: true })
 
   if (error) throw error
-
-  const stores = (data ?? []).map(storeRowToModel)
-  const now = new Date()
-
-  // Sort by effective featured status, then by name
-  return stores.sort((a, b) => {
-    const aEffectiveFeatured = a.isFeatured && a.featuredUntil && new Date(a.featuredUntil) > now
-    const bEffectiveFeatured = b.isFeatured && b.featuredUntil && new Date(b.featuredUntil) > now
-
-    // Featured stores first
-    if (aEffectiveFeatured && !bEffectiveFeatured) return -1
-    if (!aEffectiveFeatured && bEffectiveFeatured) return 1
-
-    // Then by name
-    return a.name.localeCompare(b.name)
-  })
+  return (data ?? []).map(storeRowToModel)
 }
 
 /**
- * Get stores for a state, ordered by effective featured status DESC, name ASC (Gate 10)
- *
- * Used on state pages per UX template requirements.
- * Same featured logic as getStoresByCityId.
+ * Get stores for a state, ordered by name ASC (Gate 10)
  */
 export async function getStoresByStateId(stateId: number): Promise<Store[]> {
   const { data, error } = await supabaseAdmin
@@ -306,24 +278,10 @@ export async function getStoresByStateId(stateId: number): Promise<Store[]> {
     .eq('state_id', stateId)
     .eq('is_approved', true)
     .or('is_archived.is.null,is_archived.eq.false')
+    .order('name', { ascending: true })
 
   if (error) throw error
-
-  const stores = (data ?? []).map(storeRowToModel)
-  const now = new Date()
-
-  // Sort by effective featured status, then by name
-  return stores.sort((a, b) => {
-    const aEffectiveFeatured = a.isFeatured && a.featuredUntil && new Date(a.featuredUntil) > now
-    const bEffectiveFeatured = b.isFeatured && b.featuredUntil && new Date(b.featuredUntil) > now
-
-    // Featured stores first
-    if (aEffectiveFeatured && !bEffectiveFeatured) return -1
-    if (!aEffectiveFeatured && bEffectiveFeatured) return 1
-
-    // Then by name
-    return a.name.localeCompare(b.name)
-  })
+  return (data ?? []).map(storeRowToModel)
 }
 
 /**
@@ -953,45 +911,6 @@ export async function getStoresForAdmin(
   }
 }
 
-/**
- * Set store tier (does NOT modify is_featured)
- * Tier ≠ Exposure. Tier is monetization status, is_featured is SEO exposure.
- * Used by admin UI for manual tier assignment.
- */
-export async function setStoreTier(
-  storeId: number,
-  tier: 'monthly' | 'annual' | null,
-  featuredUntil: string | null
-): Promise<void> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (supabaseAdmin as any)
-    .from('stores')
-    .update({
-      featured_tier: tier,
-      featured_until: featuredUntil,
-    })
-    .eq('id', storeId)
-
-  if (error) throw error
-}
-
-/**
- * Set store featured status (SEO exposure toggle)
- * Separate from tier - allows manual exposure control
- */
-export async function setStoreFeatured(
-  storeId: number,
-  isFeatured: boolean
-): Promise<void> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (supabaseAdmin as any)
-    .from('stores')
-    .update({ is_featured: isFeatured })
-    .eq('id', storeId)
-
-  if (error) throw error
-}
-
 // =============================================================================
 // Admin Auth Queries (Slice 10 - Operator Control)
 // =============================================================================
@@ -1101,251 +1020,8 @@ export async function storeExists(storeId: number): Promise<boolean> {
   return data !== null
 }
 
-// =============================================================================
-// Stripe Integration Queries (Slice 13)
-// =============================================================================
-//
-// ARCHITECTURAL INVARIANTS:
-// 1. setStoreTierFromCheckout - called ONLY from checkout.session.completed
-// 2. syncSubscription - called ONLY from customer.subscription.* events
-// 3. NEVER clear tier from webhooks - tier lifecycle is time-based
-// 4. is_featured is NEVER touched by these functions
-//
-
 /**
- * Set store tier from checkout (webhook handler only)
- * Called from checkout.session.completed event.
- * Does NOT create subscription record - that happens in subscription.created event.
- * Does NOT touch is_featured - that requires admin quality gate.
- */
-export async function setStoreTierFromCheckout(
-  storeId: number,
-  tier: 'monthly' | 'annual',
-  featuredUntil: Date
-): Promise<void> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (supabaseAdmin as any)
-    .from('stores')
-    .update({
-      featured_tier: tier,
-      featured_until: featuredUntil.toISOString(),
-    })
-    .eq('id', storeId)
-
-  if (error) throw error
-}
-
-/**
- * Update store featured_until from subscription renewal
- * Called from customer.subscription.updated when subscription renews.
- * This ensures featured_until extends when subscription auto-renews.
- */
-export async function updateStoreFeaturedUntil(
-  storeId: number,
-  featuredUntil: Date
-): Promise<void> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (supabaseAdmin as any)
-    .from('stores')
-    .update({
-      featured_until: featuredUntil.toISOString(),
-    })
-    .eq('id', storeId)
-
-  if (error) throw error
-}
-
-/**
- * Create or update subscription from webhook
- * Called from customer.subscription.created/updated events.
- * NEVER touches store tier - that's handled by checkout event.
- */
-export async function syncSubscription(data: {
-  stripeSubscriptionId: string
-  stripeCustomerId: string
-  storeId: number
-  userId: string
-  tier: 'monthly' | 'annual'
-  status: string
-  currentPeriodEnd: Date
-}): Promise<void> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (supabaseAdmin as any)
-    .from('subscriptions')
-    .upsert(
-      {
-        stripe_subscription_id: data.stripeSubscriptionId,
-        stripe_customer_id: data.stripeCustomerId,
-        store_id: data.storeId,
-        user_id: data.userId,
-        tier: data.tier,
-        status: data.status,
-        current_period_end: data.currentPeriodEnd.toISOString(),
-      },
-      { onConflict: 'stripe_subscription_id' }
-    )
-
-  if (error) throw error
-}
-
-/**
- * Update subscription status only
- * Called from customer.subscription.deleted or invoice.payment_failed.
- * Does NOT touch store tier - let featured_until govern expiration.
- */
-export async function updateSubscriptionStatus(
-  stripeSubscriptionId: string,
-  status: string
-): Promise<void> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (supabaseAdmin as any)
-    .from('subscriptions')
-    .update({ status })
-    .eq('stripe_subscription_id', stripeSubscriptionId)
-
-  if (error) throw error
-}
-
-/**
- * Get subscription by Stripe customer ID
- */
-export async function getSubscriptionByStripeCustomerId(
-  stripeCustomerId: string
-): Promise<{
-  id: number
-  storeId: number
-  tier: 'monthly' | 'annual'
-  status: string
-  currentPeriodEnd: string
-} | null> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabaseAdmin as any)
-    .from('subscriptions')
-    .select('id, store_id, tier, status, current_period_end')
-    .eq('stripe_customer_id', stripeCustomerId)
-    .maybeSingle()
-
-  if (error) throw error
-  if (!data) return null
-
-  return {
-    id: data.id,
-    storeId: data.store_id,
-    tier: data.tier,
-    status: data.status,
-    currentPeriodEnd: data.current_period_end,
-  }
-}
-
-// =============================================================================
-// Webhook Idempotency Queries (Slice 13)
-// =============================================================================
-
-/**
- * Check if a webhook event has already been processed
- */
-export async function getWebhookEvent(
-  eventId: string
-): Promise<{ event_id: string } | null> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabaseAdmin as any)
-    .from('stripe_webhook_events')
-    .select('event_id')
-    .eq('event_id', eventId)
-    .maybeSingle()
-
-  if (error) {
-    // Table might not exist yet, treat as not processed
-    if (error.code === '42P01') return null
-    throw error
-  }
-
-  return data
-}
-
-/**
- * Record a webhook event as processed
- */
-export async function recordWebhookEvent(
-  eventId: string,
-  eventType: string
-): Promise<void> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (supabaseAdmin as any)
-    .from('stripe_webhook_events')
-    .insert({
-      event_id: eventId,
-      event_type: eventType,
-    })
-
-  if (error) {
-    // Ignore duplicate key errors (idempotency working as expected)
-    if (error.code === '23505') return
-    throw error
-  }
-}
-
-/**
- * Clean up old webhook events for table hygiene
- * Deletes events older than specified days (default 90 days).
- * Call periodically via cron or admin action.
- */
-export async function cleanupOldWebhookEvents(
-  daysOld: number = 90
-): Promise<number> {
-  const cutoffDate = new Date()
-  cutoffDate.setDate(cutoffDate.getDate() - daysOld)
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabaseAdmin as any)
-    .from('stripe_webhook_events')
-    .delete()
-    .lt('processed_at', cutoffDate.toISOString())
-    .select('event_id')
-
-  if (error) throw error
-  return data?.length ?? 0
-}
-
-// =============================================================================
-// Stripe Customer Queries (Slice 13)
-// =============================================================================
-
-/**
- * Get Stripe customer ID for a user
- */
-export async function getStripeCustomerId(
-  userId: string
-): Promise<string | null> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabaseAdmin as any)
-    .from('profiles')
-    .select('stripe_customer_id')
-    .eq('id', userId)
-    .maybeSingle()
-
-  if (error) throw error
-  return data?.stripe_customer_id ?? null
-}
-
-/**
- * Save Stripe customer ID for a user
- */
-export async function saveStripeCustomerId(
-  userId: string,
-  stripeCustomerId: string
-): Promise<void> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (supabaseAdmin as any)
-    .from('profiles')
-    .update({ stripe_customer_id: stripeCustomerId })
-    .eq('id', userId)
-
-  if (error) throw error
-}
-
-/**
- * Get a store by ID (for validation in checkout)
+ * Get a store by ID
  *
  * Excludes archived stores unless includeArchived is true.
  * Use includeArchived=true only for internal redirect resolution.
@@ -1386,197 +1062,3 @@ export async function getStoresByUserId(userId: string): Promise<Store[]> {
   return (data ?? []).map(storeRowToModel)
 }
 
-// =============================================================================
-// Subscription Queries (Stripe Hardening)
-// =============================================================================
-
-/**
- * Get subscriptions for a user (for billing dashboard)
- */
-export async function getSubscriptionsByUserId(userId: string): Promise<{
-  id: number
-  storeId: number
-  stripeCustomerId: string
-  stripeSubscriptionId: string | null
-  tier: 'monthly' | 'annual'
-  status: 'active' | 'canceled' | 'past_due' | 'incomplete'
-  currentPeriodEnd: string | null
-  createdAt: string
-}[]> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabaseAdmin as any)
-    .from('subscriptions')
-    .select('*')
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false })
-
-  if (error) throw error
-
-  return (data ?? []).map((row: {
-    id: number
-    store_id: number
-    stripe_customer_id: string
-    stripe_subscription_id: string | null
-    tier: 'monthly' | 'annual'
-    status: 'active' | 'canceled' | 'past_due' | 'incomplete'
-    current_period_end: string | null
-    created_at: string
-  }) => ({
-    id: row.id,
-    storeId: row.store_id,
-    stripeCustomerId: row.stripe_customer_id,
-    stripeSubscriptionId: row.stripe_subscription_id,
-    tier: row.tier,
-    status: row.status,
-    currentPeriodEnd: row.current_period_end,
-    createdAt: row.created_at,
-  }))
-}
-
-// =============================================================================
-// Admin Subscription Queries (Admin Visibility)
-// =============================================================================
-
-export interface SubscriptionWithStore {
-  id: number
-  storeId: number
-  storeName: string
-  storeAddress: string
-  userId: string
-  userEmail: string | null
-  stripeCustomerId: string
-  stripeSubscriptionId: string | null
-  tier: 'monthly' | 'annual'
-  status: 'active' | 'canceled' | 'past_due' | 'incomplete'
-  currentPeriodEnd: string | null
-  createdAt: string
-  featuredUntil: string | null
-}
-
-/**
- * Get all subscriptions with store info for admin view
- */
-export async function getAllSubscriptionsForAdmin(
-  limit: number = 100,
-  offset: number = 0,
-  statusFilter?: 'active' | 'past_due' | 'canceled' | 'all'
-): Promise<SubscriptionWithStore[]> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let query = (supabaseAdmin as any)
-    .from('subscriptions')
-    .select(`
-      id,
-      store_id,
-      user_id,
-      stripe_customer_id,
-      stripe_subscription_id,
-      tier,
-      status,
-      current_period_end,
-      created_at,
-      stores!inner(name, address, featured_until),
-      profiles!inner(email)
-    `)
-    .order('current_period_end', { ascending: true, nullsFirst: false })
-    .range(offset, offset + limit - 1)
-
-  if (statusFilter && statusFilter !== 'all') {
-    query = query.eq('status', statusFilter)
-  }
-
-  const { data, error } = await query
-
-  if (error) throw error
-
-  return (data ?? []).map((row: {
-    id: number
-    store_id: number
-    user_id: string
-    stripe_customer_id: string
-    stripe_subscription_id: string | null
-    tier: 'monthly' | 'annual'
-    status: 'active' | 'canceled' | 'past_due' | 'incomplete'
-    current_period_end: string | null
-    created_at: string
-    stores: { name: string; address: string; featured_until: string | null }
-    profiles: { email: string | null }
-  }) => ({
-    id: row.id,
-    storeId: row.store_id,
-    storeName: row.stores.name,
-    storeAddress: row.stores.address,
-    userId: row.user_id,
-    userEmail: row.profiles.email,
-    stripeCustomerId: row.stripe_customer_id,
-    stripeSubscriptionId: row.stripe_subscription_id,
-    tier: row.tier,
-    status: row.status,
-    currentPeriodEnd: row.current_period_end,
-    createdAt: row.created_at,
-    featuredUntil: row.stores.featured_until,
-  }))
-}
-
-/**
- * Get subscription counts for admin dashboard
- */
-export async function getSubscriptionCounts(): Promise<{
-  active: number
-  pastDue: number
-  canceled: number
-  total: number
-}> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabaseAdmin as any)
-    .from('subscriptions')
-    .select('status')
-
-  if (error) throw error
-
-  const counts = {
-    active: 0,
-    pastDue: 0,
-    canceled: 0,
-    total: (data ?? []).length,
-  }
-
-  for (const row of data ?? []) {
-    if (row.status === 'active') counts.active++
-    else if (row.status === 'past_due') counts.pastDue++
-    else if (row.status === 'canceled') counts.canceled++
-  }
-
-  return counts
-}
-
-/**
- * Extend store featured_until by N days (admin override)
- */
-export async function extendStoreFeatured(
-  storeId: number,
-  days: number
-): Promise<void> {
-  // First get current featured_until
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: store, error: fetchError } = await (supabaseAdmin as any)
-    .from('stores')
-    .select('featured_until')
-    .eq('id', storeId)
-    .single()
-
-  if (fetchError) throw fetchError
-
-  // Calculate new date: extend from current date or featured_until, whichever is later
-  const now = new Date()
-  const currentFeaturedUntil = store?.featured_until ? new Date(store.featured_until) : now
-  const baseDate = currentFeaturedUntil > now ? currentFeaturedUntil : now
-  const newFeaturedUntil = new Date(baseDate.getTime() + days * 24 * 60 * 60 * 1000)
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error: updateError } = await (supabaseAdmin as any)
-    .from('stores')
-    .update({ featured_until: newFeaturedUntil.toISOString() })
-    .eq('id', storeId)
-
-  if (updateError) throw updateError
-}

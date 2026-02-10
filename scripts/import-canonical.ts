@@ -1,8 +1,8 @@
 #!/usr/bin/env npx tsx
 /**
- * Import Canonical JSON from Data-Miner
+ * Import Canonical JSON from Prospector
  *
- * Imports staged data from directory-data-miner into production database.
+ * Imports staged data from prospector into production database.
  * Follows the ingestion boundary pattern (lib/ingestion).
  *
  * Usage:
@@ -383,9 +383,6 @@ async function main(): Promise<void> {
         services: null,
         rating: null,
         review_count: null,
-        is_featured: false,
-        featured_tier: null,
-        featured_until: null,
         lat: place.lat,
         lng: place.lng,
         is_approved: true,

@@ -9,7 +9,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { generateContactMetadata } from '@/lib/seo'
-import { getAboutUrl, getStoreSubmitUrl, getAdvertiseUrl } from '@/lib/urls'
+import { getAboutUrl, getStoreSubmitUrl } from '@/lib/urls'
 
 export const metadata: Metadata = generateContactMetadata()
 
@@ -140,21 +140,6 @@ export default function ContactPage() {
                 </Link>{' '}
                 to add your appliance store. Submissions are reviewed within
                 24-48 hours.
-              </p>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">
-                How can I get featured placement?
-              </h3>
-              <p className="mt-2 text-gray-600">
-                Check out our{' '}
-                <Link
-                  href={getAdvertiseUrl()}
-                  className="text-blue-700 hover:underline"
-                >
-                  advertising options
-                </Link>{' '}
-                for featured listing plans that give your store top visibility.
               </p>
             </div>
             <div>

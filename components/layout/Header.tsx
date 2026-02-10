@@ -3,19 +3,15 @@
  *
  * Navigation with mobile menu support.
  * Uses lib/urls.ts for all route generation (Gate 5).
- * Slice 12: Added mobile navigation.
  */
 
 import Link from 'next/link'
 import {
   getHomepageUrl,
   getAllStatesUrl,
-  getAdvertiseUrl,
-  getAboutUrl,
-  getContactUrl,
-  getStoreSubmitUrl,
   getBlogUrl,
   getBuyersGuideUrl,
+  getStoreSubmitUrl,
 } from '@/lib/urls'
 import { MobileMenuButton } from './MobileMenuButton'
 
@@ -43,44 +39,24 @@ export function Header() {
               href={getAllStatesUrl()}
               className="inline-flex min-h-[44px] items-center px-2 text-gray-600 hover:text-sage-700"
             >
-              Browse States
+              Browse Stores
             </Link>
             <Link
               href={getBlogUrl()}
               className="inline-flex min-h-[44px] items-center px-2 text-gray-600 hover:text-sage-700"
             >
-              Buying Tips
+              Blog
             </Link>
             <Link
-              href={getAdvertiseUrl()}
+              href={getBuyersGuideUrl()}
               className="inline-flex min-h-[44px] items-center px-2 text-gray-600 hover:text-sage-700"
             >
-              Advertise With Us
-            </Link>
-            <Link
-              href={getAboutUrl()}
-              className="inline-flex min-h-[44px] items-center px-2 text-gray-600 hover:text-sage-700"
-            >
-              About Us
-            </Link>
-            <Link
-              href={getContactUrl()}
-              className="inline-flex min-h-[44px] items-center px-2 text-gray-600 hover:text-sage-700"
-            >
-              Contact
+              Buyer&#39;s Guide
             </Link>
           </div>
 
           {/* CTA + Mobile Menu */}
           <div className="flex items-center gap-2">
-            {/* Buyer's Guide CTA - hidden on small mobile, 44px touch target */}
-            <Link
-              href={getBuyersGuideUrl()}
-              className="hidden sm:inline-flex min-h-[44px] items-center rounded-md bg-sage-500 px-4 text-sm font-semibold text-white hover:bg-sage-700"
-            >
-              Buyer's Guide
-            </Link>
-
             {/* Add Your Store CTA - hidden on small mobile, 44px touch target */}
             <Link
               href={getStoreSubmitUrl()}

@@ -20,7 +20,7 @@ export default function PrivacyPolicyPage() {
           <div className="prose prose-gray mt-8 max-w-none">
             <h2>1. Introduction</h2>
             <p>
-              This Privacy Policy explains how <strong>MK153 Inc</strong> (&quot;MK153&quot;, &quot;we&quot;, &quot;us&quot;, or &quot;our&quot;) collects, uses, and protects personal information collected through the Scratch &amp; Dent Finder website and services (the &quot;Service&quot;). Scratch &amp; Dent Finder is a brand operated by MK153 Inc.
+              This Privacy Policy explains how <strong>MK153 Inc</strong> (&quot;MK153&quot;, &quot;we&quot;, &quot;us&quot;, or &quot;our&quot;) collects, uses, and protects personal information collected through the Scratch & Dent Finder website and services (the &quot;Service&quot;). Scratch & Dent Finder is a brand operated by MK153 Inc.
             </p>
             <p>
               By using the Service, you consent to the practices described in this Privacy Policy.
@@ -37,7 +37,6 @@ export default function PrivacyPolicyPage() {
               <li>Email address</li>
               <li>Phone number</li>
               <li>Business name and details</li>
-              <li>Billing information (processed by third-party payment providers)</li>
             </ul>
 
             <h3>2.2 Automatically Collected Information</h3>
@@ -57,7 +56,6 @@ export default function PrivacyPolicyPage() {
               <li>Operate and maintain the Service</li>
               <li>Process claims and submissions</li>
               <li>Communicate with users and business owners</li>
-              <li>Process payments and subscriptions</li>
               <li>Improve and secure the Service</li>
               <li>Comply with legal obligations</li>
             </ul>

@@ -57,7 +57,7 @@ const TEST_PAGES = [
   '/scratch-and-dent-appliances/california/los-angeles/', // City page
   '/about/',                                              // Static page
   '/contact/',                                            // Static page
-  '/advertise-with-us/',                                  // Marketing page
+  '/blog/',                                               // Blog index
 ]
 
 // =============================================================================

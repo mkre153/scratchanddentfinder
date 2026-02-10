@@ -2,8 +2,6 @@
  * Dashboard Layout
  *
  * Protected layout for authenticated store owners.
- * Slice 13: Stripe Integration
- *
  * Redirects to homepage if not authenticated.
  */
 
@@ -11,7 +9,7 @@ import { createAuthClient } from '@/lib/supabase/admin'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { getDashboardUrl, getDashboardBillingUrl, getHomepageUrl } from '@/lib/urls'
+import { getDashboardUrl, getHomepageUrl } from '@/lib/urls'
 import { LogoutButton } from '@/components/auth/LogoutButton'
 
 export default async function DashboardLayout({
@@ -43,12 +41,6 @@ export default async function DashboardLayout({
                 className="text-sm font-medium text-gray-600 hover:text-gray-900"
               >
                 Overview
-              </Link>
-              <Link
-                href={getDashboardBillingUrl()}
-                className="text-sm font-medium text-gray-600 hover:text-gray-900"
-              >
-                Billing
               </Link>
               <LogoutButton />
             </nav>

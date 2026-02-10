@@ -56,7 +56,7 @@ export function createServerClient() {
  * Create a Supabase client for Server Components with cookie-based auth
  * Used for authenticated routes (dashboard, API routes, etc.)
  *
- * Slice 13: Stripe Integration
+ * Slice 13: Admin Client
  */
 export async function createAuthClient(cookieStore: {
   get: (name: string) => { value: string } | undefined

@@ -161,22 +161,3 @@ export async function syncOwnershipClaim(claim: {
   })
 }
 
-/**
- * Sync a Stripe purchase to GHL
- *
- * Convenience function for updating contact after payment.
- */
-export async function syncStripePurchase(purchase: {
-  email: string
-  tier: 'monthly' | 'annual'
-}): Promise<GHLResult<{ contactId: string }>> {
-  return createOrUpdateContact({
-    email: purchase.email,
-    tags: ['paying-customer', purchase.tier],
-    source: 'Stripe Checkout',
-    customFields: [
-      { key: 'subscription_tier', field_value: purchase.tier },
-      { key: 'subscription_status', field_value: 'active' },
-    ],
-  })
-}

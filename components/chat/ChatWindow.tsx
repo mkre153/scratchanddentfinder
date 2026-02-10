@@ -28,10 +28,10 @@ export function ChatWindow({ onClose }: ChatWindowProps) {
       <div className="flex items-center justify-between border-b border-gray-200 bg-sage-500 px-4 py-3">
         <div className="flex items-center gap-2">
           <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20 text-xs font-bold text-white">
-            S&D
+            ATF
           </div>
           <div>
-            <p className="text-sm font-medium text-white">Scratch & Dent Helper</p>
+            <p className="text-sm font-medium text-white">Appliance Tech Helper</p>
           </div>
         </div>
         <div className="flex items-center gap-1">

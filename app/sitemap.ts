@@ -14,7 +14,6 @@ import {
   getCityUrl,
   getAboutUrl,
   getContactUrl,
-  getAdvertiseUrl,
   getStoreSubmitUrl,
   getBuyersGuideUrl,
   getFaqUrl,
@@ -72,12 +71,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: staticContentDate,
       changeFrequency: 'monthly',
       priority: 0.5,
-    },
-    {
-      url: `${SITE_URL}${getAdvertiseUrl()}`,
-      lastModified: staticContentDate,
-      changeFrequency: 'monthly',
-      priority: 0.6,
     },
     {
       url: `${SITE_URL}${getStoreSubmitUrl()}`,

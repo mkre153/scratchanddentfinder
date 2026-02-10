@@ -11,7 +11,7 @@ import { SITE_NAME } from '@/lib/config'
 
 export const runtime = 'edge'
 
-export const alt = 'Scratch & Dent Finder - Find Discount Appliance Stores'
+export const alt = 'Scratch & Dent Finder - Discount Appliance Stores'
 
 export const size = {
   width: 1200,
@@ -53,7 +53,7 @@ export default async function OGImage() {
             textAlign: 'center',
           }}
         >
-          Find Scratch and Dent Appliance Stores Near You
+          Find Scratch and Dent Stores & Appliance Repair Near You
         </div>
         <div
           style={{

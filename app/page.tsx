@@ -18,7 +18,7 @@
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
 import type { Metadata } from 'next'
-import { getAllStatesUrl } from '@/lib/urls'
+import { getAllStatesUrl, getBlogUrl, getBlogPostUrl } from '@/lib/urls'
 import { generateHomepageMetadata } from '@/lib/seo'
 import { getAllStates } from '@/lib/queries'
 import { TrustStrip, HowItWorks, SoftCTA, AISummary } from '@/components/marketing'
@@ -53,12 +53,37 @@ const HOW_IT_WORKS_STEPS = [
   },
 ]
 
+// Types for velite content
+interface Post {
+  slug: string
+  title: string
+  description: string
+  date: string
+  updated: string
+  category: string
+  draft: boolean
+  readingTime: string
+}
+
+async function getRecentPosts(): Promise<Post[]> {
+  try {
+    const { posts } = await import('../.velite/index.js')
+    return (posts as Post[])
+      .filter((p) => !p.draft)
+      .sort((a, b) => new Date(b.updated).getTime() - new Date(a.updated).getTime())
+      .slice(0, 3)
+  } catch {
+    return []
+  }
+}
+
 // ISR: Revalidate every 5 minutes (directory data changes infrequently)
 export const revalidate = 300
 
 export default async function HomePage() {
   // Fetch states - handles empty database gracefully
   const states = await getAllStates()
+  const recentPosts = await getRecentPosts()
 
   // Calculate total store count for hero stat
   const totalStores = states.reduce((sum, state) => sum + state.storeCount, 0)
@@ -90,7 +115,7 @@ export default async function HomePage() {
             </p>
           )}
 
-          {/* CTA Buttons - Primary: Browse States, Secondary: How It Works */}
+          {/* CTA Buttons */}
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
               href={getAllStatesUrl()}
@@ -98,12 +123,6 @@ export default async function HomePage() {
             >
               Browse Stores by State
             </Link>
-            <a
-              href="#how-it-works"
-              className="rounded-md border border-gray-300 bg-white px-8 py-3 text-lg font-semibold text-gray-700 hover:bg-gray-50"
-            >
-              How It Works
-            </a>
           </div>
         </div>
       </section>
@@ -173,7 +192,53 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Section 6: AI Summary (AEO optimized) */}
+      {/* Section 6: Latest from the Blog */}
+      {recentPosts.length > 0 && (
+        <section className="py-12 bg-gray-50">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-2xl font-bold text-gray-900">
+                Latest from the Blog
+              </h2>
+              <Link
+                href={getBlogUrl()}
+                className="text-sm font-medium text-sage-700 hover:text-sage-800"
+              >
+                View all posts &rarr;
+              </Link>
+            </div>
+            <div className="grid gap-6 md:grid-cols-3">
+              {recentPosts.map((post) => (
+                <Link
+                  key={post.slug}
+                  href={getBlogPostUrl(post.slug)}
+                  className="block rounded-lg bg-white p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
+                >
+                  <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
+                    {post.title}
+                  </h3>
+                  <p className="text-sm text-gray-600 mb-3 line-clamp-3">
+                    {post.description}
+                  </p>
+                  <div className="flex items-center gap-2 text-xs text-gray-500">
+                    <span>
+                      {new Date(post.updated).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })}
+                    </span>
+                    <span className="w-1 h-1 rounded-full bg-gray-300" />
+                    <span>{post.readingTime}</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Section 7: AI Summary (AEO optimized) */}
       <AISummary />
 
       {/* Section 7: Soft CTA */}

@@ -18,13 +18,13 @@
 
 ### 1. Start Next.js Dev Server
 ```bash
-cd ~/Sites/scratchanddentfinder
+cd ~/Shared/sites/scratchanddentfinder
 npm run dev
 ```
 
 ### 2. Start Stripe CLI Listener (new terminal)
 ```bash
-cd ~/Sites/scratchanddentfinder
+cd ~/Shared/sites/scratchanddentfinder
 stripe listen --forward-to localhost:3000/api/webhooks/stripe/
 ```
 

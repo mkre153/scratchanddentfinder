@@ -16,7 +16,6 @@ import {
   getCityUrl,
   getAboutUrl,
   getContactUrl,
-  getAdvertiseUrl,
   getBuyersGuideUrl,
   getFaqUrl,
   getWhatIsScratchAndDentUrl,
@@ -233,26 +232,6 @@ export function generateContactMetadata(): Metadata {
   const description =
     'Get in touch with Scratch & Dent Finder. Questions about our directory, store submissions, or business inquiries.'
   const path = getContactUrl()
-
-  return {
-    title,
-    description,
-    alternates: {
-      canonical: getCanonicalUrl(path),
-    },
-    openGraph: generateOpenGraph({ title, description, path }),
-    twitter: generateTwitter({ title, description }),
-  }
-}
-
-/**
- * Generate metadata for advertise page
- */
-export function generateAdvertiseMetadata(): Metadata {
-  const title = 'Advertise With Us'
-  const description =
-    'Promote your appliance store on Scratch & Dent Finder. Featured listings get top placement and increased visibility.'
-  const path = getAdvertiseUrl()
 
   return {
     title,

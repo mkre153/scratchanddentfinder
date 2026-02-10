@@ -17,6 +17,7 @@
  */
 
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { generateCityMetadata } from '@/lib/seo'
 import {
@@ -87,7 +88,7 @@ export default async function CityPage({ params }: PageProps) {
     notFound()
   }
 
-  // Fetch stores - ordered by is_featured DESC, name ASC from queries.ts
+  // Fetch stores - ordered alphabetically by name from queries.ts
   const stores = await getStoresByCityId(city.id)
 
   // Fetch nearby cities - up to 12 (Gate 4)

@@ -6,7 +6,7 @@
  */
 
 /**
- * PARITY_MODE: When true, enforces exact behavioral parity with scratchanddentfinder.com
+ * PARITY_MODE: When true, enforces exact behavioral parity with production
  *
  * Effects:
  * - No forms on directory pages (/, /scratch-and-dent-appliances/**, city pages)
@@ -31,7 +31,7 @@ export const SITE_NAME = 'Scratch & Dent Finder'
  * Default meta description
  */
 export const DEFAULT_DESCRIPTION =
-  'Find scratch and dent appliance stores near you. Save 30-70% on quality appliances with minor cosmetic damage.'
+  'Find scratch and dent appliance stores near you. Save 30-70% on quality appliances.'
 
 // =============================================================================
 // FEATURE FLAGS
