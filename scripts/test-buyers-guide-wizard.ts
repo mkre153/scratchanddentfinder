@@ -71,6 +71,7 @@ const returnPolicySrc = readSrc('components/buyers-tool/steps/ReturnPolicyStep.t
 const applianceSrc = readSrc('components/buyers-tool/steps/ApplianceStep.tsx')
 const damageSrc = readSrc('components/buyers-tool/steps/DamageStep.tsx')
 const retailerSrc = readSrc('components/buyers-tool/steps/RetailerStep.tsx')
+const warrantySrc = readSrc('components/buyers-tool/steps/WarrantyStep.tsx')
 const installationSrc = readSrc('components/buyers-tool/steps/InstallationStep.tsx')
 const buyerContextSrc = readSrc('components/buyers-tool/steps/BuyerContextStep.tsx')
 
@@ -427,6 +428,152 @@ test('Consistency', '30. buildBuyerInput maps all 8 form sections', () => {
     wizardHookSrc,
     /const\s*\{[^}]*appliance[^}]*\}\s*=\s*formState/,
     'buildBuyerInput should destructure from formState'
+  )
+})
+
+// =============================================================================
+// Category 5: Zero-is-Falsy Bug Pattern (5 tests)
+// Guards against the JS bug where `"0" ? x : y` evaluates to `y`
+// because the string "0" is falsy. Number inputs must use `!== ''`.
+// =============================================================================
+
+test('Zero-Falsy', '31. WarrantyStep: retailerWarrantyMonths=0 not treated as empty', () => {
+  // The onChange handler must use `!== ''` not truthiness check
+  // so entering "0" sets the value to 0, not undefined
+  assertMatch(
+    warrantySrc,
+    /retailerWarrantyMonths:\s*e\.target\.value\s*!==\s*['"]{2}/,
+    'WarrantyStep retailerWarrantyMonths onChange must use !== \'\' (not truthiness) to handle 0'
+  )
+})
+
+test('Zero-Falsy', '32. ReturnPolicyStep: windowDays manual input not treated as empty at 0', () => {
+  assertMatch(
+    returnPolicySrc,
+    /windowDays:\s*e\.target\.value\s*!==\s*['"]{2}/,
+    'ReturnPolicyStep windowDays onChange must use !== \'\' (not truthiness) to handle 0'
+  )
+})
+
+test('Zero-Falsy', '33. ReturnPolicyStep: restockingFeePercent=0 not treated as empty', () => {
+  assertMatch(
+    returnPolicySrc,
+    /restockingFeePercent:\s*e\.target\.value\s*!==\s*['"]{2}/,
+    'ReturnPolicyStep restockingFeePercent onChange must use !== \'\' (not truthiness) to handle 0'
+  )
+})
+
+test('Zero-Falsy', '34. WarrantyStep: "Not Sure" option removed (only Yes/No)', () => {
+  // "Not Sure" / 'unknown' should not be an option in the UI
+  assert(
+    !warrantySrc.includes("'unknown'"),
+    'WarrantyStep should not have unknown/Not Sure option'
+  )
+  assert(
+    !warrantySrc.includes('Not Sure'),
+    'WarrantyStep should not show "Not Sure" label'
+  )
+})
+
+test('Zero-Falsy', '35. Warranty validation passes with manufacturerCovered=false and months=0', () => {
+  const errors = validateWarranty({ manufacturerCovered: false, retailerWarrantyMonths: 0 })
+  assert(errors.length === 0, 'manufacturerCovered=false with retailerWarrantyMonths=0 must pass validation')
+})
+
+// =============================================================================
+// Category 6: Compiler Edge Cases (6 tests)
+// =============================================================================
+
+test('Compiler-Edge', '36. All appliance types compile: refrigerator', () => {
+  const output = compile(makeValidInput({ appliance: { type: 'refrigerator', retailPrice: 2000, askingPrice: 1400 } }), { timestamp: '2026-02-10T00:00:00Z' })
+  assert(!!output.verdict, 'refrigerator must compile')
+})
+
+test('Compiler-Edge', '37. All appliance types compile: washer', () => {
+  const output = compile(makeValidInput({ appliance: { type: 'washer', retailPrice: 800, askingPrice: 500 } }), { timestamp: '2026-02-10T00:00:00Z' })
+  assert(!!output.verdict, 'washer must compile')
+})
+
+test('Compiler-Edge', '38. All appliance types compile: range', () => {
+  const output = compile(makeValidInput({ appliance: { type: 'range', retailPrice: 1500, askingPrice: 900 } }), { timestamp: '2026-02-10T00:00:00Z' })
+  assert(!!output.verdict, 'range must compile')
+})
+
+test('Compiler-Edge', '39. Worst case: severe damage + final sale + no warranty + high risk', () => {
+  const input = makeValidInput({
+    damage: { locations: ['front_door', 'control_panel', 'handle'], severity: 'severe', types: ['dent', 'scratch', 'scuff'] },
+    warranty: { manufacturerCovered: false, retailerWarrantyMonths: 0, laborIncluded: false, partsIncluded: false, extendedAvailable: false },
+    returnPolicy: { windowDays: 0, restockingFeePercent: 0, finalSale: true },
+    buyer: { purpose: 'primary_home', riskTolerance: 'low', priceFlexibility: 'firm' },
+  })
+  const output = compile(input, { timestamp: '2026-02-10T00:00:00Z' })
+  assert(!!output.verdict, 'Worst case input must still compile')
+  assert(!!output.verdict.recommendation, 'Worst case must produce a recommendation')
+})
+
+test('Compiler-Edge', '40. Best case: light damage + full warranty + long return window', () => {
+  const input = makeValidInput({
+    damage: { locations: ['back'], severity: 'light', types: ['scratch'] },
+    warranty: { manufacturerCovered: true, retailerWarrantyMonths: 24, laborIncluded: true, partsIncluded: true, extendedAvailable: true },
+    returnPolicy: { windowDays: 90, restockingFeePercent: 0, finalSale: false },
+    installation: { type: 'built_in', visibleSides: ['front'] },
+    buyer: { purpose: 'primary_home', riskTolerance: 'low', priceFlexibility: 'negotiable' },
+  })
+  const output = compile(input, { timestamp: '2026-02-10T00:00:00Z' })
+  assert(!!output.verdict, 'Best case input must compile')
+})
+
+test('Compiler-Edge', '41. Liquidation + stacked + all damage types → compiles', () => {
+  const input = makeValidInput({
+    appliance: { type: 'dryer', retailPrice: 600, askingPrice: 250 },
+    damage: { locations: ['front_door', 'left_side', 'top'], severity: 'moderate', types: ['scratch', 'dent', 'scuff', 'discoloration'] },
+    retailer: { type: 'liquidation', inventoryAgeDays: 90 },
+    installation: { type: 'stacked', visibleSides: ['front', 'top'] },
+    buyer: { purpose: 'rental_property', riskTolerance: 'high', priceFlexibility: 'negotiable' },
+  })
+  const output = compile(input, { timestamp: '2026-02-10T00:00:00Z' })
+  assert(!!output.verdict, 'Liquidation + stacked must compile')
+  assert(!!output.negotiation, 'Must have negotiation output')
+  assert(!!output.logistics, 'Must have logistics output')
+})
+
+// =============================================================================
+// Category 7: Compiler Output Completeness (4 tests)
+// =============================================================================
+
+test('Output', '42. Output contains all 8 result sections', () => {
+  const output = compile(makeValidInput(), { timestamp: '2026-02-10T00:00:00Z' })
+  const sections = ['verdict', 'financial', 'damageAssessment', 'warrantyEvaluation', 'safetyGate', 'negotiation', 'logistics', 'returnPolicyAssessment'] as const
+  for (const section of sections) {
+    assert(!!(output as Record<string, unknown>)[section], `Output missing section: ${section}`)
+  }
+})
+
+test('Output', '43. Trace has compiler/schema/ruleset versions', () => {
+  const output = compile(makeValidInput(), { timestamp: '2026-02-10T00:00:00Z' })
+  assert(!!output._trace, 'Output must have _trace')
+  assert(!!output._trace.compilerVersion, 'Trace must have compilerVersion')
+  assert(!!output._trace.schemaVersion, 'Trace must have schemaVersion')
+  assert(!!output._trace.rulesetVersion, 'Trace must have rulesetVersion')
+})
+
+test('Output', '44. Trace execution order lists all 8 modules', () => {
+  const output = compile(makeValidInput(), { timestamp: '2026-02-10T00:00:00Z' })
+  assert(output._trace.executionOrder.length === 8, `Expected 8 modules in execution order, got ${output._trace.executionOrder.length}`)
+})
+
+test('Output', '45. Deterministic: same input + timestamp → same output', () => {
+  const input = makeValidInput()
+  const ts = '2026-02-10T12:00:00Z'
+  const output1 = compile(input, { timestamp: ts })
+  const output2 = compile(input, { timestamp: ts })
+  assert(
+    output1.verdict.recommendation === output2.verdict.recommendation,
+    'Same input must produce same recommendation'
+  )
+  assert(
+    output1._trace.inputHash === output2._trace.inputHash,
+    'Same input must produce same inputHash'
   )
 })
 

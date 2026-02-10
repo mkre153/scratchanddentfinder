@@ -84,7 +84,7 @@ export function ReturnPolicyStep({ data, onChange }: ReturnPolicyStepProps) {
             value={data.windowDays ?? ''}
             onChange={(e) =>
               onChange({
-                windowDays: e.target.value ? Number(e.target.value) : undefined,
+                windowDays: e.target.value !== '' ? Number(e.target.value) : undefined,
               })
             }
             placeholder="e.g., 30"
@@ -114,7 +114,7 @@ export function ReturnPolicyStep({ data, onChange }: ReturnPolicyStepProps) {
               value={data.restockingFeePercent ?? ''}
               onChange={(e) =>
                 onChange({
-                  restockingFeePercent: e.target.value
+                  restockingFeePercent: e.target.value !== ''
                     ? Number(e.target.value)
                     : undefined,
                 })

@@ -35,13 +35,11 @@ export function WarrantyStep({ data, onChange }: WarrantyStepProps) {
           {[
             { value: true, label: 'Yes' },
             { value: false, label: 'No' },
-            { value: 'unknown', label: 'Not Sure' },
           ].map(({ value, label }) => (
             <label
               key={String(value)}
               className={`inline-flex cursor-pointer items-center gap-2 rounded-lg border px-4 py-2 transition ${
-                data.manufacturerCovered === value ||
-                (value === 'unknown' && data.manufacturerCovered === undefined)
+                data.manufacturerCovered === value
                   ? 'border-sage-500 bg-sage-50 text-sage-700'
                   : 'border-gray-200 text-gray-600 hover:border-gray-300'
               }`}
@@ -52,7 +50,7 @@ export function WarrantyStep({ data, onChange }: WarrantyStepProps) {
                 checked={data.manufacturerCovered === value}
                 onChange={() =>
                   onChange({
-                    manufacturerCovered: value as boolean | 'unknown',
+                    manufacturerCovered: value,
                   })
                 }
                 className="sr-only"
@@ -83,7 +81,7 @@ export function WarrantyStep({ data, onChange }: WarrantyStepProps) {
           value={data.retailerWarrantyMonths ?? ''}
           onChange={(e) =>
             onChange({
-              retailerWarrantyMonths: e.target.value
+              retailerWarrantyMonths: e.target.value !== ''
                 ? Number(e.target.value)
                 : undefined,
             })
