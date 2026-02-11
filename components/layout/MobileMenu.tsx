@@ -67,6 +67,13 @@ export function MobileMenu({ onClose }: MobileMenuProps) {
               Browse Stores
             </Link>
             <Link
+              href={getBuyersGuideUrl()}
+              onClick={onClose}
+              className="min-h-[44px] inline-flex items-center text-lg font-semibold text-sage-700 hover:text-sage-800"
+            >
+              Buyer&#39;s Guide
+            </Link>
+            <Link
               href={getBlogUrl()}
               onClick={onClose}
               className="min-h-[44px] inline-flex items-center text-lg text-gray-700 hover:text-sage-700"
@@ -98,18 +105,11 @@ export function MobileMenu({ onClose }: MobileMenuProps) {
 
           <hr className="my-6 border-gray-200" />
 
-          {/* CTA Buttons - 44px touch targets */}
-          <Link
-            href={getBuyersGuideUrl()}
-            onClick={onClose}
-            className="min-h-[44px] inline-flex items-center justify-center rounded-md bg-sage-500 px-4 font-semibold text-white hover:bg-sage-700"
-          >
-            Buyer&#39;s Guide
-          </Link>
+          {/* CTA Button - 44px touch target */}
           <Link
             href={getStoreSubmitUrl()}
             onClick={onClose}
-            className="mt-3 min-h-[44px] inline-flex items-center justify-center rounded-md bg-yellow-400 px-4 font-semibold text-gray-900 hover:bg-yellow-500"
+            className="min-h-[44px] inline-flex items-center justify-center rounded-md bg-yellow-400 px-4 font-semibold text-gray-900 hover:bg-yellow-500"
           >
             Add Your Store
           </Link>
