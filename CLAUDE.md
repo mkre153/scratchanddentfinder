@@ -21,6 +21,16 @@
 3. **Never re-read completed files into context** — once saved, leave them on disk
 4. **Verify after every write** — use `wc -l` to confirm the file exists and has substance
 
+## Active Plan: Tier 2 Quick Wins
+- **Doc:** `docs/TIER2-QUICK-WINS-PLAN.md`
+- **Items:** Quick Assess widget (flag), city enrichment verify, blog scale to 20 posts, newsletter infra, audio narration
+- **Source:** Competitive audit Feb 2026 (Yale, Consumer Reports, Wirecutter, AJ Madison)
+
+## Sam Integration
+- **Client config:** `~/Shared/platform/nonprofit-sam/src/config/clients/scratchanddentfinder.json`
+- **Active tasks:** seo, content, communications (grants/compliance/reporting disabled)
+- **Tier:** internal (not a nonprofit client)
+
 ## Sister Site
 - **appliancetechfinder.com** — appliance repair directory (separate project at ~/Shared/sites/appliancetechfinder)
 - Cross-links between SDF and ATF for mutual SEO benefit

@@ -7,10 +7,17 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { compileMDX } from 'next-mdx-remote/rsc'
+import { existsSync } from 'node:fs'
+import { join } from 'node:path'
+import dynamic from 'next/dynamic'
 import { mdxComponents } from '@/components/mdx'
 import { SITE_NAME, SITE_URL } from '@/lib/config'
 import { getBlogUrl, getBlogPostUrl, getBuyersGuideUrl } from '@/lib/urls'
 import { JsonLd } from '@/lib/schema'
+
+const AudioPlayer = dynamic(() => import('@/components/blog/AudioPlayer'), {
+  ssr: false,
+})
 
 // Type for blog posts from velite
 interface FAQ {
@@ -184,6 +191,11 @@ export default async function BlogPostPage({ params }: PageProps) {
   const breadcrumbSchema = generateBreadcrumbSchema(post)
   const faqSchema = post.faqs ? generateFAQSchema(post.faqs) : null
 
+  // Check if audio narration exists for this post
+  const hasAudio = existsSync(
+    join(process.cwd(), 'public', 'audio', `${slug}.mp3`)
+  )
+
   // Extract headings for ToC if enabled
   const headings = post.toc
     ? (post.raw.match(/^#{2,3}\s+.+$/gm) || []).map((h) => {
@@ -255,6 +267,16 @@ export default async function BlogPostPage({ params }: PageProps) {
             <span>{post.readingTime}</span>
           </div>
         </header>
+
+        {/* Audio Narration */}
+        {hasAudio && (
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
+            <AudioPlayer
+              src={`/audio/${slug}.mp3`}
+              title={post.title}
+            />
+          </div>
+        )}
 
         {/* Table of Contents (opt-in) */}
         {post.toc && headings.length > 0 && (
