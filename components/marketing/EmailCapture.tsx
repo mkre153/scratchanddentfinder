@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Bell } from 'lucide-react'
+import { trackEvent } from '@/lib/analytics'
 
 interface EmailCaptureProps {
   source: string
@@ -32,7 +33,10 @@ export function EmailCapture({ source }: EmailCaptureProps) {
       }
 
       setStatus(data.alreadySubscribed ? 'duplicate' : 'success')
-      if (!data.alreadySubscribed) setEmail('')
+      if (!data.alreadySubscribed) {
+        setEmail('')
+        trackEvent('newsletter_signup', { source })
+      }
     } catch {
       setStatus('error')
     }

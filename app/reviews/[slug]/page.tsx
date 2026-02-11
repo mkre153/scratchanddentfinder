@@ -13,6 +13,8 @@ import { compileMDX } from 'next-mdx-remote/rsc'
 import { mdxComponents } from '@/components/mdx'
 import { SITE_NAME, SITE_URL } from '@/lib/config'
 
+import { ShareButtons } from '@/components/blog/ShareButtons'
+
 const AudioPlayer = dynamic(() => import('@/components/blog/AudioPlayer'), {
   ssr: false,
 })
@@ -334,6 +336,11 @@ export default async function ReviewDetailPage({ params }: PageProps) {
             </span>
             <span className="w-1 h-1 rounded-full bg-slate-300" />
             <span>{review.readingTime}</span>
+          </div>
+
+          {/* Share */}
+          <div className="mt-4">
+            <ShareButtons slug={review.slug} title={review.title} basePath="/reviews/" />
           </div>
         </header>
 

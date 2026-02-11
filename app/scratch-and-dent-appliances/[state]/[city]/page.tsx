@@ -48,6 +48,26 @@ import {
   generateCityBreadcrumbs,
   generateItemListSchema,
 } from '@/lib/schema'
+import { getBlogPostUrl } from '@/lib/urls'
+
+// Evergreen blog posts shown on all city pages
+const EVERGREEN_POSTS = [
+  {
+    slug: 'first-time-buyers-guide-scratch-and-dent',
+    title: "First-Time Buyer's Guide to Scratch & Dent Appliances",
+    description: 'Everything you need to know before buying your first scratch and dent appliance.',
+  },
+  {
+    slug: 'inspecting-scratch-and-dent-appliances',
+    title: 'How to Inspect Scratch & Dent Appliances',
+    description: 'A step-by-step checklist for evaluating cosmetic damage vs. real problems.',
+  },
+  {
+    slug: 'how-much-can-you-save-scratch-and-dent',
+    title: 'How Much Can You Really Save on Scratch & Dent?',
+    description: 'Real savings data across appliance types and store formats.',
+  },
+]
 
 // ISR: Revalidate every 5 minutes (directory data changes infrequently)
 export const revalidate = 300
@@ -194,6 +214,31 @@ export default async function CityPage({ params }: PageProps) {
 
       {/* AI Summary (AEO optimized) */}
       <AISummary cityName={city.name} stateName={state.name} storeCount={stores.length} />
+
+      {/* Related Blog Posts */}
+      <section className="py-10 bg-gray-50">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <h2 className="mb-6 text-lg font-bold text-gray-900">
+            Scratch & Dent Buying Tips
+          </h2>
+          <div className="grid gap-4 md:grid-cols-3">
+            {EVERGREEN_POSTS.map((post) => (
+              <Link
+                key={post.slug}
+                href={getBlogPostUrl(post.slug)}
+                className="block rounded-lg bg-white p-5 border border-gray-200 hover:shadow-sm transition-shadow"
+              >
+                <h3 className="font-semibold text-gray-900 mb-2 text-sm">
+                  {post.title}
+                </h3>
+                <p className="text-xs text-gray-600 line-clamp-2">
+                  {post.description}
+                </p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* Section 7: Nearby Cities (de-emphasized, SEO-only) */}
       <NearbyCities cities={nearbyCities} state={state} currentCity={city} />

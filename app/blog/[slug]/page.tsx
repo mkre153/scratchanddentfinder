@@ -15,6 +15,8 @@ import { SITE_NAME, SITE_URL } from '@/lib/config'
 import { getBlogUrl, getBlogPostUrl, getBuyersGuideUrl } from '@/lib/urls'
 import { JsonLd } from '@/lib/schema'
 
+import { ShareButtons } from '@/components/blog/ShareButtons'
+
 const AudioPlayer = dynamic(() => import('@/components/blog/AudioPlayer'), {
   ssr: false,
 })
@@ -265,6 +267,11 @@ export default async function BlogPostPage({ params }: PageProps) {
             </span>
             <span className="w-1 h-1 rounded-full bg-slate-300" />
             <span>{post.readingTime}</span>
+          </div>
+
+          {/* Share */}
+          <div className="mt-4">
+            <ShareButtons slug={post.slug} title={post.title} basePath="/blog/" />
           </div>
         </header>
 

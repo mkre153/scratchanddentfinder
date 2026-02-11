@@ -8,6 +8,7 @@
  */
 
 import type { OutboundEvent } from '@/lib/events'
+import { trackEvent } from '@/lib/analytics'
 
 /**
  * Map OutboundEvent type to cta_events event_type
@@ -31,6 +32,12 @@ export function trackOutboundEvent(event: OutboundEvent): void {
       new Date(event.timestamp).toISOString()
     )
   }
+
+  // GA4 custom event
+  trackEvent('store_contact_click', {
+    type: event.type,
+    store_id: event.storeId,
+  })
 
   // Persist to cta_events table (fire-and-forget)
   const sourcePage = typeof window !== 'undefined' ? window.location.pathname : 'unknown'

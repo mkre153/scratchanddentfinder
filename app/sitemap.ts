@@ -66,18 +66,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const reviewEntries = await getReviewEntries()
 
   const staticContentDate = new Date('2026-02-01')
+  const launchDate = new Date('2026-02-11')
 
   // Static pages
   const staticPages: MetadataRoute.Sitemap = [
     {
       url: `${SITE_URL}${getHomepageUrl()}`,
-      lastModified: new Date(),
+      lastModified: launchDate,
       changeFrequency: 'daily',
       priority: 1,
     },
     {
       url: `${SITE_URL}${getAllStatesUrl()}`,
-      lastModified: new Date(),
+      lastModified: launchDate,
       changeFrequency: 'daily',
       priority: 0.9,
     },
@@ -119,7 +120,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     {
       url: `${SITE_URL}${getBlogUrl()}`,
-      lastModified: new Date(),
+      lastModified: launchDate,
       changeFrequency: 'weekly',
       priority: 0.8,
     },
@@ -139,7 +140,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const reviewIndexPage: MetadataRoute.Sitemap = publishedReviews.length > 0
     ? [{
         url: `${SITE_URL}${getReviewsUrl()}`,
-        lastModified: new Date(),
+        lastModified: launchDate,
         changeFrequency: 'weekly' as const,
         priority: 0.8,
       }]
@@ -179,7 +180,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ? [
         {
           url: `${SITE_URL}${getDealsUrl()}`,
-          lastModified: new Date(),
+          lastModified: launchDate,
           changeFrequency: 'daily' as const,
           priority: 0.8,
         },

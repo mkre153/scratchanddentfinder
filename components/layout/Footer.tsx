@@ -8,7 +8,9 @@ import Link from 'next/link'
 import {
   getHomepageUrl,
   getAllStatesUrl,
+  getStateUrl,
   getBlogUrl,
+  getBlogCategoryUrl,
   getReviewsUrl,
   getAboutUrl,
   getContactUrl,
@@ -20,10 +22,53 @@ import {
   getBuyersGuideUrl,
 } from '@/lib/urls'
 
+// Top 10 states by store count (hardcoded to avoid DB call in layout)
+const POPULAR_STATES = [
+  { slug: 'texas', name: 'Texas' },
+  { slug: 'california', name: 'California' },
+  { slug: 'florida', name: 'Florida' },
+  { slug: 'ohio', name: 'Ohio' },
+  { slug: 'pennsylvania', name: 'Pennsylvania' },
+  { slug: 'georgia', name: 'Georgia' },
+  { slug: 'north-carolina', name: 'North Carolina' },
+  { slug: 'michigan', name: 'Michigan' },
+  { slug: 'illinois', name: 'Illinois' },
+  { slug: 'new-york', name: 'New York' },
+]
+
+const BLOG_CATEGORIES = [
+  { slug: 'buying-guides', name: 'Buying Guides' },
+  { slug: 'savings-tips', name: 'Savings Tips' },
+  { slug: 'product-guides', name: 'Product Guides' },
+  { slug: 'shopping-strategies', name: 'Shopping Strategies' },
+]
+
 export function Footer() {
   return (
     <footer className="bg-gray-900 text-gray-300">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        {/* Popular States */}
+        <div className="mb-8 pb-8 border-b border-gray-700">
+          <h3 className="text-lg font-semibold text-white mb-4">Popular States</h3>
+          <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+            {POPULAR_STATES.map((state) => (
+              <Link
+                key={state.slug}
+                href={getStateUrl(state)}
+                className="hover:text-white"
+              >
+                {state.name}
+              </Link>
+            ))}
+            <Link
+              href={getAllStatesUrl()}
+              className="font-medium text-yellow-400 hover:text-yellow-300"
+            >
+              All States →
+            </Link>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
           {/* Quick Links - 44px touch targets */}
           <div>
@@ -92,6 +137,16 @@ export function Footer() {
                   Buyer&#39;s Guide
                 </Link>
               </li>
+              {BLOG_CATEGORIES.map((cat) => (
+                <li key={cat.slug}>
+                  <Link
+                    href={getBlogCategoryUrl(cat.slug)}
+                    className="min-h-[44px] inline-flex items-center hover:text-white"
+                  >
+                    {cat.name}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 

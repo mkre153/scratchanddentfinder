@@ -33,7 +33,7 @@ import {
   Breadcrumbs,
   getStateBreadcrumbs,
 } from '@/components/layout/Breadcrumbs'
-import { CitySearchSection, StoreCard } from '@/components/directory'
+import { CitySearchSection, StoreCard, TopCities, StateFAQ } from '@/components/directory'
 import { TrustStrip, SoftCTA, AISummary } from '@/components/marketing'
 import { AdUnit } from '@/components/ads/AdUnit'
 import dynamic from 'next/dynamic'
@@ -227,6 +227,9 @@ export default async function StatePage({ params }: PageProps) {
         <AdUnit slot="state-bottom" format="horizontal" />
       </div>
 
+      {/* Top Cities by Store Count */}
+      <TopCities cities={cities} state={state} />
+
       {/* Section 7: State Buying Guide */}
       <section className="py-10">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -263,6 +266,9 @@ export default async function StatePage({ params }: PageProps) {
           </div>
         </div>
       </section>
+
+      {/* State FAQ with FAQPage schema */}
+      <StateFAQ state={state} />
 
       {/* Browse Other States */}
       <section className="py-8">
