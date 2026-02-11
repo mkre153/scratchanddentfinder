@@ -68,7 +68,7 @@ function generateBreadcrumbSchema() {
       {
         '@type': 'ListItem',
         position: 2,
-        name: 'Reviews',
+        name: 'Appliance Reviews',
         item: `${SITE_URL}${getReviewsUrl()}`,
       },
     ],
@@ -95,7 +95,7 @@ export default async function ReviewsPage() {
               Home
             </Link>
             <span className="mx-2">/</span>
-            <span className="text-slate-900">Reviews</span>
+            <span className="text-slate-900">Appliance Reviews</span>
           </nav>
           <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
             Appliance Reviews & S&D Buying Guides

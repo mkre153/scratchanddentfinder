@@ -35,7 +35,7 @@ export function Header() {
               href={getAllStatesUrl()}
               className="inline-flex min-h-[44px] items-center px-2 text-gray-600 hover:text-sage-700"
             >
-              Browse Stores
+              Store Finder
             </Link>
             <Link
               href={getBlogUrl()}
@@ -47,7 +47,7 @@ export function Header() {
               href={getReviewsUrl()}
               className="inline-flex min-h-[44px] items-center px-2 text-gray-600 hover:text-sage-700"
             >
-              Reviews
+              Appliance Reviews
             </Link>
           </div>
 

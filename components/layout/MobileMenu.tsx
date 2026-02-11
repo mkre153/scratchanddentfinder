@@ -64,7 +64,7 @@ export function MobileMenu({ onClose }: MobileMenuProps) {
               onClick={onClose}
               className="min-h-[44px] inline-flex items-center text-lg text-gray-700 hover:text-sage-700"
             >
-              Browse Stores
+              Store Finder
             </Link>
             <Link
               href={getBuyersGuideUrl()}
@@ -85,7 +85,7 @@ export function MobileMenu({ onClose }: MobileMenuProps) {
               onClick={onClose}
               className="min-h-[44px] inline-flex items-center text-lg text-gray-700 hover:text-sage-700"
             >
-              Reviews
+              Appliance Reviews
             </Link>
             <Link
               href={getAboutUrl()}
