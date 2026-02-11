@@ -9,7 +9,6 @@
 
 import Link from 'next/link'
 import {
-  getHomepageUrl,
   getAllStatesUrl,
   getBlogUrl,
   getReviewsUrl,
@@ -60,13 +59,6 @@ export function MobileMenu({ onClose }: MobileMenuProps) {
 
           {/* Navigation Links - 44px touch targets */}
           <div className="flex flex-col space-y-1">
-            <Link
-              href={getHomepageUrl()}
-              onClick={onClose}
-              className="min-h-[44px] inline-flex items-center text-lg text-gray-700 hover:text-sage-700"
-            >
-              Home
-            </Link>
             <Link
               href={getAllStatesUrl()}
               onClick={onClose}
