@@ -12,6 +12,7 @@ import {
   getHomepageUrl,
   getAllStatesUrl,
   getBlogUrl,
+  getReviewsUrl,
   getAboutUrl,
   getContactUrl,
   getStoreSubmitUrl,
@@ -79,6 +80,13 @@ export function MobileMenu({ onClose }: MobileMenuProps) {
               className="min-h-[44px] inline-flex items-center text-lg text-gray-700 hover:text-sage-700"
             >
               Savings Tips
+            </Link>
+            <Link
+              href={getReviewsUrl()}
+              onClick={onClose}
+              className="min-h-[44px] inline-flex items-center text-lg text-gray-700 hover:text-sage-700"
+            >
+              Reviews
             </Link>
             <Link
               href={getAboutUrl()}

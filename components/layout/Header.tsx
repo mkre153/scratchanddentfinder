@@ -10,6 +10,7 @@ import {
   getHomepageUrl,
   getAllStatesUrl,
   getBlogUrl,
+  getReviewsUrl,
   getBuyersGuideUrl,
   getStoreSubmitUrl,
 } from '@/lib/urls'
@@ -46,6 +47,12 @@ export function Header() {
               className="inline-flex min-h-[44px] items-center px-2 text-gray-600 hover:text-sage-700"
             >
               Savings Tips
+            </Link>
+            <Link
+              href={getReviewsUrl()}
+              className="inline-flex min-h-[44px] items-center px-2 text-gray-600 hover:text-sage-700"
+            >
+              Reviews
             </Link>
           </div>
 

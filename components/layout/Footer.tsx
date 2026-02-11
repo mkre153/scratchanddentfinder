@@ -9,6 +9,7 @@ import {
   getHomepageUrl,
   getAllStatesUrl,
   getBlogUrl,
+  getReviewsUrl,
   getAboutUrl,
   getContactUrl,
   getStoreSubmitUrl,
@@ -50,6 +51,14 @@ export function Footer() {
                   className="min-h-[44px] inline-flex items-center hover:text-white"
                 >
                   Savings Tips
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href={getReviewsUrl()}
+                  className="min-h-[44px] inline-flex items-center hover:text-white"
+                >
+                  Reviews
                 </Link>
               </li>
             </ul>

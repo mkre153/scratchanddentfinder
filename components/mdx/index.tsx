@@ -9,8 +9,9 @@ import { PriceComparison } from './PriceComparison'
 import { BuyerChecklist } from './BuyerChecklist'
 import { ComparisonTable } from './ComparisonTable'
 import { FAQSection } from './FAQSection'
+import { YouTubeEmbed } from './YouTubeEmbed'
 
-// Whitelisted MDX components for blog posts
+// Whitelisted MDX components for blog posts and reviews
 export const mdxComponents = {
   Callout,
   Figure,
@@ -18,6 +19,7 @@ export const mdxComponents = {
   BuyerChecklist,
   ComparisonTable,
   FAQSection,
+  YouTubeEmbed,
 }
 
-export { Callout, Figure, PriceComparison, BuyerChecklist, ComparisonTable, FAQSection }
+export { Callout, Figure, PriceComparison, BuyerChecklist, ComparisonTable, FAQSection, YouTubeEmbed }

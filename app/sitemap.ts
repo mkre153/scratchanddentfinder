@@ -20,12 +20,20 @@ import {
   getWhatIsScratchAndDentUrl,
   getBlogUrl,
   getBlogPostUrl,
+  getReviewsUrl,
+  getReviewUrl,
 } from '@/lib/urls'
 import { shouldIndexState, shouldIndexCity } from '@/lib/seo'
 import { getAllStates, getCitiesByStateId } from '@/lib/queries'
 
 // Types for velite content
 interface Post {
+  slug: string
+  draft: boolean
+  updated: string
+}
+
+interface ReviewEntry {
   slug: string
   draft: boolean
   updated: string
@@ -40,9 +48,19 @@ async function getBlogPosts(): Promise<Post[]> {
   }
 }
 
+async function getReviewEntries(): Promise<ReviewEntry[]> {
+  try {
+    const { reviews } = await import('../.velite/index.js')
+    return reviews as ReviewEntry[]
+  } catch {
+    return []
+  }
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const states = await getAllStates()
   const blogPosts = await getBlogPosts()
+  const reviewEntries = await getReviewEntries()
 
   const staticContentDate = new Date('2026-02-01')
 
@@ -113,6 +131,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }))
 
+  // Review pages
+  const publishedReviews = reviewEntries.filter((r) => !r.draft)
+  const reviewIndexPage: MetadataRoute.Sitemap = publishedReviews.length > 0
+    ? [{
+        url: `${SITE_URL}${getReviewsUrl()}`,
+        lastModified: new Date(),
+        changeFrequency: 'weekly' as const,
+        priority: 0.8,
+      }]
+    : []
+  const reviewPages: MetadataRoute.Sitemap = publishedReviews.map((review) => ({
+    url: `${SITE_URL}${getReviewUrl(review.slug)}`,
+    lastModified: new Date(review.updated),
+    changeFrequency: 'monthly' as const,
+    priority: 0.7,
+  }))
+
   // State pages (only states with stores)
   const indexableStates = states.filter(shouldIndexState)
   const statePages: MetadataRoute.Sitemap = indexableStates.map((state) => ({
@@ -136,5 +171,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   }
 
-  return [...staticPages, ...blogPages, ...statePages, ...cityPages]
+  return [...staticPages, ...blogPages, ...reviewIndexPage, ...reviewPages, ...statePages, ...cityPages]
 }

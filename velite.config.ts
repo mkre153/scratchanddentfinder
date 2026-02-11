@@ -106,6 +106,52 @@ const posts = defineCollection({
     }),
 })
 
+// Review collection for appliance video reviews
+const reviews = defineCollection({
+  name: 'Review',
+  pattern: 'reviews/*.mdx',
+  schema: s.object({
+    // Required fields
+    title: s.string().max(80),
+    description: s.string().max(160),
+    slug: s.slug('reviews'),
+    date: s.isodate(),
+    updated: s.isodate(),
+    category: s.enum([
+      'refrigerators',
+      'washers-dryers',
+      'dishwashers',
+      'ranges-ovens',
+      'general',
+    ]),
+    draft: s.boolean().default(false),
+    // Video fields
+    videoId: s.string(),
+    videoTitle: s.string(),
+    channelName: s.string(),
+    videoDuration: s.string(), // e.g. "18:32"
+    // SEO/AEO fields
+    keywords: keywordsSchema.optional(),
+    takeaways: takeawaysSchema.optional(),
+    // Content
+    body: s.raw(),
+    raw: s.raw(),
+  })
+    .transform((data) => {
+      const dateObj = new Date(data.date)
+      const updatedObj = new Date(data.updated)
+      if (updatedObj < dateObj) {
+        throw new Error(`Review "${data.slug}": updated date must be >= date`)
+      }
+      const wordCount = data.raw.split(/\s+/).length
+      const minutes = Math.ceil(wordCount / 200)
+      return {
+        ...data,
+        readingTime: `${minutes} min read`,
+      }
+    }),
+})
+
 export default defineConfig({
   root: 'content',
   output: {
@@ -115,5 +161,5 @@ export default defineConfig({
     name: '[name]-[hash:6].[ext]',
     clean: true,
   },
-  collections: { briefs, posts },
+  collections: { briefs, posts, reviews },
 })

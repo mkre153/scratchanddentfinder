@@ -169,6 +169,31 @@ export function getBlogFeedUrl(): string {
 }
 
 // =============================================================================
+// Review Routes
+// =============================================================================
+
+/**
+ * Get reviews index page URL
+ */
+export function getReviewsUrl(): string {
+  return '/reviews/'
+}
+
+/**
+ * Get individual review page URL
+ */
+export function getReviewUrl(slug: string): string {
+  return `/reviews/${slug}/`
+}
+
+/**
+ * Get review category page URL
+ */
+export function getReviewCategoryUrl(category: string): string {
+  return `/reviews/category/${category}/`
+}
+
+// =============================================================================
 // Auth Routes
 // =============================================================================
 
