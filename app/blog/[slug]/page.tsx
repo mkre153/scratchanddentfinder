@@ -109,7 +109,8 @@ function generateArticleSchema(post: Post) {
     dateModified: post.updated,
     author: {
       '@type': 'Organization',
-      name: SITE_NAME,
+      name: 'SDF Research Team',
+      url: SITE_URL,
     },
     publisher: {
       '@type': 'Organization',
@@ -240,6 +241,8 @@ export default async function BlogPostPage({ params }: PageProps) {
 
           {/* Meta */}
           <div className="flex items-center gap-4 text-sm text-slate-500">
+            <span className="font-medium text-slate-700">SDF Research Team</span>
+            <span className="w-1 h-1 rounded-full bg-slate-300" />
             <span>
               Updated{' '}
               {new Date(post.updated).toLocaleDateString('en-US', {

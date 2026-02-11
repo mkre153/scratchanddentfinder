@@ -137,7 +137,8 @@ function generateArticleSchema(review: Review) {
     dateModified: review.updated,
     author: {
       '@type': 'Organization',
-      name: SITE_NAME,
+      name: 'SDF Research Team',
+      url: SITE_URL,
     },
     publisher: {
       '@type': 'Organization',
@@ -145,6 +146,43 @@ function generateArticleSchema(review: Review) {
       url: SITE_URL,
     },
   }
+}
+
+function generateReviewSchema(review: Review) {
+  const schema: Record<string, unknown> = {
+    '@context': 'https://schema.org',
+    '@type': 'Review',
+    name: review.title,
+    description: review.verdict,
+    datePublished: review.date,
+    dateModified: review.updated,
+    author: {
+      '@type': 'Organization',
+      name: 'SDF Research Team',
+      url: SITE_URL,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: SITE_NAME,
+    },
+    itemReviewed: {
+      '@type': 'Product',
+      name: review.title.replace(/^Best\s+/i, '').replace(/\s+\d{4}$/, ''),
+      category: categoryLabels[review.category] || review.category,
+    },
+  }
+
+  if (review.sources.length > 0) {
+    schema.reviewRating = {
+      '@type': 'Rating',
+      ratingValue: review.sources.length,
+      bestRating: review.sources.length,
+      worstRating: 1,
+      ratingExplanation: `Based on consensus from ${review.sources.length} expert video review${review.sources.length !== 1 ? 's' : ''}`,
+    }
+  }
+
+  return schema
 }
 
 function parseDuration(duration: string): string {
@@ -225,6 +263,7 @@ export default async function ReviewDetailPage({ params }: PageProps) {
     <>
       {/* Schema markup */}
       <JsonLd data={generateArticleSchema(review)} />
+      <JsonLd data={generateReviewSchema(review)} />
       {videoSchemas.map((schema, i) => (
         <JsonLd key={i} data={schema} />
       ))}
@@ -271,6 +310,8 @@ export default async function ReviewDetailPage({ params }: PageProps) {
 
           {/* Meta */}
           <div className="flex items-center gap-4 text-sm text-slate-500">
+            <span className="font-medium text-slate-700">SDF Research Team</span>
+            <span className="w-1 h-1 rounded-full bg-slate-300" />
             <span>
               Updated{' '}
               {new Date(review.updated).toLocaleDateString('en-US', {

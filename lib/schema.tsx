@@ -54,7 +54,14 @@ export function generateWebSiteSchema(): object {
     '@type': 'WebSite',
     name: SITE_NAME,
     url: `${SITE_URL}${getHomepageUrl()}`,
-    // Note: SearchAction omitted - site does not have search functionality
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: `${SITE_URL}${getAllStatesUrl()}?q={search_term_string}`,
+      },
+      'query-input': 'required name=search_term_string',
+    },
   }
 }
 

@@ -53,7 +53,7 @@ export default async function OGImage() {
             textAlign: 'center',
           }}
         >
-          Find Scratch and Dent Stores & Appliance Repair Near You
+          Find Scratch and Dent Appliance Stores Near You
         </div>
         <div
           style={{
