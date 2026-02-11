@@ -21,14 +21,37 @@ function getUnsubscribeUrl(email: string): string {
   return `https://scratchanddentfinder.com/api/unsubscribe?email=${encodeURIComponent(email)}&token=${token}`
 }
 
+/**
+ * GET handler for Vercel cron trigger.
+ * Vercel crons send GET with Authorization: Bearer <CRON_SECRET>.
+ */
+export async function GET(request: Request) {
+  const authHeader = request.headers.get('authorization')
+  const cronSecret = process.env.CRON_SECRET
+
+  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  return sendNewsletter()
+}
+
+/**
+ * POST handler for manual trigger.
+ * Uses NEWSLETTER_API_KEY for auth.
+ */
 export async function POST(request: Request) {
+  const authHeader = request.headers.get('authorization')
+  const expectedKey = process.env.NEWSLETTER_API_KEY
+  if (!expectedKey || authHeader !== `Bearer ${expectedKey}`) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  return sendNewsletter()
+}
+
+async function sendNewsletter() {
   try {
-    // --- Auth ---
-    const authHeader = request.headers.get('authorization')
-    const expectedKey = process.env.NEWSLETTER_API_KEY
-    if (!expectedKey || authHeader !== `Bearer ${expectedKey}`) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
 
     // --- Fetch subscribers ---
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

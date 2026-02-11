@@ -6,9 +6,16 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
+import { existsSync } from 'node:fs'
+import { join } from 'node:path'
 import { compileMDX } from 'next-mdx-remote/rsc'
 import { mdxComponents } from '@/components/mdx'
 import { SITE_NAME, SITE_URL } from '@/lib/config'
+
+const AudioPlayer = dynamic(() => import('@/components/blog/AudioPlayer'), {
+  ssr: false,
+})
 import {
   getReviewsUrl,
   getReviewUrl,
@@ -259,6 +266,11 @@ export default async function ReviewDetailPage({ params }: PageProps) {
   const videoSchemas = generateVideoSchemas(review)
   const availability = availabilityConfig[review.sdAvailability]
 
+  // Check if audio narration exists for this review
+  const hasAudio = existsSync(
+    join(process.cwd(), 'public', 'audio', `${slug}.mp3`)
+  )
+
   return (
     <>
       {/* Schema markup */}
@@ -324,6 +336,16 @@ export default async function ReviewDetailPage({ params }: PageProps) {
             <span>{review.readingTime}</span>
           </div>
         </header>
+
+        {/* Audio Narration */}
+        {hasAudio && (
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
+            <AudioPlayer
+              src={`/audio/${slug}.mp3`}
+              title={review.title}
+            />
+          </div>
+        )}
 
         {/* SECTION 1: Expert Consensus */}
         {review.takeaways && (

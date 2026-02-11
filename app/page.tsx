@@ -20,14 +20,21 @@ import dynamic from 'next/dynamic'
 import type { Metadata } from 'next'
 import { getAllStatesUrl, getBlogUrl, getBlogPostUrl, getReviewsUrl, getReviewUrl } from '@/lib/urls'
 import { generateHomepageMetadata } from '@/lib/seo'
-import { getAllStates } from '@/lib/queries'
+import { getAllStates, getActiveDeals } from '@/lib/queries'
+import { ENABLE_DEALS } from '@/lib/config'
 import { TrustStrip, HowItWorks, SoftCTA, AISummary } from '@/components/marketing'
 import { StateGrid } from '@/components/directory'
+import { PopularTypes } from '@/components/home/PopularTypes'
+import { LatestDeals } from '@/components/home/LatestDeals'
 import { Search, Zap, Scale } from 'lucide-react'
 import {
   generateHowToSchema,
+  generateFAQPageSchema,
   JsonLd,
 } from '@/lib/schema'
+
+import { FAQ_ITEMS } from '@/components/home/faq-data'
+import { HomeFAQ } from '@/components/home/HomeFAQ'
 
 // Lazy load NearbyStores - below-fold, client-only (uses geolocation)
 const NearbyStores = dynamic(
@@ -113,12 +120,24 @@ export default async function HomePage() {
   const recentPosts = await getRecentPosts()
   const recentReviews = await getRecentReviews()
 
+  // Fetch latest deals if feature enabled
+  let latestDeals: Awaited<ReturnType<typeof getActiveDeals>>['deals'] = []
+  if (ENABLE_DEALS) {
+    try {
+      const { deals } = await getActiveDeals({ limit: 3 })
+      latestDeals = deals
+    } catch {
+      // Deals fetch failure shouldn't break the homepage
+    }
+  }
+
   // Calculate total store count for hero stat
   const totalStores = states.reduce((sum, state) => sum + state.storeCount, 0)
+  const totalCities = states.reduce((sum, state) => sum + (state.cityCount ?? 0), 0)
 
   return (
     <>
-      {/* Schema Markup - HowTo only (Organization/WebSite are in root layout) */}
+      {/* Schema Markup - HowTo + FAQ (Organization/WebSite are in root layout) */}
       <JsonLd
         data={generateHowToSchema(
           'How Scratch & Dent Appliances Work',
@@ -126,6 +145,7 @@ export default async function HomePage() {
           HOW_IT_WORKS_STEPS
         )}
       />
+      <JsonLd data={generateFAQPageSchema(FAQ_ITEMS)} />
 
       {/* Section 1: Hero */}
       <section className="bg-warm-50 py-20">
@@ -138,8 +158,8 @@ export default async function HomePage() {
           </p>
 
           {totalStores > 0 && (
-            <p className="text-2xl font-semibold text-orange-600 mt-4">
-              {totalStores.toLocaleString()}+ stores nationwide
+            <p className="text-lg font-semibold text-orange-600 mt-4">
+              {totalStores.toLocaleString()}+ stores across {totalCities.toLocaleString()} cities in all 50 states
             </p>
           )}
 
@@ -166,6 +186,9 @@ export default async function HomePage() {
 
       {/* Section 4: Browse by State */}
       {states.length > 0 && <StateGrid states={states} />}
+
+      {/* Section 4.5: Popular Appliance Types */}
+      <PopularTypes />
 
       {/* Section 5: Why Use Scratch & Dent Finder */}
       <section className="py-12">
@@ -324,7 +347,15 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* Section 7: AI Summary (AEO optimized) */}
+      {/* Section 7: Latest Deals */}
+      {ENABLE_DEALS && latestDeals.length > 0 && (
+        <LatestDeals deals={latestDeals} />
+      )}
+
+      {/* Section 8: FAQ */}
+      <HomeFAQ />
+
+      {/* Section 9: AI Summary (AEO optimized) */}
       <AISummary />
 
       {/* Section 7: Soft CTA */}

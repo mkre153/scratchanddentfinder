@@ -13,6 +13,7 @@ import {
   generateWebSiteSchema,
 } from '@/lib/schema'
 import { ChatWidget } from '@/components/chat/ChatWidget'
+import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics'
 
 // Optimized font loading: preload, swap display, subset
 const inter = Inter({
@@ -55,6 +56,7 @@ export default function RootLayout({
           <ChatWidget />
         </Providers>
         <Analytics />
+        <GoogleAnalytics />
         {process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID && (
           <Script
             async

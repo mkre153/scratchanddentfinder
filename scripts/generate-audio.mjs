@@ -10,6 +10,7 @@
  *   OPENAI_API_KEY=sk-... node scripts/generate-audio.mjs --force
  *
  * Reads posts from .velite/posts.json (falls back to reading MDX files).
+ * Also reads reviews from .velite/reviews.json (falls back to content/reviews/).
  * Saves MP3 files to public/audio/[slug].mp3.
  * Skips posts that already have an audio file unless --force is passed.
  */
@@ -106,6 +107,47 @@ async function loadPosts() {
   }).filter((p) => !p.draft)
 }
 
+// ── Load reviews ────────────────────────────────────────────────
+
+async function loadReviews() {
+  // Try .velite/reviews.json first
+  const velitePath = path.join(ROOT, '.velite', 'reviews.json')
+  if (fs.existsSync(velitePath)) {
+    console.log('[info] Loading reviews from .velite/reviews.json')
+    const raw = fs.readFileSync(velitePath, 'utf-8')
+    const reviews = JSON.parse(raw)
+    return reviews
+      .filter((r) => !r.draft)
+      .map((r) => ({
+        slug: r.slug,
+        title: r.title,
+        text: stripMdxComponents(r.raw || r.body || ''),
+      }))
+  }
+
+  // Fallback: read MDX files from content/reviews/
+  console.log('[info] Falling back to reading MDX files from content/reviews/')
+  const reviewsDir = path.join(ROOT, 'content', 'reviews')
+  if (!fs.existsSync(reviewsDir)) {
+    console.log('[info] No reviews content found at', reviewsDir)
+    return []
+  }
+
+  const files = fs.readdirSync(reviewsDir).filter((f) => f.endsWith('.mdx'))
+  return files.map((file) => {
+    const raw = fs.readFileSync(path.join(reviewsDir, file), 'utf-8')
+    const body = stripFrontmatter(raw)
+    const slugMatch = raw.match(/^slug:\s*["']?([^"'\n]+)["']?/m)
+    const slug = slugMatch ? slugMatch[1].trim() : path.basename(file, '.mdx')
+    const draftMatch = raw.match(/^draft:\s*(true|false)/m)
+    const draft = draftMatch ? draftMatch[1] === 'true' : false
+    const titleMatch = raw.match(/^title:\s*["']?(.+?)["']?\s*$/m)
+    const title = titleMatch ? titleMatch[1] : slug
+
+    return { slug, title, text: stripMdxComponents(body), draft }
+  }).filter((r) => !r.draft)
+}
+
 // ── TTS generation ───────────────────────────────────────────────
 
 async function generateAudio(text, outputPath) {
@@ -189,35 +231,40 @@ async function main() {
   }
 
   const posts = await loadPosts()
-  console.log(`[info] Found ${posts.length} published posts\n`)
+  const reviews = await loadReviews()
+  const allContent = [
+    ...posts.map((p) => ({ ...p, type: 'blog' })),
+    ...reviews.map((r) => ({ ...r, type: 'review' })),
+  ]
+  console.log(`[info] Found ${posts.length} blog posts + ${reviews.length} reviews = ${allContent.length} total\n`)
 
   let generated = 0
   let skipped = 0
 
-  for (const post of posts) {
-    const outPath = path.join(AUDIO_DIR, `${post.slug}.mp3`)
+  for (const item of allContent) {
+    const outPath = path.join(AUDIO_DIR, `${item.slug}.mp3`)
 
     if (fs.existsSync(outPath) && !FORCE) {
-      console.log(`[skip] ${post.slug} — audio already exists`)
+      console.log(`[skip] ${item.slug} (${item.type}) — audio already exists`)
       skipped++
       continue
     }
 
-    if (!post.text || post.text.length < 50) {
-      console.log(`[skip] ${post.slug} — content too short (${post.text?.length || 0} chars)`)
+    if (!item.text || item.text.length < 50) {
+      console.log(`[skip] ${item.slug} (${item.type}) — content too short (${item.text?.length || 0} chars)`)
       skipped++
       continue
     }
 
-    console.log(`[gen]  ${post.slug} (${post.text.length} chars)`)
+    console.log(`[gen]  ${item.slug} (${item.type}, ${item.text.length} chars)`)
 
     try {
-      await generateAudio(post.text, outPath)
+      await generateAudio(item.text, outPath)
       const size = fs.statSync(outPath).size
       console.log(`       → saved ${(size / 1024).toFixed(0)} KB`)
       generated++
     } catch (err) {
-      console.error(`[error] ${post.slug}: ${err.message}`)
+      console.error(`[error] ${item.slug}: ${err.message}`)
     }
   }
 
