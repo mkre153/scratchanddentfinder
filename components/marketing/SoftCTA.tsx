@@ -11,8 +11,9 @@
  */
 
 import Link from 'next/link'
-import { Plus, Bell } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { getStoreSubmitUrl, getContactUrl } from '@/lib/urls'
+import { EmailCapture } from './EmailCapture'
 
 interface SoftCTAProps {
   variant: 'homepage' | 'state' | 'city'
@@ -60,16 +61,7 @@ export function SoftCTA({ variant, stateName, cityName }: SoftCTAProps) {
               {suggestLabel}
             </Link>
 
-            {/* Future: Email alerts signup - currently just visual placeholder */}
-            {/* Uncomment when email infrastructure is ready
-            <button
-              type="button"
-              className="inline-flex items-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-            >
-              <Bell className="h-4 w-4" />
-              Get Updates
-            </button>
-            */}
+            <EmailCapture source={variant} />
           </div>
 
           <p className="mt-4 text-sm text-gray-500">
