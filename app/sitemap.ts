@@ -22,7 +22,10 @@ import {
   getBlogPostUrl,
   getReviewsUrl,
   getReviewUrl,
+  getDealsUrl,
+  getDealPostUrl,
 } from '@/lib/urls'
+import { ENABLE_DEALS } from '@/lib/config'
 import { shouldIndexState, shouldIndexCity } from '@/lib/seo'
 import { getAllStates, getCitiesByStateId } from '@/lib/queries'
 
@@ -171,5 +174,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   }
 
-  return [...staticPages, ...blogPages, ...reviewIndexPage, ...reviewPages, ...statePages, ...cityPages]
+  // Deals pages (when feature flag is enabled)
+  const dealsPages: MetadataRoute.Sitemap = ENABLE_DEALS
+    ? [
+        {
+          url: `${SITE_URL}${getDealsUrl()}`,
+          lastModified: new Date(),
+          changeFrequency: 'daily' as const,
+          priority: 0.8,
+        },
+        {
+          url: `${SITE_URL}${getDealPostUrl()}`,
+          lastModified: staticContentDate,
+          changeFrequency: 'monthly' as const,
+          priority: 0.6,
+        },
+      ]
+    : []
+
+  return [...staticPages, ...dealsPages, ...blogPages, ...reviewIndexPage, ...reviewPages, ...statePages, ...cityPages]
 }

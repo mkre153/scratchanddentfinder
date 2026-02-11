@@ -16,7 +16,9 @@ import {
   getContactUrl,
   getStoreSubmitUrl,
   getBuyersGuideUrl,
+  getDealsUrl,
 } from '@/lib/urls'
+import { ENABLE_DEALS } from '@/lib/config'
 
 interface MobileMenuProps {
   onClose: () => void
@@ -87,6 +89,15 @@ export function MobileMenu({ onClose }: MobileMenuProps) {
             >
               Appliance Reviews
             </Link>
+            {ENABLE_DEALS && (
+              <Link
+                href={getDealsUrl()}
+                onClick={onClose}
+                className="min-h-[44px] inline-flex items-center text-lg text-gray-700 hover:text-sage-700"
+              >
+                Deals
+              </Link>
+            )}
             <Link
               href={getAboutUrl()}
               onClick={onClose}

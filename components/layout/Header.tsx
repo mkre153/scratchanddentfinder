@@ -12,7 +12,9 @@ import {
   getBlogUrl,
   getReviewsUrl,
   getBuyersGuideUrl,
+  getDealsUrl,
 } from '@/lib/urls'
+import { ENABLE_DEALS } from '@/lib/config'
 import { MobileMenuButton } from './MobileMenuButton'
 
 export function Header() {
@@ -49,6 +51,14 @@ export function Header() {
             >
               Appliance Reviews
             </Link>
+            {ENABLE_DEALS && (
+              <Link
+                href={getDealsUrl()}
+                className="inline-flex min-h-[44px] items-center px-2 text-gray-600 hover:text-sage-700"
+              >
+                Deals
+              </Link>
+            )}
           </div>
 
           {/* Right: CTA + Mobile Menu — flex-1 for balanced centering */}

@@ -47,6 +47,11 @@ export type Database = {
         Insert: StoreSubmissionInsert
         Update: Partial<StoreSubmissionInsert>
       }
+      deals: {
+        Row: DealRow
+        Insert: DealInsert
+        Update: Partial<DealInsert>
+      }
     }
   }
 }
@@ -436,6 +441,87 @@ export interface CtaEvent {
 // =============================================================================
 // Admin User (Slice 10 - Operator Control)
 // =============================================================================
+
+// =============================================================================
+// Deal (Deals Marketplace)
+// =============================================================================
+
+export type ApplianceType =
+  | 'refrigerator'
+  | 'washer'
+  | 'dryer'
+  | 'dishwasher'
+  | 'range'
+  | 'microwave'
+  | 'freezer'
+  | 'other'
+
+export type DealCondition = 'new' | 'like_new' | 'good' | 'fair'
+
+export type DealModerationStatus = 'pending' | 'approved' | 'flagged' | 'rejected'
+
+export type DealStatus = 'draft' | 'active' | 'expired' | 'removed'
+
+export interface DealRow {
+  id: string
+  store_id: number | null
+  submitter_email: string
+  submitter_name: string
+  submitter_phone: string | null
+  verification_code_hash: string | null
+  verification_expires_at: string | null
+  verification_attempts: number
+  email_verified_at: string | null
+  title: string
+  description: string
+  appliance_type: ApplianceType
+  brand: string | null
+  model_number: string | null
+  original_price: number | null
+  deal_price: number
+  damage_description: string
+  condition: DealCondition
+  city: string
+  state: string
+  zip: string | null
+  photo_paths: string[]
+  moderation_status: DealModerationStatus
+  moderation_flags: Record<string, unknown>
+  moderation_reviewed_by: string | null
+  moderation_reviewed_at: string | null
+  status: DealStatus
+  expires_at: string
+  created_at: string
+  updated_at: string
+}
+
+export type DealInsert = Omit<DealRow, 'id' | 'created_at' | 'updated_at' | 'verification_attempts' | 'email_verified_at'>
+
+export interface Deal {
+  id: string
+  storeId: number | null
+  submitterEmail: string
+  submitterName: string
+  submitterPhone: string | null
+  title: string
+  description: string
+  applianceType: ApplianceType
+  brand: string | null
+  modelNumber: string | null
+  originalPrice: number | null
+  dealPrice: number
+  damageDescription: string
+  condition: DealCondition
+  city: string
+  state: string
+  zip: string | null
+  photoPaths: string[]
+  moderationStatus: DealModerationStatus
+  status: DealStatus
+  expiresAt: string
+  createdAt: string
+  updatedAt: string
+}
 
 export interface AdminUserRow {
   id: string

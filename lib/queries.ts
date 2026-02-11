@@ -26,6 +26,9 @@ import type {
   StoreClaim,
   StoreClaimRow,
   AdminUserRow,
+  Deal,
+  DealRow,
+  DealInsert,
 } from '@/lib/types'
 
 // =============================================================================
@@ -1060,5 +1063,299 @@ export async function getStoresByUserId(userId: string): Promise<Store[]> {
 
   if (error) throw error
   return (data ?? []).map(storeRowToModel)
+}
+
+// =============================================================================
+// Deal Queries (Deals Marketplace)
+// =============================================================================
+
+function dealRowToModel(row: DealRow): Deal {
+  return {
+    id: row.id,
+    storeId: row.store_id,
+    submitterEmail: row.submitter_email,
+    submitterName: row.submitter_name,
+    submitterPhone: row.submitter_phone,
+    title: row.title,
+    description: row.description,
+    applianceType: row.appliance_type,
+    brand: row.brand,
+    modelNumber: row.model_number,
+    originalPrice: row.original_price,
+    dealPrice: row.deal_price,
+    damageDescription: row.damage_description,
+    condition: row.condition,
+    city: row.city,
+    state: row.state,
+    zip: row.zip,
+    photoPaths: row.photo_paths,
+    moderationStatus: row.moderation_status,
+    status: row.status,
+    expiresAt: row.expires_at,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  }
+}
+
+/**
+ * Create a deal (draft, pending verification)
+ */
+export async function createDeal(deal: DealInsert): Promise<{ id: string }> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabaseAdmin as any)
+    .from('deals')
+    .insert(deal)
+    .select('id')
+    .single()
+
+  if (error) throw error
+  return { id: data.id }
+}
+
+/**
+ * Get a deal by ID (includes all fields, for verification flow)
+ */
+export async function getDealById(dealId: string): Promise<DealRow | null> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabaseAdmin as any)
+    .from('deals')
+    .select('*')
+    .eq('id', dealId)
+    .single()
+
+  if (error && error.code !== 'PGRST116') throw error
+  return data || null
+}
+
+/**
+ * Get active deal by ID (for public display)
+ */
+export async function getActiveDealById(dealId: string): Promise<Deal | null> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabaseAdmin as any)
+    .from('deals')
+    .select('*')
+    .eq('id', dealId)
+    .eq('status', 'active')
+    .single()
+
+  if (error && error.code !== 'PGRST116') throw error
+  if (!data) return null
+  return dealRowToModel(data as DealRow)
+}
+
+/**
+ * Get active deals with filters
+ */
+export async function getActiveDeals(params?: {
+  state?: string
+  city?: string
+  applianceType?: string
+  limit?: number
+  offset?: number
+}): Promise<{ deals: Deal[]; total: number }> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let query = (supabaseAdmin as any)
+    .from('deals')
+    .select('*', { count: 'exact' })
+    .eq('status', 'active')
+    .order('created_at', { ascending: false })
+
+  if (params?.state) {
+    query = query.eq('state', params.state.toUpperCase())
+  }
+  if (params?.city) {
+    query = query.ilike('city', params.city)
+  }
+  if (params?.applianceType) {
+    query = query.eq('appliance_type', params.applianceType)
+  }
+
+  const limit = params?.limit ?? 20
+  const offset = params?.offset ?? 0
+  query = query.range(offset, offset + limit - 1)
+
+  const { data, error, count } = await query
+
+  if (error) throw error
+  return {
+    deals: (data ?? []).map((row: DealRow) => dealRowToModel(row)),
+    total: count ?? 0,
+  }
+}
+
+/**
+ * Get deals for a city (for city page integration)
+ */
+export async function getDealsByCity(
+  city: string,
+  state: string,
+  limit: number = 6
+): Promise<Deal[]> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabaseAdmin as any)
+    .from('deals')
+    .select('*')
+    .eq('status', 'active')
+    .ilike('city', city)
+    .eq('state', state.toUpperCase())
+    .order('created_at', { ascending: false })
+    .limit(limit)
+
+  if (error) throw error
+  return (data ?? []).map((row: DealRow) => dealRowToModel(row))
+}
+
+/**
+ * Activate a deal (after email verification + moderation pass)
+ */
+export async function activateDeal(dealId: string): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabaseAdmin as any)
+    .from('deals')
+    .update({
+      status: 'active',
+      email_verified_at: new Date().toISOString(),
+      verification_code_hash: null,
+    })
+    .eq('id', dealId)
+
+  if (error) throw error
+}
+
+/**
+ * Mark deal as email-verified but under review (moderation flagged)
+ */
+export async function verifyDealEmail(dealId: string): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabaseAdmin as any)
+    .from('deals')
+    .update({
+      email_verified_at: new Date().toISOString(),
+      verification_code_hash: null,
+    })
+    .eq('id', dealId)
+
+  if (error) throw error
+}
+
+/**
+ * Increment deal verification attempts
+ */
+export async function incrementDealVerificationAttempts(
+  dealId: string
+): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data } = await (supabaseAdmin as any)
+    .from('deals')
+    .select('verification_attempts')
+    .eq('id', dealId)
+    .single()
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (supabaseAdmin as any)
+    .from('deals')
+    .update({ verification_attempts: (data?.verification_attempts || 0) + 1 })
+    .eq('id', dealId)
+}
+
+/**
+ * Expire old deals (cron job)
+ */
+export async function expireDeals(): Promise<number> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabaseAdmin as any)
+    .from('deals')
+    .update({ status: 'expired', updated_at: new Date().toISOString() })
+    .eq('status', 'active')
+    .lt('expires_at', new Date().toISOString())
+    .select('id')
+
+  if (error) throw error
+  return data?.length ?? 0
+}
+
+/**
+ * Get flagged deals for admin review
+ */
+export async function getFlaggedDeals(): Promise<Deal[]> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabaseAdmin as any)
+    .from('deals')
+    .select('*')
+    .eq('moderation_status', 'flagged')
+    .order('created_at', { ascending: false })
+
+  if (error) throw error
+  return (data ?? []).map((row: DealRow) => dealRowToModel(row))
+}
+
+/**
+ * Admin: approve a flagged deal
+ */
+export async function approveDeal(
+  dealId: string,
+  adminId: string
+): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabaseAdmin as any)
+    .from('deals')
+    .update({
+      moderation_status: 'approved',
+      moderation_reviewed_by: adminId,
+      moderation_reviewed_at: new Date().toISOString(),
+      status: 'active',
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', dealId)
+
+  if (error) throw error
+}
+
+/**
+ * Admin: reject a flagged deal
+ */
+export async function rejectDeal(
+  dealId: string,
+  adminId: string
+): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabaseAdmin as any)
+    .from('deals')
+    .update({
+      moderation_status: 'rejected',
+      moderation_reviewed_by: adminId,
+      moderation_reviewed_at: new Date().toISOString(),
+      status: 'removed',
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', dealId)
+
+  if (error) throw error
+}
+
+/**
+ * Search stores by name (for deal form type-ahead)
+ */
+export async function searchStoresByName(
+  query: string,
+  limit: number = 5
+): Promise<Array<{ id: number; name: string; city: string; stateCode: string }>> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabaseAdmin as any)
+    .from('stores')
+    .select('id, name, address, cities(name, state_code)')
+    .ilike('name', `%${query}%`)
+    .eq('is_approved', true)
+    .or('is_archived.is.null,is_archived.eq.false')
+    .limit(limit)
+
+  if (error) throw error
+  return (data ?? []).map((row: { id: number; name: string; cities: { name: string; state_code: string } | null }) => ({
+    id: row.id,
+    name: row.name,
+    city: row.cities?.name ?? '',
+    stateCode: row.cities?.state_code ?? '',
+  }))
 }
 

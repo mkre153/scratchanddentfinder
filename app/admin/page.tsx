@@ -58,6 +58,18 @@ export default async function AdminDashboard() {
           </Link>
 
           <Link
+            href="/admin/deals/"
+            className="block p-6 bg-white rounded-lg shadow hover:shadow-md transition-shadow"
+          >
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">
+              Flagged Deals
+            </h2>
+            <p className="text-gray-600">
+              Review and moderate flagged deal submissions
+            </p>
+          </Link>
+
+          <Link
             href="/admin/stores/"
             className="block p-6 bg-white rounded-lg shadow hover:shadow-md transition-shadow"
           >

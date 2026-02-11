@@ -64,3 +64,13 @@ export const ENABLE_QUICK_ASSESS_WIDGET =
  */
 export const ENABLE_CITY_ENRICHMENT =
   process.env.NEXT_PUBLIC_ENABLE_CITY_ENRICHMENT === 'true'
+
+/**
+ * ENABLE_DEALS: Show deals marketplace features (nav link, browse page, post form)
+ *
+ * Set via environment variable: NEXT_PUBLIC_ENABLE_DEALS=true
+ *
+ * Default: false (disabled)
+ */
+export const ENABLE_DEALS =
+  process.env.NEXT_PUBLIC_ENABLE_DEALS === 'true'

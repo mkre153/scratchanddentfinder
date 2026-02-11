@@ -194,6 +194,31 @@ export function getReviewCategoryUrl(category: string): string {
 }
 
 // =============================================================================
+// Deals Routes
+// =============================================================================
+
+/**
+ * Get deals browse page URL
+ */
+export function getDealsUrl(): string {
+  return '/deals/'
+}
+
+/**
+ * Get deal post form URL
+ */
+export function getDealPostUrl(): string {
+  return '/deals/post/'
+}
+
+/**
+ * Get individual deal page URL
+ */
+export function getDealUrl(id: string): string {
+  return `/deals/${id}/`
+}
+
+// =============================================================================
 // Auth Routes
 // =============================================================================
 
