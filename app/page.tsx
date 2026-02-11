@@ -18,7 +18,7 @@
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
 import type { Metadata } from 'next'
-import { getAllStatesUrl, getBlogUrl, getBlogPostUrl } from '@/lib/urls'
+import { getAllStatesUrl, getBlogUrl, getBlogPostUrl, getReviewsUrl, getReviewUrl } from '@/lib/urls'
 import { generateHomepageMetadata } from '@/lib/seo'
 import { getAllStates } from '@/lib/queries'
 import { TrustStrip, HowItWorks, SoftCTA, AISummary } from '@/components/marketing'
@@ -77,6 +77,33 @@ async function getRecentPosts(): Promise<Post[]> {
   }
 }
 
+interface ReviewSource {
+  videoId: string
+}
+
+interface Review {
+  slug: string
+  title: string
+  description: string
+  updated: string
+  category: string
+  draft: boolean
+  readingTime: string
+  sources: ReviewSource[]
+}
+
+async function getRecentReviews(): Promise<Review[]> {
+  try {
+    const { reviews } = await import('../.velite/index.js')
+    return (reviews as Review[])
+      .filter((r) => !r.draft)
+      .sort((a, b) => new Date(b.updated).getTime() - new Date(a.updated).getTime())
+      .slice(0, 3)
+  } catch {
+    return []
+  }
+}
+
 // ISR: Revalidate every 5 minutes (directory data changes infrequently)
 export const revalidate = 300
 
@@ -84,6 +111,7 @@ export default async function HomePage() {
   // Fetch states - handles empty database gracefully
   const states = await getAllStates()
   const recentPosts = await getRecentPosts()
+  const recentReviews = await getRecentReviews()
 
   // Calculate total store count for hero stat
   const totalStores = states.reduce((sum, state) => sum + state.storeCount, 0)
@@ -230,6 +258,64 @@ export default async function HomePage() {
                     </span>
                     <span className="w-1 h-1 rounded-full bg-gray-300" />
                     <span>{post.readingTime}</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Section 6.5: Featured Reviews */}
+      {recentReviews.length > 0 && (
+        <section className="py-12">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-2xl font-bold text-gray-900">
+                Featured Reviews
+              </h2>
+              <Link
+                href={getReviewsUrl()}
+                className="text-sm font-medium text-sage-700 hover:text-sage-800"
+              >
+                View all reviews &rarr;
+              </Link>
+            </div>
+            <div className="grid gap-6 md:grid-cols-3">
+              {recentReviews.map((review) => (
+                <Link
+                  key={review.slug}
+                  href={getReviewUrl(review.slug)}
+                  className="block rounded-lg bg-white shadow-sm border border-gray-200 hover:shadow-md transition-shadow overflow-hidden"
+                >
+                  {review.sources[0]?.videoId && (
+                    <img
+                      src={`https://img.youtube.com/vi/${review.sources[0].videoId}/mqdefault.jpg`}
+                      alt={review.title}
+                      className="w-full aspect-video object-cover"
+                    />
+                  )}
+                  <div className="p-6">
+                    <span className="inline-block text-xs font-medium text-sage-700 bg-sage-100 px-2 py-0.5 rounded mb-2">
+                      {review.category}
+                    </span>
+                    <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
+                      {review.title}
+                    </h3>
+                    <p className="text-sm text-gray-600 mb-3 line-clamp-3">
+                      {review.description}
+                    </p>
+                    <div className="flex items-center gap-2 text-xs text-gray-500">
+                      <span>
+                        {new Date(review.updated).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric',
+                        })}
+                      </span>
+                      <span className="w-1 h-1 rounded-full bg-gray-300" />
+                      <span>{review.readingTime}</span>
+                    </div>
                   </div>
                 </Link>
               ))}
