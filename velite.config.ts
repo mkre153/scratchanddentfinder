@@ -106,6 +106,16 @@ const posts = defineCollection({
     }),
 })
 
+// Source schema for expert video references
+const sourceSchema = s.object({
+  videoId: s.string(),
+  videoTitle: s.string(),
+  channelName: s.string(),
+  videoDuration: s.string(), // e.g. "4:05"
+  strength: s.string(),
+  gap: s.string(),
+})
+
 // Review collection for appliance video reviews
 const reviews = defineCollection({
   name: 'Review',
@@ -125,11 +135,16 @@ const reviews = defineCollection({
       'general',
     ]),
     draft: s.boolean().default(false),
-    // Video fields
-    videoId: s.string(),
-    videoTitle: s.string(),
-    channelName: s.string(),
-    videoDuration: s.string(), // e.g. "18:32"
+    // Multi-source expert videos
+    sources: s.array(sourceSchema),
+    // S&D intelligence fields
+    sdAvailability: s.enum(['common', 'limited', 'rare']),
+    retailPrice: s.string().optional(),
+    sdPriceRange: s.string().optional(),
+    damageTolerance: s.array(s.string()).optional(),
+    inspectionTips: s.array(s.string()).optional(),
+    notFor: s.string().optional(),
+    verdict: s.string(),
     // SEO/AEO fields
     keywords: keywordsSchema.optional(),
     takeaways: takeawaysSchema.optional(),

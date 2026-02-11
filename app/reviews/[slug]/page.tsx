@@ -1,6 +1,6 @@
 /**
  * Review Detail Page
- * Renders individual appliance review with YouTube embed + MDX summary
+ * Multi-source expert consensus + S&D buying intelligence
  */
 
 import type { Metadata } from 'next'
@@ -16,6 +16,15 @@ import {
   getAllStatesUrl,
 } from '@/lib/urls'
 import { JsonLd } from '@/lib/schema'
+
+interface Source {
+  videoId: string
+  videoTitle: string
+  channelName: string
+  videoDuration: string
+  strength: string
+  gap: string
+}
 
 interface Takeaways {
   what: string
@@ -34,10 +43,14 @@ interface Review {
   date: string
   updated: string
   category: string
-  videoId: string
-  videoTitle: string
-  channelName: string
-  videoDuration: string
+  sources: Source[]
+  sdAvailability: 'common' | 'limited' | 'rare'
+  retailPrice?: string
+  sdPriceRange?: string
+  damageTolerance?: string[]
+  inspectionTips?: string[]
+  notFor?: string
+  verdict: string
   draft: boolean
   readingTime: string
   body: string
@@ -99,13 +112,18 @@ const categoryLabels: Record<string, string> = {
   'general': 'General',
 }
 
-/** Map category to a relevant CTA label */
 const categoryCta: Record<string, string> = {
   'refrigerators': 'Find discounted refrigerators near you',
   'washers-dryers': 'Find discounted washers & dryers near you',
   'dishwashers': 'Find discounted dishwashers near you',
   'ranges-ovens': 'Find discounted ranges & ovens near you',
   'general': 'Find discounted appliances near you',
+}
+
+const availabilityConfig: Record<string, { label: string; bars: number }> = {
+  'common': { label: 'Common', bars: 8 },
+  'limited': { label: 'Limited', bars: 5 },
+  'rare': { label: 'Rare', bars: 2 },
 }
 
 function generateArticleSchema(review: Review) {
@@ -128,27 +146,29 @@ function generateArticleSchema(review: Review) {
   }
 }
 
-function generateVideoSchema(review: Review) {
-  // Parse duration "18:32" → ISO 8601 "PT18M32S"
-  const parts = review.videoDuration.split(':')
+function parseDuration(duration: string): string {
+  const parts = duration.split(':')
   let isoDuration = 'PT'
   if (parts.length === 3) {
     isoDuration += `${parseInt(parts[0])}H${parseInt(parts[1])}M${parseInt(parts[2])}S`
   } else if (parts.length === 2) {
     isoDuration += `${parseInt(parts[0])}M${parseInt(parts[1])}S`
   }
+  return isoDuration
+}
 
-  return {
+function generateVideoSchemas(review: Review) {
+  return review.sources.map((source) => ({
     '@context': 'https://schema.org',
     '@type': 'VideoObject',
-    name: review.videoTitle,
+    name: source.videoTitle,
     description: review.description,
-    thumbnailUrl: `https://img.youtube.com/vi/${review.videoId}/maxresdefault.jpg`,
+    thumbnailUrl: `https://img.youtube.com/vi/${source.videoId}/maxresdefault.jpg`,
     uploadDate: review.date,
-    duration: isoDuration,
-    embedUrl: `https://www.youtube-nocookie.com/embed/${review.videoId}`,
-    contentUrl: `https://www.youtube.com/watch?v=${review.videoId}`,
-  }
+    duration: parseDuration(source.videoDuration),
+    embedUrl: `https://www.youtube-nocookie.com/embed/${source.videoId}`,
+    contentUrl: `https://www.youtube.com/watch?v=${source.videoId}`,
+  }))
 }
 
 function generateBreadcrumbSchema(review: Review) {
@@ -192,17 +212,21 @@ export default async function ReviewDetailPage({ params }: PageProps) {
     components: mdxComponents,
   })
 
-  // Get related reviews (same category, excluding current)
   const related = reviews
     .filter((r) => !r.draft && r.category === review.category && r.slug !== review.slug)
     .sort((a, b) => new Date(b.updated).getTime() - new Date(a.updated).getTime())
     .slice(0, 3)
 
+  const videoSchemas = generateVideoSchemas(review)
+  const availability = availabilityConfig[review.sdAvailability]
+
   return (
     <>
       {/* Schema markup */}
       <JsonLd data={generateArticleSchema(review)} />
-      <JsonLd data={generateVideoSchema(review)} />
+      {videoSchemas.map((schema, i) => (
+        <JsonLd key={i} data={schema} />
+      ))}
       <JsonLd data={generateBreadcrumbSchema(review)} />
 
       <article className="pt-8 pb-16">
@@ -221,7 +245,7 @@ export default async function ReviewDetailPage({ params }: PageProps) {
             <span className="text-slate-900">{review.title}</span>
           </nav>
 
-          {/* Category + Channel + Duration */}
+          {/* Category + Source Count */}
           <div className="flex flex-wrap items-center gap-3 mb-4">
             <Link
               href={getReviewCategoryUrl(review.category)}
@@ -229,8 +253,9 @@ export default async function ReviewDetailPage({ params }: PageProps) {
             >
               {categoryLabels[review.category] || review.category}
             </Link>
-            <span className="text-sm text-slate-500">{review.channelName}</span>
-            <span className="text-sm text-slate-400">{review.videoDuration}</span>
+            <span className="text-sm text-slate-500">
+              {review.sources.length} expert source{review.sources.length !== 1 ? 's' : ''} reviewed
+            </span>
           </div>
 
           {/* Title */}
@@ -258,19 +283,17 @@ export default async function ReviewDetailPage({ params }: PageProps) {
           </div>
         </header>
 
-        {/* Key Takeaways */}
+        {/* SECTION 1: Expert Consensus */}
         {review.takeaways && (
           <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
             <div className="bg-sage-50 border border-sage-100 rounded-xl p-6 max-w-2xl">
               <h2 className="text-sm font-semibold text-sage-800 mb-4 uppercase tracking-wide">
-                Key Takeaways
+                What the Experts Agree On
               </h2>
-              <p className="font-medium text-slate-900 mb-4">
-                {review.takeaways.what}
-              </p>
-              <ul className="list-disc pl-5 space-y-1">
+              <ul className="space-y-2">
                 {review.takeaways.tips.map((tip, i) => (
-                  <li key={i} className="text-sm text-slate-700">
+                  <li key={i} className="flex gap-2 text-sm text-slate-700">
+                    <span className="text-sage-600 mt-0.5 shrink-0">&#10003;</span>
                     {tip}
                   </li>
                 ))}
@@ -279,14 +302,183 @@ export default async function ReviewDetailPage({ params }: PageProps) {
           </section>
         )}
 
-        {/* Main Content (MDX body with embedded YouTube) */}
+        {/* MDX Body — Expert consensus, disagreements, inline embeds */}
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="max-w-2xl prose prose-slate prose-lg prose-headings:scroll-mt-24">
             {content}
           </div>
         </div>
 
-        {/* CTA: Find discounted appliances */}
+        {/* SECTION 2: Sources We Reviewed */}
+        <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-12">
+          <div className="max-w-2xl">
+            <h2 className="text-lg font-semibold text-slate-900 mb-6">
+              Sources We Reviewed
+            </h2>
+            <div className="space-y-4">
+              {review.sources.map((source, i) => (
+                <div
+                  key={i}
+                  className="flex gap-4 p-4 bg-white border border-slate-200 rounded-lg"
+                >
+                  <a
+                    href={`https://www.youtube.com/watch?v=${source.videoId}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="shrink-0"
+                  >
+                    <img
+                      src={`https://img.youtube.com/vi/${source.videoId}/mqdefault.jpg`}
+                      alt={source.videoTitle}
+                      className="w-32 sm:w-40 aspect-video object-cover rounded"
+                      loading="lazy"
+                    />
+                  </a>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
+                      <span className="font-medium text-slate-700">{source.channelName}</span>
+                      <span>{source.videoDuration}</span>
+                    </div>
+                    <p className="text-sm font-medium text-slate-900 mb-2 line-clamp-2">
+                      {source.videoTitle}
+                    </p>
+                    <p className="text-xs text-slate-600 mb-1">
+                      <span className="text-sage-600">Strength:</span> {source.strength}
+                    </p>
+                    <p className="text-xs text-slate-600 mb-2">
+                      <span className="text-amber-600">Gap:</span> {source.gap}
+                    </p>
+                    <a
+                      href={`https://www.youtube.com/watch?v=${source.videoId}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs font-medium text-sage-700 hover:text-sage-800"
+                    >
+                      Watch on YouTube &rarr;
+                    </a>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* SECTION 3: S&D Reality Layer */}
+        <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-12">
+          <div className="max-w-2xl bg-amber-50 border border-amber-200 rounded-xl p-6">
+            <h2 className="text-sm font-bold text-amber-900 mb-5 uppercase tracking-wide">
+              S&D Buying Intelligence
+            </h2>
+
+            {/* Availability bar */}
+            <div className="mb-4">
+              <span className="text-xs font-medium text-slate-600 uppercase tracking-wide">
+                Availability
+              </span>
+              <div className="flex items-center gap-2 mt-1">
+                <div className="flex gap-0.5">
+                  {Array.from({ length: 10 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className={`w-3 h-3 rounded-sm ${
+                        i < availability.bars
+                          ? 'bg-amber-500'
+                          : 'bg-amber-200'
+                      }`}
+                    />
+                  ))}
+                </div>
+                <span className="text-sm font-medium text-slate-900">
+                  {availability.label}
+                </span>
+              </div>
+            </div>
+
+            {/* Price ranges */}
+            {(review.retailPrice || review.sdPriceRange) && (
+              <div className="grid grid-cols-2 gap-4 mb-5">
+                {review.retailPrice && (
+                  <div>
+                    <span className="text-xs font-medium text-slate-500 uppercase tracking-wide">
+                      Retail
+                    </span>
+                    <p className="text-sm font-semibold text-slate-900 mt-0.5">
+                      {review.retailPrice}
+                    </p>
+                  </div>
+                )}
+                {review.sdPriceRange && (
+                  <div>
+                    <span className="text-xs font-medium text-slate-500 uppercase tracking-wide">
+                      S&D Price
+                    </span>
+                    <p className="text-sm font-semibold text-amber-700 mt-0.5">
+                      {review.sdPriceRange}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Damage Tolerance */}
+            {review.damageTolerance && review.damageTolerance.length > 0 && (
+              <div className="mb-5">
+                <span className="text-xs font-medium text-slate-600 uppercase tracking-wide">
+                  Damage Tolerance
+                </span>
+                <ul className="mt-2 space-y-1.5">
+                  {review.damageTolerance.map((item, i) => (
+                    <li key={i} className="flex gap-2 text-sm text-slate-700">
+                      <span className="shrink-0">&#8226;</span>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Inspection Checklist */}
+            {review.inspectionTips && review.inspectionTips.length > 0 && (
+              <div className="mb-5">
+                <span className="text-xs font-medium text-slate-600 uppercase tracking-wide">
+                  Inspection Checklist
+                </span>
+                <ul className="mt-2 space-y-1.5">
+                  {review.inspectionTips.map((tip, i) => (
+                    <li key={i} className="flex gap-2 text-sm text-slate-700">
+                      <span className="shrink-0 text-slate-400">&#9744;</span>
+                      {tip}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Not For */}
+            {review.notFor && (
+              <div>
+                <span className="text-xs font-medium text-slate-600 uppercase tracking-wide">
+                  Skip If
+                </span>
+                <p className="text-sm text-slate-700 mt-1">{review.notFor}</p>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* SECTION 4: SDF Verdict */}
+        <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-8">
+          <div className="max-w-2xl bg-sage-50 border border-sage-200 rounded-xl p-6">
+            <h2 className="text-xs font-bold text-sage-800 mb-2 uppercase tracking-wide">
+              SDF Verdict
+            </h2>
+            <p className="text-base font-medium text-slate-900 italic">
+              &ldquo;{review.verdict}&rdquo;
+            </p>
+          </div>
+        </section>
+
+        {/* CTA */}
         <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-12">
           <div className="max-w-2xl">
             <Link
@@ -297,7 +489,7 @@ export default async function ReviewDetailPage({ params }: PageProps) {
                 Ready to Save?
               </span>
               <span className="block mt-2 text-lg font-semibold text-slate-900">
-                {categoryCta[review.category] || categoryCta['general']} →
+                {categoryCta[review.category] || categoryCta['general']} &rarr;
               </span>
             </Link>
           </div>
@@ -322,7 +514,7 @@ export default async function ReviewDetailPage({ params }: PageProps) {
                         {categoryLabels[r.category] || r.category}
                       </span>
                       <span className="text-xs text-slate-400">
-                        {r.channelName}
+                        {r.sources.length} source{r.sources.length !== 1 ? 's' : ''}
                       </span>
                     </div>
                     <span className="font-medium text-slate-900">

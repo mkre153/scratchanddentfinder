@@ -14,6 +14,11 @@ import {
 } from '@/lib/urls'
 import { JsonLd } from '@/lib/schema'
 
+interface Source {
+  videoId: string
+  channelName: string
+}
+
 interface Review {
   slug: string
   title: string
@@ -21,9 +26,7 @@ interface Review {
   date: string
   updated: string
   category: string
-  videoId: string
-  channelName: string
-  videoDuration: string
+  sources: Source[]
   draft: boolean
   readingTime: string
 }
@@ -69,8 +72,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return { title: 'Category Not Found' }
   }
 
-  const title = `${label} Reviews | ${SITE_NAME}`
-  const description = `Video reviews and buying guides for the best ${label.toLowerCase()}. Watch or read — we summarize every video.`
+  const title = `${label} Reviews & S&D Buying Guides | ${SITE_NAME}`
+  const description = `Expert consensus and scratch & dent buying intelligence for ${label.toLowerCase()}. Which models are worth buying discounted.`
 
   return {
     title,
@@ -143,10 +146,10 @@ export default async function ReviewCategoryPage({ params }: PageProps) {
             <span className="text-slate-900">{label}</span>
           </nav>
           <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-            {label} Reviews
+            {label} Reviews & S&D Buying Guides
           </h1>
           <p className="text-lg text-slate-600 max-w-2xl">
-            Video reviews and expert summaries for the best {label.toLowerCase()}.
+            Expert consensus and scratch & dent buying intelligence for {label.toLowerCase()}.
           </p>
 
           {/* Category filter links */}
@@ -188,7 +191,7 @@ export default async function ReviewCategoryPage({ params }: PageProps) {
                 >
                   <Link href={getReviewUrl(review.slug)} className="block">
                     <img
-                      src={`https://img.youtube.com/vi/${review.videoId}/mqdefault.jpg`}
+                      src={`https://img.youtube.com/vi/${review.sources[0]?.videoId}/mqdefault.jpg`}
                       alt={review.title}
                       className="w-full aspect-video object-cover"
                       loading="lazy"
@@ -201,7 +204,7 @@ export default async function ReviewCategoryPage({ params }: PageProps) {
                         {label}
                       </span>
                       <span className="text-xs text-slate-500">
-                        {review.channelName}
+                        {review.sources.length} expert source{review.sources.length !== 1 ? 's' : ''}
                       </span>
                     </div>
 
@@ -221,8 +224,6 @@ export default async function ReviewCategoryPage({ params }: PageProps) {
                           year: 'numeric',
                         })}
                       </span>
-                      <span className="w-1 h-1 rounded-full bg-slate-300" />
-                      <span>{review.videoDuration} video</span>
                       <span className="w-1 h-1 rounded-full bg-slate-300" />
                       <span>{review.readingTime}</span>
                     </div>

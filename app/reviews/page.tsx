@@ -1,6 +1,6 @@
 /**
  * Reviews Index Page
- * Grid of all published appliance video reviews
+ * Grid of all published appliance review guides with multi-source consensus
  */
 
 import type { Metadata } from 'next'
@@ -9,6 +9,11 @@ import { SITE_NAME, SITE_URL } from '@/lib/config'
 import { getReviewsUrl, getReviewUrl, getReviewCategoryUrl } from '@/lib/urls'
 import { JsonLd } from '@/lib/schema'
 
+interface Source {
+  videoId: string
+  channelName: string
+}
+
 interface Review {
   slug: string
   title: string
@@ -16,9 +21,9 @@ interface Review {
   date: string
   updated: string
   category: string
-  videoId: string
-  channelName: string
-  videoDuration: string
+  sources: Source[]
+  sdAvailability: string
+  verdict: string
   draft: boolean
   readingTime: string
 }
@@ -33,9 +38,9 @@ async function getReviews(): Promise<Review[]> {
 }
 
 export const metadata: Metadata = {
-  title: `Appliance Reviews | ${SITE_NAME}`,
+  title: `Appliance Reviews & S&D Buying Guides | ${SITE_NAME}`,
   description:
-    'Video reviews and summaries of the best refrigerators, washers, dryers, dishwashers, and more. Watch or read — we outline every video so you don\'t have to.',
+    'Expert consensus from multiple reviewers plus scratch & dent buying intelligence. Which appliances are worth buying discounted — and which to skip.',
   alternates: {
     canonical: `${SITE_URL}${getReviewsUrl()}`,
   },
@@ -93,12 +98,11 @@ export default async function ReviewsPage() {
             <span className="text-slate-900">Reviews</span>
           </nav>
           <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-            Appliance Reviews
+            Appliance Reviews & S&D Buying Guides
           </h1>
           <p className="text-lg text-slate-600 max-w-2xl">
-            We watch top appliance review videos and write detailed summaries so
-            you can research faster. Find the best deals on scratch & dent
-            versions of these top-rated appliances.
+            Expert consensus from top appliance reviewers, combined with scratch
+            & dent buying intelligence you won&apos;t find anywhere else.
           </p>
 
           {/* Category filter links */}
@@ -131,10 +135,10 @@ export default async function ReviewsPage() {
                   key={review.slug}
                   className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-shadow"
                 >
-                  {/* Thumbnail */}
+                  {/* Thumbnail from first source */}
                   <Link href={getReviewUrl(review.slug)} className="block">
                     <img
-                      src={`https://img.youtube.com/vi/${review.videoId}/mqdefault.jpg`}
+                      src={`https://img.youtube.com/vi/${review.sources[0]?.videoId}/mqdefault.jpg`}
                       alt={review.title}
                       className="w-full aspect-video object-cover"
                       loading="lazy"
@@ -142,13 +146,13 @@ export default async function ReviewsPage() {
                   </Link>
 
                   <Link href={getReviewUrl(review.slug)} className="block p-6">
-                    {/* Category + Channel */}
+                    {/* Category + Source Count */}
                     <div className="flex items-center gap-2 mb-3">
                       <span className="inline-flex items-center px-2.5 py-0.5 text-xs font-medium bg-sage-50 text-sage-700 rounded-full">
                         {categoryLabels[review.category] || review.category}
                       </span>
                       <span className="text-xs text-slate-500">
-                        {review.channelName}
+                        {review.sources.length} expert source{review.sources.length !== 1 ? 's' : ''}
                       </span>
                     </div>
 
@@ -171,8 +175,6 @@ export default async function ReviewsPage() {
                           year: 'numeric',
                         })}
                       </span>
-                      <span className="w-1 h-1 rounded-full bg-slate-300" />
-                      <span>{review.videoDuration} video</span>
                       <span className="w-1 h-1 rounded-full bg-slate-300" />
                       <span>{review.readingTime}</span>
                     </div>
