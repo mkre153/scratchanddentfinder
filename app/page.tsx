@@ -23,7 +23,7 @@ import { generateHomepageMetadata } from '@/lib/seo'
 import { getAllStates, getActiveDeals } from '@/lib/queries'
 import { ENABLE_DEALS } from '@/lib/config'
 import { TrustStrip, HowItWorks, SoftCTA, AISummary } from '@/components/marketing'
-import { StateGrid } from '@/components/directory'
+import { StateGrid, USMapSection } from '@/components/directory'
 import { PopularTypes } from '@/components/home/PopularTypes'
 import { LatestDeals } from '@/components/home/LatestDeals'
 import { Search, Zap, Scale } from 'lucide-react'
@@ -183,6 +183,9 @@ export default async function HomePage() {
 
       {/* Section 3: How It Works */}
       <HowItWorks />
+
+      {/* Section 3.5: Interactive US Map */}
+      {states.length > 0 && <USMapSection states={states} />}
 
       {/* Section 4: Browse by State */}
       {states.length > 0 && <StateGrid states={states} />}
