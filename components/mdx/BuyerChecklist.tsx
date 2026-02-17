@@ -12,6 +12,7 @@ export function BuyerChecklist({
   title = 'Inspection Checklist',
   items,
 }: BuyerChecklistProps) {
+  if (!items || !Array.isArray(items)) return null
   return (
     <div className="my-6 bg-slate-50 border border-slate-200 rounded-lg p-4">
       <div className="font-semibold text-slate-900 mb-3 flex items-center gap-2">

@@ -16,8 +16,10 @@ export function PriceComparison({
   scratchDent,
   savings,
 }: PriceComparisonProps) {
-  const calculatedSavings = savings || `${Math.round(((retail - scratchDent) / retail) * 100)}%`
-  const dollarSavings = retail - scratchDent
+  const r = Number(retail) || 0
+  const sd = Number(scratchDent) || 0
+  const calculatedSavings = savings || (r > 0 ? `${Math.round(((r - sd) / r) * 100)}%` : '0%')
+  const dollarSavings = r - sd
 
   return (
     <div className="my-6 bg-sage-50 border border-sage-200 rounded-lg p-4">
@@ -28,7 +30,7 @@ export function PriceComparison({
             Retail Price
           </div>
           <div className="text-lg font-semibold text-slate-400 line-through">
-            ${retail.toLocaleString()}
+            ${r.toLocaleString()}
           </div>
         </div>
         <div>
@@ -36,7 +38,7 @@ export function PriceComparison({
             Scratch & Dent
           </div>
           <div className="text-lg font-semibold text-sage-700">
-            ${scratchDent.toLocaleString()}
+            ${sd.toLocaleString()}
           </div>
         </div>
       </div>
