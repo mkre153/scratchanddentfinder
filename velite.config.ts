@@ -64,7 +64,7 @@ const posts = defineCollection({
     title: s.string().max(70),
     description: s.string().max(160),
     slug: s.slug('posts'),
-    brief: s.string(), // Reference to approved brief
+    brief: s.string().optional(), // Reference to approved brief (optional for non-guide posts)
     date: s.isodate(),
     updated: s.isodate(),
     category: s.enum([
@@ -72,6 +72,11 @@ const posts = defineCollection({
       'savings-tips',
       'product-guides',
       'shopping-strategies',
+      'customer-service',
+      'troubleshooting',
+      'parts',
+      'manuals',
+      'warranty',
     ]),
     tags: s.array(s.string()),
     draft: s.boolean().default(false),
