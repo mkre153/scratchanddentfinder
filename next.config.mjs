@@ -5,6 +5,9 @@ const nextConfig = {
   // All URLs end with trailing slash
   trailingSlash: true,
 
+  // Transpile shared CRM library
+  transpilePackages: ['@shared/crm'],
+
   // Enable velite in webpack
   webpack: (config) => {
     config.plugins.push(new VeliteWebpackPlugin())

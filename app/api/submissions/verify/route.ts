@@ -14,7 +14,7 @@ import {
   verifySubmission,
   incrementVerificationAttempts,
 } from '@/lib/queries'
-import { updateSubmissionVerified } from '@/lib/ghl'
+import { tagContact } from '@shared/crm'
 import { getResendClient } from '@/lib/email/resend'
 import { SubmissionConfirmedEmail } from '@/lib/email/templates/submission-confirmed'
 
@@ -107,11 +107,10 @@ export async function POST(request: NextRequest) {
       }).catch((err) => console.error('[Resend] Confirmation email failed:', err))
     }
 
-    // Phase 2: Update GHL contact tags (non-blocking)
-    // Removes pending-verification/unverified, adds verified/ready-for-review/confirmation-sent
+    // Update CRM contact tags (non-blocking)
     if (submission.email) {
-      updateSubmissionVerified(submission.email)
-        .catch((err) => console.error('[GHL] Verification update failed:', err))
+      tagContact(submission.email, 'sdf', ['verified', 'ready-for-review', 'confirmation-sent'])
+        .catch((err) => console.error('[CRM] Verification update failed:', err))
     }
 
     return NextResponse.json({

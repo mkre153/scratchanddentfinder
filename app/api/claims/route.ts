@@ -12,7 +12,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClaim, getStoreById, getExistingClaim } from '@/lib/queries'
 import { createAuthClient } from '@/lib/supabase/admin'
 import { cookies } from 'next/headers'
-import { syncOwnershipClaim } from '@/lib/ghl'
+import { upsertContact } from '@shared/crm'
 
 type ClaimerRelationship = 'owner' | 'manager' | 'employee' | 'other'
 const VALID_RELATIONSHIPS: ClaimerRelationship[] = ['owner', 'manager', 'employee', 'other']
@@ -118,14 +118,20 @@ export async function POST(request: NextRequest) {
       verification_notes: verificationNotes,
     })
 
-    // 7. Sync to GoHighLevel (non-blocking - errors logged but don't fail the request)
-    syncOwnershipClaim({
+    // 7. Sync to CRM (non-blocking)
+    upsertContact({
       email: claimerEmail,
       phone: claimerPhone || undefined,
-      name: claimerName,
-      storeName: store.name,
-      relationship: claimerRelationship,
-    }).catch((err) => console.error('[GHL] Claim sync failed:', err))
+      firstName: claimerName,
+      sourceSite: 'sdf',
+      sourceForm: 'ownership-claim',
+      tags: ['ownership-claim', 'high-intent'],
+      consent: true,
+      metadata: {
+        store_name: store.name,
+        relationship: claimerRelationship,
+      },
+    }).catch((err) => console.error('[CRM] Claim sync failed:', err))
 
     // 8. Return success with claim ID
     return NextResponse.json({
