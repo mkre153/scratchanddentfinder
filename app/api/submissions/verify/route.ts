@@ -14,7 +14,7 @@ import {
   verifySubmission,
   incrementVerificationAttempts,
 } from '@/lib/queries'
-import { tagContact } from '@shared/crm'
+import { syncLeadToCrm } from '@/lib/crm'
 import { getResendClient } from '@/lib/email/resend'
 import { SubmissionConfirmedEmail } from '@/lib/email/templates/submission-confirmed'
 
@@ -107,10 +107,14 @@ export async function POST(request: NextRequest) {
       }).catch((err) => console.error('[Resend] Confirmation email failed:', err))
     }
 
-    // Update CRM contact tags (non-blocking)
+    // Sync verification to CRM (non-blocking)
     if (submission.email) {
-      tagContact(submission.email, 'sdf', ['verified', 'ready-for-review', 'confirmation-sent'])
-        .catch((err) => console.error('[CRM] Verification update failed:', err))
+      try {
+        await syncLeadToCrm(submission.email, 'store-submission-verified', {
+          tags: ['verified', 'ready-for-review', 'confirmation-sent'],
+          metadata: { business_name: submission.business_name },
+        })
+      } catch {}
     }
 
     return NextResponse.json({

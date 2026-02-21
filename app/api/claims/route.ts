@@ -12,7 +12,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClaim, getStoreById, getExistingClaim } from '@/lib/queries'
 import { createAuthClient } from '@/lib/supabase/admin'
 import { cookies } from 'next/headers'
-import { upsertContact } from '@shared/crm'
+import { syncLeadToCrm } from '@/lib/crm'
 
 type ClaimerRelationship = 'owner' | 'manager' | 'employee' | 'other'
 const VALID_RELATIONSHIPS: ClaimerRelationship[] = ['owner', 'manager', 'employee', 'other']
@@ -119,19 +119,17 @@ export async function POST(request: NextRequest) {
     })
 
     // 7. Sync to CRM (non-blocking)
-    upsertContact({
-      email: claimerEmail,
-      phone: claimerPhone || undefined,
-      firstName: claimerName,
-      sourceSite: 'sdf',
-      sourceForm: 'ownership-claim',
-      tags: ['ownership-claim', 'high-intent'],
-      consent: true,
-      metadata: {
-        store_name: store.name,
-        relationship: claimerRelationship,
-      },
-    }).catch((err) => console.error('[CRM] Claim sync failed:', err))
+    try {
+      await syncLeadToCrm(claimerEmail, 'ownership-claim', {
+        tags: ['ownership-claim', 'high-intent'],
+        metadata: {
+          name: claimerName,
+          phone: claimerPhone,
+          store_name: store.name,
+          relationship: claimerRelationship,
+        },
+      })
+    } catch {}
 
     // 8. Return success with claim ID
     return NextResponse.json({

@@ -13,7 +13,7 @@ import { NextResponse } from 'next/server'
 import { createHmac } from 'node:crypto'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { renderDripHtml, getDripSubject } from '@/lib/email/templates/outreach-drip'
-import { upsertContact } from '@shared/crm'
+import { syncLeadToCrm } from '@/lib/crm'
 
 function getOutreachUnsubscribeUrl(storeEmailId: number, email: string): string {
   const token = createHmac('sha256', process.env.NEWSLETTER_API_KEY || '')
@@ -205,19 +205,17 @@ async function processOutreachDrips() {
 
     // CRM sync for step 1 contacts (fire-and-forget)
     for (const contact of step1Contacts) {
-      upsertContact({
-        email: contact.email,
-        firstName: contact.storeName,
-        sourceSite: 'sdf',
-        sourceForm: 'marketplace-outreach',
-        tags: ['marketplace-outreach', 'drip-step-1'],
-        consent: true,
-        metadata: {
-          business_name: contact.storeName,
-          city: contact.city,
-          state: contact.state,
-        },
-      }).catch(err => console.error('[CRM] Step 1 sync error:', err))
+      try {
+        await syncLeadToCrm(contact.email, 'marketplace-outreach', {
+          tags: ['marketplace-outreach', 'drip-step-1'],
+          metadata: {
+            name: contact.storeName,
+            business_name: contact.storeName,
+            city: contact.city,
+            state: contact.state,
+          },
+        })
+      } catch {}
     }
 
     return NextResponse.json({

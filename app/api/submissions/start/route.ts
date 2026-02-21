@@ -13,7 +13,7 @@ import { validateSubmission, type SubmissionFormData } from '@/lib/store-submiss
 import { createPendingSubmission } from '@/lib/queries'
 import { getResendClient } from '@/lib/email/resend'
 import { VerificationCodeEmail } from '@/lib/email/templates/verification-code'
-import { upsertContact } from '@shared/crm'
+import { syncLeadToCrm } from '@/lib/crm'
 
 // Generate a random 6-digit code
 function generateCode(): string {
@@ -82,20 +82,18 @@ export async function POST(request: NextRequest) {
     })
 
     // Sync to CRM immediately (non-blocking)
-    upsertContact({
-      email: formData.email,
-      phone: formData.phone,
-      firstName: formData.businessName,
-      sourceSite: 'sdf',
-      sourceForm: 'store-submission',
-      tags: ['store-submission', 'pending-verification'],
-      consent: true,
-      metadata: {
-        business_name: formData.businessName,
-        city: formData.city,
-        state: formData.state,
-      },
-    }).catch((err) => console.error('[CRM] New submission sync failed:', err))
+    try {
+      await syncLeadToCrm(formData.email, 'store-submission', {
+        tags: ['store-submission', 'pending-verification'],
+        metadata: {
+          name: formData.businessName,
+          phone: formData.phone,
+          business_name: formData.businessName,
+          city: formData.city,
+          state: formData.state,
+        },
+      })
+    } catch {}
 
     return NextResponse.json({
       success: true,
