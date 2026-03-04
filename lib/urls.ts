@@ -26,6 +26,13 @@ export function getAllStatesUrl(): string {
 }
 
 /**
+ * Get near me page URL
+ */
+export function getNearMeUrl(): string {
+  return '/scratch-and-dent-appliances/near-me/'
+}
+
+/**
  * Get state page URL
  */
 export function getStateUrl(state: { slug: string }): string {
