@@ -34,6 +34,7 @@ import {
 } from '@/lib/schema'
 
 import { FAQ_ITEMS } from '@/components/home/faq-data'
+import { AdUnit } from "@/components/ads/AdUnit"
 import { HomeFAQ } from '@/components/home/HomeFAQ'
 import { NewsletterSignup } from '@/components/home/NewsletterSignup'
 
@@ -404,6 +405,11 @@ export default async function HomePage() {
 
       {/* Section 9: AI Summary (AEO optimized) */}
       <AISummary />
+
+            {/* Homepage Mid Ad */}
+      <div className="mx-auto max-w-4xl px-4 py-4">
+        <AdUnit slot="3619341761" format="auto" />
+      </div>
 
       {/* Section 7: Soft CTA */}
       <SoftCTA variant="homepage" />
