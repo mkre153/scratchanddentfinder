@@ -35,7 +35,7 @@ import {
 
 import { FAQ_ITEMS } from '@/components/home/faq-data'
 import { HomeFAQ } from '@/components/home/HomeFAQ'
-import { AdUnit } from '@/components/ads/AdUnit'
+import { NewsletterSignup } from '@/components/home/NewsletterSignup'
 
 // Lazy load NearbyStores - below-fold, client-only (uses geolocation)
 const NearbyStores = dynamic(
@@ -356,16 +356,54 @@ export default async function HomePage() {
         <LatestDeals deals={latestDeals} />
       )}
 
+      {/* Appliance Deals - Amazon Affiliate */}
+      <section className="py-12 bg-white">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">Shop Scratch &amp; Dent Deals</h2>
+              <p className="text-sm text-gray-500 mt-1">Save 20–60% on brand-name appliances</p>
+            </div>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              { type: 'Refrigerators', savings: '30–50%', emoji: '🧊', url: 'https://www.amazon.com/s?k=scratch+and+dent+refrigerator&tag=scratchanddentfinder-20' },
+              { type: 'Washing Machines', savings: '25–40%', emoji: '🫧', url: 'https://www.amazon.com/s?k=scratch+and+dent+washing+machine&tag=scratchanddentfinder-20' },
+              { type: 'Dryers', savings: '25–40%', emoji: '💨', url: 'https://www.amazon.com/s?k=scratch+and+dent+dryer&tag=scratchanddentfinder-20' },
+              { type: 'Dishwashers', savings: '20–35%', emoji: '🍽️', url: 'https://www.amazon.com/s?k=scratch+and+dent+dishwasher&tag=scratchanddentfinder-20' },
+              { type: 'Ranges & Stoves', savings: '20–35%', emoji: '🔥', url: 'https://www.amazon.com/s?k=scratch+and+dent+range+stove&tag=scratchanddentfinder-20' },
+              { type: 'Freezers', savings: '25–45%', emoji: '🧊', url: 'https://www.amazon.com/s?k=scratch+and+dent+freezer&tag=scratchanddentfinder-20' },
+            ].map((deal) => (
+              <a
+                key={deal.type}
+                href={deal.url}
+                target="_blank"
+                rel="noopener noreferrer sponsored"
+                className="group flex items-center gap-4 rounded-xl border border-gray-200 bg-gray-50 p-4 hover:border-sage-400 hover:bg-white transition-all"
+              >
+                <span className="text-3xl">{deal.emoji}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-gray-900 group-hover:text-sage-700 transition-colors">{deal.type}</p>
+                  <p className="text-sm text-green-700 font-medium">Save {deal.savings}</p>
+                </div>
+                <span className="text-xs text-gray-400 group-hover:text-sage-600">Amazon &rarr;</span>
+              </a>
+            ))}
+          </div>
+          <p className="mt-3 text-xs text-gray-400">
+            As an Amazon Associate, Scratch &amp; Dent Finder earns from qualifying purchases.
+          </p>
+        </div>
+      </section>
+
+      {/* Newsletter Signup */}
+      <NewsletterSignup />
+
       {/* Section 8: FAQ */}
       <HomeFAQ />
 
       {/* Section 9: AI Summary (AEO optimized) */}
       <AISummary />
-
-      {/* Homepage Mid Ad */}
-      <div className="mx-auto max-w-4xl px-4 py-4">
-        <AdUnit slot="3619341761" format="auto" />
-      </div>
 
       {/* Section 7: Soft CTA */}
       <SoftCTA variant="homepage" />

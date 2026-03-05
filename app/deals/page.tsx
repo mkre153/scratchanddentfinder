@@ -15,6 +15,51 @@ import { getActiveDeals } from '@/lib/queries'
 import { DealCard } from '@/components/deals/DealCard'
 import { DealFilters } from '@/components/deals/DealFilters'
 
+const FEATURED_DEALS = [
+  {
+    type: 'Refrigerators',
+    savings: '30–50%',
+    emoji: '🧊',
+    desc: 'Scratch and dent refrigerators from top brands. Minor cosmetic flaws, full functionality.',
+    url: 'https://www.amazon.com/s?k=scratch+and+dent+refrigerator&tag=scratchanddentfinder-20',
+  },
+  {
+    type: 'Washing Machines',
+    savings: '25–40%',
+    emoji: '🫧',
+    desc: 'Top-load and front-load washers with minor cosmetic damage. Same performance, lower price.',
+    url: 'https://www.amazon.com/s?k=scratch+and+dent+washing+machine&tag=scratchanddentfinder-20',
+  },
+  {
+    type: 'Dryers',
+    savings: '25–40%',
+    emoji: '💨',
+    desc: 'Gas and electric dryers with cosmetic imperfections. Brand names at deep discounts.',
+    url: 'https://www.amazon.com/s?k=scratch+and+dent+dryer&tag=scratchanddentfinder-20',
+  },
+  {
+    type: 'Dishwashers',
+    savings: '20–35%',
+    emoji: '🍽️',
+    desc: 'Best scratch and dent buy — damage is completely hidden after installation.',
+    url: 'https://www.amazon.com/s?k=scratch+and+dent+dishwasher&tag=scratchanddentfinder-20',
+  },
+  {
+    type: 'Ranges & Stoves',
+    savings: '20–35%',
+    emoji: '🔥',
+    desc: 'Gas and electric ranges with minor dings. Cook like new without paying full retail.',
+    url: 'https://www.amazon.com/s?k=scratch+and+dent+range+stove&tag=scratchanddentfinder-20',
+  },
+  {
+    type: 'Freezers',
+    savings: '25–45%',
+    emoji: '🧊',
+    desc: 'Chest and upright freezers. Cosmetic damage never affects food storage performance.',
+    url: 'https://www.amazon.com/s?k=scratch+and+dent+freezer&tag=scratchanddentfinder-20',
+  },
+]
+
 export function generateMetadata(): Metadata {
   return generatePageMetadata(
     'Scratch & Dent Deals',
@@ -127,6 +172,39 @@ export default function DealsPage(props: DealsPageProps) {
         >
           Post Your Deal
         </Link>
+      </div>
+
+      {/* Featured Savings - Amazon Affiliate */}
+      <div className="mb-10">
+        <h2 className="text-xl font-bold text-gray-900 mb-4">Featured Savings on Amazon</h2>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {FEATURED_DEALS.map((deal) => (
+            <a
+              key={deal.type}
+              href={deal.url}
+              target="_blank"
+              rel="noopener noreferrer sponsored"
+              className="group flex flex-col rounded-xl border border-gray-200 bg-white p-5 shadow-sm hover:shadow-md transition-shadow"
+            >
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-2xl">{deal.emoji}</span>
+                <span className="rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-semibold text-green-800">
+                  Save {deal.savings}
+                </span>
+              </div>
+              <h3 className="font-semibold text-gray-900 group-hover:text-sage-700 transition-colors mb-1">
+                {deal.type}
+              </h3>
+              <p className="text-sm text-gray-500 flex-1">{deal.desc}</p>
+              <span className="mt-3 text-xs font-medium text-sage-700 group-hover:underline">
+                Shop on Amazon &rarr;
+              </span>
+            </a>
+          ))}
+        </div>
+        <p className="mt-2 text-xs text-gray-400">
+          As an Amazon Associate, Scratch &amp; Dent Finder earns from qualifying purchases.
+        </p>
       </div>
 
       <Suspense

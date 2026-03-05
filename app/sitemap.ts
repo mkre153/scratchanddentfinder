@@ -24,6 +24,7 @@ import {
   getReviewUrl,
   getDealsUrl,
   getDealPostUrl,
+  getNearMeUrl,
 } from '@/lib/urls'
 import { ENABLE_DEALS } from '@/lib/config'
 import { shouldIndexState, shouldIndexCity } from '@/lib/seo'
@@ -81,6 +82,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: launchDate,
       changeFrequency: 'daily',
       priority: 0.9,
+    },
+    {
+      url: `${SITE_URL}${getNearMeUrl()}`,
+      lastModified: launchDate,
+      changeFrequency: 'weekly',
+      priority: 0.85,
     },
     {
       url: `${SITE_URL}${getAboutUrl()}`,
