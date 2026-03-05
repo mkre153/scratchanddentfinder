@@ -376,7 +376,7 @@ export default async function ReviewDetailPage({ params }: PageProps) {
         {/* Ad Unit 1: After Expert Consensus */}
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
           <div className="max-w-2xl">
-            <AdUnit slot="review-top" format="horizontal" />
+            <AdUnit slot="2529621379" format="horizontal" />
           </div>
         </div>
 
@@ -559,7 +559,7 @@ export default async function ReviewDetailPage({ params }: PageProps) {
         {/* Ad Unit 2: Before CTA */}
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-8">
           <div className="max-w-2xl">
-            <AdUnit slot="review-bottom" format="horizontal" />
+            <AdUnit slot="2529621379" format="horizontal" />
           </div>
         </div>
 

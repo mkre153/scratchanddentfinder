@@ -179,7 +179,7 @@ export default async function CityPage({ params }: PageProps) {
 
       {/* Ad: Below buyer tips */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4">
-        <AdUnit slot="city-top" format="horizontal" />
+        <AdUnit slot="6668176936" format="horizontal" />
       </div>
 
       {/* Section 5: Store Listings */}
@@ -203,7 +203,7 @@ export default async function CityPage({ params }: PageProps) {
 
       {/* Ad: After store listings */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4">
-        <AdUnit slot="city-bottom" format="horizontal" />
+        <AdUnit slot="5355095265" format="horizontal" />
       </div>
 
       {/* Section 6: Soft CTA */}

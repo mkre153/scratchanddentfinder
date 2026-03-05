@@ -198,7 +198,7 @@ export default async function StatePage({ params }: PageProps) {
 
       {/* Ad: After city navigation */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4">
-        <AdUnit slot="state-mid" format="horizontal" />
+        <AdUnit slot="6668176936" format="horizontal" />
       </div>
 
       {/* Section 6: Store Listings (Statewide) */}
@@ -224,7 +224,7 @@ export default async function StatePage({ params }: PageProps) {
 
       {/* Ad: After store listings */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4">
-        <AdUnit slot="state-bottom" format="horizontal" />
+        <AdUnit slot="5355095265" format="horizontal" />
       </div>
 
       {/* Top Cities by Store Count */}
