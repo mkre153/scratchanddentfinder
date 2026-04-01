@@ -8,6 +8,7 @@
 import { BuyerToolWizard } from '@/components/buyers-tool'
 import { Eye, Shield, DollarSign, Truck, CheckCircle, AlertTriangle } from 'lucide-react'
 import { generateBuyersGuideMetadata } from '@/lib/seo'
+import { AdUnit } from '@/components/ads/AdUnit'
 import {
   generateFAQPageSchema,
   JsonLd,
@@ -189,6 +190,11 @@ export default function BuyersGuidePage() {
           </div>
         </div>
       </section>
+
+      {/* Ad: guide-bottom */}
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <AdUnit slot="guide-bottom" format="horizontal" />
+      </div>
 
       {/* FAQ Section */}
       <section className="bg-gray-50 py-12">

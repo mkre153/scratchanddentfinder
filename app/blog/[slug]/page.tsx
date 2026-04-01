@@ -15,6 +15,7 @@ import { SITE_NAME, SITE_URL } from '@/lib/config'
 import { getBlogUrl, getBlogPostUrl, getBuyersGuideUrl } from '@/lib/urls'
 import { JsonLd } from '@/lib/schema'
 
+import { AdUnit } from '@/components/ads/AdUnit'
 import { ShareButtons } from '@/components/blog/ShareButtons'
 
 const AudioPlayer = dynamic(() => import('@/components/blog/AudioPlayer'), {
@@ -335,10 +336,24 @@ export default async function BlogPostPage({ params }: PageProps) {
           </section>
         )}
 
+        {/* Ad: blog-top */}
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
+          <div className="max-w-2xl">
+            <AdUnit slot="blog-top" format="horizontal" />
+          </div>
+        </div>
+
         {/* Main Content */}
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="max-w-2xl prose prose-slate prose-lg prose-headings:scroll-mt-24">
             {content}
+          </div>
+        </div>
+
+        {/* Ad: blog-bottom */}
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-12">
+          <div className="max-w-2xl">
+            <AdUnit slot="blog-bottom" format="horizontal" />
           </div>
         </div>
 

@@ -9,6 +9,7 @@ import Link from 'next/link'
 import { HelpCircle, ArrowRight } from 'lucide-react'
 import { generateFaqMetadata } from '@/lib/seo'
 import { getBuyersGuideUrl, getWhatIsScratchAndDentUrl, getAllStatesUrl } from '@/lib/urls'
+import { AdUnit } from '@/components/ads/AdUnit'
 import { generateFAQPageSchema, JsonLd } from '@/lib/schema'
 
 export const metadata = generateFaqMetadata()
@@ -147,7 +148,7 @@ export default function FaqPage() {
       {/* FAQ Content */}
       <section className="py-12">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-          {FAQ_CATEGORIES.map((category) => (
+          {FAQ_CATEGORIES.map((category, catIndex) => (
             <div key={category.title} className="mb-12 last:mb-0">
               <h2 className="mb-6 text-xl font-bold text-gray-900">
                 {category.title}
@@ -165,6 +166,13 @@ export default function FaqPage() {
                   </div>
                 ))}
               </div>
+
+              {/* Ad: faq-mid (after ~half the categories) */}
+              {catIndex === Math.floor(FAQ_CATEGORIES.length / 2) - 1 && (
+                <div className="my-8">
+                  <AdUnit slot="faq-mid" format="horizontal" />
+                </div>
+              )}
             </div>
           ))}
         </div>

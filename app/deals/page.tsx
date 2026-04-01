@@ -13,6 +13,7 @@ import { getDealsUrl, getDealPostUrl } from '@/lib/urls'
 import { ENABLE_DEALS } from '@/lib/config'
 import { getActiveDeals } from '@/lib/queries'
 import { DealCard } from '@/components/deals/DealCard'
+import { AdUnit } from '@/components/ads/AdUnit'
 import { DealFilters } from '@/components/deals/DealFilters'
 
 const FEATURED_DEALS = [
@@ -205,6 +206,11 @@ export default function DealsPage(props: DealsPageProps) {
         <p className="mt-2 text-xs text-gray-400">
           As an Amazon Associate, Scratch &amp; Dent Finder earns from qualifying purchases.
         </p>
+      </div>
+
+      {/* Ad: deals-index */}
+      <div className="mb-8">
+        <AdUnit slot="deals-index" format="horizontal" />
       </div>
 
       <Suspense

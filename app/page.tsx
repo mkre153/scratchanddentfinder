@@ -33,6 +33,7 @@ import {
   JsonLd,
 } from '@/lib/schema'
 
+import { AdUnit } from '@/components/ads/AdUnit'
 import { FAQ_ITEMS } from '@/components/home/faq-data'
 import { AdUnit } from "@/components/ads/AdUnit"
 import { HomeFAQ } from '@/components/home/HomeFAQ'
@@ -182,6 +183,11 @@ export default async function HomePage() {
 
       {/* Section 2.5: Find Stores Near You (Phase 2) */}
       <NearbyStores variant="homepage" />
+
+      {/* Ad: homepage-mid */}
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <AdUnit slot="homepage-mid" format="horizontal" />
+      </div>
 
       {/* Section 3: How It Works */}
       <HowItWorks />
@@ -406,7 +412,7 @@ export default async function HomePage() {
       {/* Section 9: AI Summary (AEO optimized) */}
       <AISummary />
 
-            {/* Homepage Mid Ad */}
+      {/* Homepage Bottom Ad */}
       <div className="mx-auto max-w-4xl px-4 py-4">
         <AdUnit slot="3619341761" format="auto" />
       </div>

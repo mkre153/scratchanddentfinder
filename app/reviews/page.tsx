@@ -7,6 +7,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { SITE_NAME, SITE_URL } from '@/lib/config'
 import { getReviewsUrl, getReviewUrl, getReviewCategoryUrl } from '@/lib/urls'
+import { AdUnit } from '@/components/ads/AdUnit'
 import { JsonLd } from '@/lib/schema'
 
 interface Source {
@@ -184,6 +185,11 @@ export default async function ReviewsPage() {
             </div>
           )}
         </section>
+
+        {/* Ad: reviews-index */}
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+          <AdUnit slot="reviews-index" format="horizontal" />
+        </div>
       </div>
     </>
   )

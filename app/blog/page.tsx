@@ -7,6 +7,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { SITE_NAME, SITE_URL } from '@/lib/config'
 import { getBlogUrl, getBlogPostUrl, getBlogCategoryUrl } from '@/lib/urls'
+import { AdUnit } from '@/components/ads/AdUnit'
 import { JsonLd } from '@/lib/schema'
 
 interface Post {
@@ -161,6 +162,11 @@ export default async function BlogPage() {
             </div>
           )}
         </section>
+
+        {/* Ad: blog-index */}
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+          <AdUnit slot="blog-index" format="horizontal" />
+        </div>
       </div>
     </>
   )

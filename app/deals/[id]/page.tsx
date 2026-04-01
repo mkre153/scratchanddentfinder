@@ -12,6 +12,7 @@ import { getDealsUrl, getDealUrl, getDealPostUrl } from '@/lib/urls'
 import { getCanonicalUrl } from '@/lib/seo'
 import { ENABLE_DEALS, SITE_URL, SITE_NAME } from '@/lib/config'
 import { DealPhotoGallery } from '@/components/deals/DealPhotoGallery'
+import { AdUnit } from '@/components/ads/AdUnit'
 import { JsonLd } from '@/lib/schema'
 
 interface DealPageProps {
@@ -249,6 +250,11 @@ export default async function DealPage({ params }: DealPageProps) {
               </Link>
             </div>
           </div>
+        </div>
+
+        {/* Ad: deal-detail */}
+        <div className="mt-10">
+          <AdUnit slot="deal-detail" format="horizontal" />
         </div>
       </div>
     </>

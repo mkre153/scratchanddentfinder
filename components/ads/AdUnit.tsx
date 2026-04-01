@@ -17,7 +17,8 @@ interface AdUnitProps {
 
 export function AdUnit({ slot, format = 'auto', className = '' }: AdUnitProps) {
   const adRef = useRef<HTMLModElement>(null)
-  const clientId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID
+  const rawId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || ''
+  const clientId = rawId ? (rawId.startsWith('ca-') ? rawId : `ca-${rawId}`) : ''
 
   useEffect(() => {
     if (!clientId || !adRef.current) return

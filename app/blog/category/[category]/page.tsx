@@ -8,6 +8,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { SITE_NAME, SITE_URL } from '@/lib/config'
 import { getBlogUrl, getBlogPostUrl, getBlogCategoryUrl } from '@/lib/urls'
+import { AdUnit } from '@/components/ads/AdUnit'
 import { JsonLd } from '@/lib/schema'
 
 const CATEGORIES: Record<string, string> = {
@@ -165,6 +166,11 @@ export default async function BlogCategoryPage({ params }: PageProps) {
             </div>
           )}
         </section>
+
+        {/* Ad: blog-category */}
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+          <AdUnit slot="blog-category" format="horizontal" />
+        </div>
       </div>
     </>
   )

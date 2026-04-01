@@ -8,6 +8,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
+import { AdUnit } from '@/components/ads/AdUnit'
 import { JsonLd } from '@/lib/schema'
 import { SITE_URL } from '@/lib/config'
 import { getNearMeUrl, getAllStatesUrl, getStateUrl, getCityUrl } from '@/lib/urls'
@@ -172,6 +173,11 @@ export default function NearMePage() {
           </div>
         </div>
       </section>
+
+      {/* Ad: nearme-bottom */}
+      <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+        <AdUnit slot="nearme-bottom" format="horizontal" />
+      </div>
 
       {/* FAQ */}
       <section className="py-12 bg-gray-50">

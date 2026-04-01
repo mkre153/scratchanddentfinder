@@ -12,6 +12,7 @@ import {
   getReviewUrl,
   getReviewCategoryUrl,
 } from '@/lib/urls'
+import { AdUnit } from '@/components/ads/AdUnit'
 import { JsonLd } from '@/lib/schema'
 
 interface Source {
@@ -233,6 +234,11 @@ export default async function ReviewCategoryPage({ params }: PageProps) {
             </div>
           )}
         </section>
+
+        {/* Ad: reviews-category */}
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+          <AdUnit slot="reviews-category" format="horizontal" />
+        </div>
       </div>
     </>
   )

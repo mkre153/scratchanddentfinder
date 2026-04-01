@@ -18,6 +18,7 @@ import {
 } from 'lucide-react'
 import { generateWhatIsScratchAndDentMetadata } from '@/lib/seo'
 import { getBuyersGuideUrl, getAllStatesUrl, getFaqUrl } from '@/lib/urls'
+import { AdUnit } from '@/components/ads/AdUnit'
 import { generateFAQPageSchema, JsonLd } from '@/lib/schema'
 
 export const metadata = generateWhatIsScratchAndDentMetadata()
@@ -267,6 +268,11 @@ export default function WhatIsScratchAndDentPage() {
         </div>
       </section>
 
+      {/* Ad: explainer-mid */}
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <AdUnit slot="explainer-mid" format="horizontal" />
+      </div>
+
       {/* Pros and Cons */}
       <section className="bg-gray-50 py-12">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -340,6 +346,11 @@ export default function WhatIsScratchAndDentPage() {
           </div>
         </div>
       </section>
+
+      {/* Ad: explainer-bottom */}
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <AdUnit slot="explainer-bottom" format="horizontal" />
+      </div>
 
       {/* CTA Section */}
       <section className="py-12">
