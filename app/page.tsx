@@ -35,7 +35,6 @@ import {
 
 import { AdUnit } from '@/components/ads/AdUnit'
 import { FAQ_ITEMS } from '@/components/home/faq-data'
-import { AdUnit } from "@/components/ads/AdUnit"
 import { HomeFAQ } from '@/components/home/HomeFAQ'
 import { NewsletterSignup } from '@/components/home/NewsletterSignup'
 
